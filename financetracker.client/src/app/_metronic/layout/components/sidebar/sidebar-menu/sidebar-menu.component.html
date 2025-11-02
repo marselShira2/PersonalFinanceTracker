@@ -1,0 +1,380 @@
+<!--begin::Menu wrapper-->
+<div id="kt_app_sidebar_menu_scroll" style="scrollbar-width: none" class="scroll-y my-5 mx-3" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px" data-kt-scroll-save-state="true">
+  <!--begin::Menu-->
+  <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6" id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
+    <!-- Dashboard -->
+    <div class="menu-item">
+      <a class="menu-link without-sub" routerLink="/dashboard" routerLinkActive="active">
+        <span class="menu-icon">
+          <app-keenicon name="element-11" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title">Kryefaqja</span>
+      </a>
+    </div>
+
+    <!-- Layout builder -->
+    <!--<div class="menu-item">
+    <a class="menu-link without-sub" routerLink="/builder" routerLinkActive="active">
+      <span class="menu-icon">
+        <app-keenicon name="switch" class="fs-2"></app-keenicon>
+      </span>
+      <span class="menu-title">Layout Builder</span>
+    </a>
+  </div>-->
+    <!-- Separator -->
+    <div class="menu-item">
+      <div class="menu-content pt-6 pb-2">
+        <span class="menu-section text-uppercase fs-8 ls-1 text-light">MENU</span>
+      </div>
+    </div>
+
+
+    <div *ngIf="hasPermission('GjobatFines') || hasPermission('CategoryAndFineTypes') || hasPermission('Policefines') || hasPermission('Inspectionfines')" class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="credit-cart" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Administrimi i Gjobave
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div *ngIf="hasPermission('IndividSubject')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/individ-subject">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Individë/Subjekte
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('CategoryAndFineTypes')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/category-types">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Klasifikimi i gjobave
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('GjobatFines')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fines">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Regjistri i gjobave
+            </span>
+          </a>
+        </div>
+        <div  class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fine-distribution">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Rishpërndarja e gjobave
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Policefines')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fines-ws-police">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Sistemi i Gjobave të Policisë së Shtetit (DPPSH)
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Inspectionfines')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fines-ws-inspection">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Sistemi e-Inspektimi
+            </span>
+          </a>
+        </div> 
+      </div>
+    </div>
+
+    <!--Pagesat-->
+    <div class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="financial-schedule" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Monitorimi i pagesave
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/my-payments">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Pagesat e gjobave sipas afateve
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+
+    <!--Moduli i arkivimeve-->
+    <div class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="some-files" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Arkiva e Dokumentave
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fines-archive">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Arkiva e dokumentave shoqëruese të gjobave
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!--Rrjedha e Punës-->
+    <div *ngIf="hasPermission('TypeAndWorkflow') || hasPermission('WorkflowPhases')" class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="abstract-19" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Rrjedha e punës
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+
+        <div *ngIf="hasPermission('TypeAndWorkflow')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/workflow-type">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Llojet e rrjedhës së punës
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('WorkflowPhases')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/workflow-phases">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Fazat e rrjedhës të punës
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers -->
+    <div *ngIf="hasPermission('Users') || hasPermission('Roles')" class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="profile-user" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Konfigurime
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div *ngIf="hasPermission('Users')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/users">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Përdoruesit
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Roles')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/roles">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Rolet
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Institutions')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/institution">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Institucionet
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Units')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/units">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Njësi/Drejtori Rajonale
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Statuses')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/status">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Statuset
+            </span>
+          </a>
+        </div>
+      </div>
+
+
+      <!--Konfigurime start-->
+      <!--<div *ngIf="hasPermission('IndividSubject') || hasPermission('Statuses') || hasPermission('Institutions') || hasPermission('Units')" class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="category" class="fs-2"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Konfigurime
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div *ngIf="hasPermission('Institutions')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/institution">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Institucione
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Units')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/units">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Njësitë Administrative
+            </span>
+          </a>
+        </div>
+        <div *ngIf="hasPermission('Statuses')" class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/status">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Statuse
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>-->
+
+
+    </div>
+    <!--end::Menu-->
+    <!--Moduli i statistikave-->
+    <div  class="menu-item menu-accordion pb-2" data-kt-menu-trigger="click" routerLinkActive="here show">
+      <span class="menu-link">
+        <span class="menu-icon">
+          <app-keenicon name="chart-line" class="fs-2 text-light"></app-keenicon>
+        </span>
+        <span class="menu-title" data-link="/apps">
+          Raporte dhe Statistika
+        </span>
+        <span class="menu-arrow"></span>
+      </span>
+      <div class="menu-sub menu-sub-accordion" routerLinkActive="menu-active-bg">
+        <div class="menu-item">
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/general-statistics">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Kryefaqe Statistika
+            </span>
+          </a>
+          <a class="menu-link without-sub" routerLinkActive="active" routerLink="/data-configure">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">
+              Raporte të personalizuara
+            </span>
+          </a>
+        </div>
+        <!-- <div class="menu-item">
+     <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fine-statistics">
+       <span class="menu-bullet">
+         <span class="bullet bullet-dot"></span>
+       </span>
+       <span class="menu-title">
+         Gjoba të përfunduara brenda/jashtë afatit
+       </span>
+     </a>
+   </div>
+   <div class="menu-item">
+     <a class="menu-link without-sub" routerLinkActive="active" routerLink="/fine-processing-statistics">
+       <span class="menu-bullet">
+         <span class="bullet bullet-dot"></span>
+       </span>
+       <span class="menu-title">
+         Gjoba të pa përfunduara brenda/jashtë afatit
+       </span>
+     </a>
+   </div>
+   <div class="menu-item">
+     <a class="menu-link without-sub" routerLinkActive="active" routerLink="/agent-productivity">
+       <span class="menu-bullet">
+         <span class="bullet bullet-dot"></span>
+       </span>
+       <span class="menu-title">
+         Produktiviteti i Punonjësve
+       </span>
+     </a>
+   </div>
+   <div class="menu-item">
+     <a class="menu-link without-sub" routerLinkActive="active" routerLink="/payment-statistics">
+       <span class="menu-bullet">
+         <span class="bullet bullet-dot"></span>
+       </span>
+       <span class="menu-title">
+         Statistikat e bilancit të pagesave të gjobave
+       </span>
+     </a>
+   </div>-->
+      </div>
+    </div>
+  </div>
+<!--end::Menu wrapper-->
+ </div>

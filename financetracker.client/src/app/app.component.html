@@ -1,24 +1,32 @@
-﻿<h1 id="tableLabel">Weather forecast</h1>
+<!-- src/app/app.component.html -->
+<p>tessttt</p>
+<div class="app-root d-flex flex-column flex-root">
+  <!-- Header -->
+  <header class="app-header bg-light border-bottom py-3 px-4">
+    <h3 class="m-0">Metronic Angular Layout</h3>
+  </header>
 
-<p>This component demonstrates fetching data from the server.</p>
+  <!-- Main layout wrapper -->
+  <div class="app-wrapper d-flex flex-grow-1">
+    <!-- Sidebar -->
+    <aside class="app-sidebar bg-secondary text-white p-3" style="width: 250px;">
+      <nav>
+        <ul class="list-unstyled">
+          <li><a routerLink="/dashboard" class="text-white text-decoration-none">Dashboard</a></li>
+          <li><a routerLink="/users" class="text-white text-decoration-none">Users</a></li>
+          <li><a routerLink="/settings" class="text-white text-decoration-none">Settings</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-<p *ngIf="!forecasts"><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationangular">https://aka.ms/jspsintegrationangular</a> for more details.</em></p>
+    <!-- Page content -->
+    <main class="app-content flex-grow-1 p-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 
-<table *ngIf="forecasts">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let forecast of forecasts">
-            <td>{{ forecast.date }}</td>
-            <td>{{ forecast.temperatureC }}</td>
-            <td>{{ forecast.temperatureF }}</td>
-            <td>{{ forecast.summary }}</td>
-        </tr>
-    </tbody>
-</table>
+  <!-- Footer -->
+  <footer class="app-footer bg-light border-top py-2 text-center">
+    <small>© 2025 Metronic Angular Layout</small>
+  </footer>
+</div>

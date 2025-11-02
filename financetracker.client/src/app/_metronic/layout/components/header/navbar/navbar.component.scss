@@ -1,0 +1,26 @@
+.notification-badge {
+  position: absolute;
+  top: -5px; /* Adjust for positioning */
+  right: -5px; /* Adjust for positioning */
+  background-color: var(--red-500); /* Red color for new notifications */
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+/*app-notifications-inner {
+  width: 500px !important;  Adjust width as needed 
+  max-width: 100%;  Prevents overflow 
+}*/
+@media (max-width: 400px) {
+  app-notifications-inner {
+    width: 300px !important; /* Set width to 300px for small screens */
+    max-width: 100%; /* Ensure it doesn't overflow */
+  }
+}
