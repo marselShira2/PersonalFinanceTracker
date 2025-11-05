@@ -32,13 +32,16 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/_metronic/assets"
             ],
             "styles": [
               "src/styles.css",
               "src/app/_metronic/layout/layout.component.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/_metronic/js/scripts.bundle.js"
+            ]
           },
           "configurations": {
             "production": {
