@@ -39,9 +39,7 @@
               "src/styles.css",
               "src/app/_metronic/layout/layout.component.scss"
             ],
-            "scripts": [
-              "src/_metronic/js/scripts.bundle.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
