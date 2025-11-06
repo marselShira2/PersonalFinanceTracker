@@ -6,6 +6,7 @@ namespace FinanceTracker.Server.Interfaces
     {
         Task<User> AddUserAsync(User user);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<List<User>> GetAllUsers();
         Task SaveChangesAsync();
     }
 }

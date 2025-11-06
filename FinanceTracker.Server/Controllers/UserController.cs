@@ -32,15 +32,26 @@ namespace FinanceTracker.Server.Controllers
 
             var user = new User
             {
-                Username = dto.Username,
+                Name = dto.Username,
                 Email = dto.Email,
-                PasswordHash = passwordHash
+                Password = passwordHash
             };
 
             await _userRepository.AddUserAsync(user);
 
-            return Ok(new { user.Id, user.Username, user.Email });
+            return Ok(new { user.UserId, user.Name, user.Email });
         }
+
+        [HttpGet("getAllUsers2")]
+        public async Task<IActionResult> GetAllUserList()
+        {
+            // merr listen e userave
+            var allUsers = await _userRepository.GetAllUsers();
+            
+            return Ok(allUsers);
+        }
+
+
 
         private string ComputeSha256Hash(string rawData)
         {

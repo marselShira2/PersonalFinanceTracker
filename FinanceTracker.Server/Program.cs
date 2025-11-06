@@ -3,6 +3,7 @@ using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using FinanceTracker.Server.Data;
 
 //using FinanceTracker.Server.Repositories;
 //using FinanceTracker.Server.Interfaces;
