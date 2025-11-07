@@ -15,14 +15,14 @@ namespace FinanceTracker.Server.Data
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-        // Remove hard-coded connection strings when used with dependency injection (handled in Program.cs)
+        /*
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer("Server=DESKTOP-K6CTF30,1433;Database=finance_tracker;User Id=sa;Password=kleaklea2003;TrustServerCertificate=True;");
             }
-        }
+        }*/
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

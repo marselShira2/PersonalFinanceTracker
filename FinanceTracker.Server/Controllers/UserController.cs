@@ -19,9 +19,11 @@ namespace FinanceTracker.Server.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserCreateDto dto)
-        {
+   /*    [HttpPost("register")]
+      public async Task<IActionResult> Register(UserCreateDto dto)
+       
+       
+       {
             // Check if email already exists
             var existingUser = await _userRepository.GetUserByEmailAsync(dto.Email);
             if (existingUser != null)
@@ -40,7 +42,7 @@ namespace FinanceTracker.Server.Controllers
             await _userRepository.AddUserAsync(user);
 
             return Ok(new { user.UserId, user.Name, user.Email });
-        }
+        }*/
 
         [HttpGet("getAllUsers2")]
         public async Task<IActionResult> GetAllUserList()
