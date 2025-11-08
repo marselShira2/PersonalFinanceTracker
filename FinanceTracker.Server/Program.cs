@@ -21,7 +21,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<FinanceTracker.Server.Services.IPasswordHasher, FinanceTracker.Server.Services.PasswordHasher>();
-
+builder.Services.AddScoped<FinanceTracker.Server.Interfaces.IEmailService, FinanceTracker.Server.Services.EmailService>();
+builder.Services.AddSingleton<FinanceTracker.Server.Interfaces.IVerificationStore, FinanceTracker.Server.Services.VerificationStore>();
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtKey = builder.Configuration["Jwt:Key"];
 

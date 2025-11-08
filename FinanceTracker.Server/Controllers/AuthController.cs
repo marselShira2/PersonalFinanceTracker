@@ -20,14 +20,16 @@ namespace FinanceTracker.Server.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IEmailService _emailService;
-        private readonly IConfiguration _configuration; 
+        private readonly IConfiguration _configuration;
+        private readonly IVerificationStore _verificationStore;
 
-        public AuthController(IUserRepository userRepository, IPasswordHasher passwordHasher, IEmailService emailService, IConfiguration configuration)
+        public AuthController(IUserRepository userRepository, IPasswordHasher passwordHasher, IEmailService emailService, IConfiguration configuration, IVerificationStore verificationStore)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
-            //_emailService = emailService;
-            _configuration = configuration; 
+            _emailService = emailService;
+            _configuration = configuration;
+            _verificationStore = verificationStore;
         }
 
         [HttpPost("register")]
@@ -66,19 +68,63 @@ namespace FinanceTracker.Server.Controllers
 
             await _userRepository.AddUserAsync(newUser);
 
+            string verificationCode = new Random().Next(100000, 999999).ToString();
+
+            _verificationStore.AddCode(newUser.UserId, verificationCode);
+
+            var emailBody = $"Your Finance Tracker verification code is: <strong>{verificationCode}</strong>. Please enter this code in the app to activate your account.";
+
+            await _emailService.SendEmailAsync(
+                newUser.Email,
+                "Your Account Verification Code",
+                emailBody
+            );
+
             var responseData = new
             {
                 newUser.UserId,
                 newUser.Name,
                 newUser.Email,
-       
-                DashboardPath = "/dashboard"
+
+                // 🎯 Include the user message
+                Message = "Registration successful. Please enter the 6-digit code sent to your email to verify your account."
             };
 
-            return Created(responseData.DashboardPath, responseData);
+            // 🎯 FIX: Change the return status to 202 Accepted.
+            return Accepted(responseData);
         }
 
-       
+
+        [HttpPost("verify-code")]
+        public async Task<IActionResult> VerifyCode([FromBody] UserVerifyCodeDto dto)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (_verificationStore.IsUserVerified(user.UserId))
+            {
+                return BadRequest("Account is already verified.");
+            }
+
+            // 🎯 Validate code against the store
+            var validationResult = _verificationStore.ValidateCode(dto.Code);
+
+            if (!validationResult.IsValid || validationResult.UserId != user.UserId)
+            {
+                // Check if the user ID from the token matches the user submitting the code
+                return BadRequest("Invalid or expired verification code.");
+            }
+
+            // Verification successful: Update status in the store
+            _verificationStore.SetUserVerified(user.UserId);
+
+            return Ok(new { Message = "Account successfully verified. You can now log in." });
+        }
+
 
         private bool IsValidEmail(string email)
         {
@@ -137,6 +183,11 @@ namespace FinanceTracker.Server.Controllers
             if (user == null || !_passwordHasher.VerifyPassword(loginDto.Password, user.Password))
             {
                 return Unauthorized(new { Message = "Invalid email or password." });
+            }
+
+            if (!_verificationStore.IsUserVerified(user.UserId))
+            {
+                return Unauthorized(new { Message = "Account is not verified. Please submit your 6-digit code to activate." });
             }
 
             var token = GenerateJwtToken(user);

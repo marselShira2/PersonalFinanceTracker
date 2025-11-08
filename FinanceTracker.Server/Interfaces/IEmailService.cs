@@ -1,6 +1,9 @@
-﻿namespace FinanceTracker.Server.Interfaces
+﻿using System.Threading.Tasks; 
+
+namespace FinanceTracker.Server.Interfaces
 {
-    public class IEmailService
+    public interface IEmailService
     {
+        Task SendEmailAsync(string toEmail, string subject, string body);
     }
 }

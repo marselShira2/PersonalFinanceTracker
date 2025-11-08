@@ -29,6 +29,13 @@ public partial class User
     [Column("created_at", TypeName = "datetime")]
     public DateTime? CreatedAt { get; set; }
 
+   /* [Column("is_verified")] 
+    public bool IsVerified { get; set; } = false;
+
+    [Column("verification_token")] 
+    [StringLength(255)]
+    public string? VerificationToken { get; set; }*/
+
     [InverseProperty("User")]
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
 
