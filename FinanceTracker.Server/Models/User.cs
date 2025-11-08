@@ -32,9 +32,16 @@ public partial class User
     [Column("is_verified")] 
     public bool IsVerified { get; set; } = false;
 
-   /* [Column("verification_token")] 
+    /* [Column("verification_token")] 
+     [StringLength(255)]
+     public string? VerificationToken { get; set; }*/
+
+    [Column("reset_token")]
     [StringLength(255)]
-    public string? VerificationToken { get; set; }*/
+    public string? ResetToken { get; set; } // The secure, non-hashed token
+
+    [Column("reset_token_expiry", TypeName = "datetime")]
+    public DateTime? ResetTokenExpiry { get; set; } // When the token expires
 
     [InverseProperty("User")]
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();

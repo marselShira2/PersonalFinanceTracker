@@ -35,6 +35,17 @@ namespace FinanceTracker.Server.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<User?> GetUserByResetTokenAsync(string token)
+        {
+            return await _context.Users
+         .FirstOrDefaultAsync(u => u.ResetToken == token);
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
     }
 }
  

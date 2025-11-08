@@ -4,10 +4,10 @@ using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
-using System.IdentityModel.Tokens.Jwt; 
-using System.Security.Claims; 
-using Microsoft.IdentityModel.Tokens; 
-using System.Text; 
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace FinanceTracker.Server.Controllers
@@ -28,13 +28,13 @@ namespace FinanceTracker.Server.Controllers
             _passwordHasher = passwordHasher;
             _emailService = emailService;
             _configuration = configuration;
-        _verificationStore = verificationStore;
+            _verificationStore = verificationStore;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserCreateDto userDto)
         {
-           
+
             if (!IsValidEmail(userDto.Email))
             {
                 return BadRequest("Invalid email format.");
@@ -59,7 +59,7 @@ namespace FinanceTracker.Server.Controllers
 
             var newUser = new User
             {
-               
+
                 Name = userDto.Username,
                 Email = userDto.Email,
                 Password = hashedPassword,
@@ -114,9 +114,93 @@ namespace FinanceTracker.Server.Controllers
 
             user.IsVerified = true;
             await _userRepository.SaveChangesAsync();
-            // _verificationStore.SetUserVerified(user.UserId);
+            // _verificationStore.SetUserVerified(user.UserId); // This is not needed since we update the user entity.
 
             return Ok(new { Message = "Account successfully verified. You can now log in." });
+        }
+
+        
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] UserForgotPasswordDto dto)
+        {
+            if (!IsValidEmail(dto.Email))
+            {
+                return BadRequest("Invalid email format.");
+            }
+
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+
+            // SECURITY NOTE: Always respond with a generic success message to prevent email enumeration.
+            if (user == null)
+            {
+                return Ok(new { Message = "If an account with that email exists, a password reset code has been sent." });
+            }
+
+            // Generate a simple 6-digit code
+            string resetCode = new Random().Next(100000, 999999).ToString();
+            DateTime expiry = DateTime.UtcNow.AddMinutes(5); // Code valid for 5 minutes
+
+            // Store the code and expiry in the user record
+            user.ResetToken = resetCode;
+            user.ResetTokenExpiry = expiry;
+            await _userRepository.SaveChangesAsync();
+
+            var emailBody = $@"
+                <p>Hello {user.Name},</p>
+                <p>Your **Finance Tracker Password Reset Code** is: <strong>{resetCode}</strong>.</p>
+                <p>Please enter this 6-digit code to reset your password.</p>
+                <p>This code will expire in 5 minutes.</p>
+                <p>If you did not request this, please ignore this email.</p>
+            ";
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Password Reset Verification Code",
+                emailBody
+            );
+
+            return Ok(new { Message = "If an account with that email exists, a password reset code has been sent." });
+        }
+
+        // 🎯 NEW ENDPOINT: Reset Password with Code
+        [HttpPost("reset-password-with-code")]
+        public async Task<IActionResult> ResetPasswordWithCode([FromBody] ResetPasswordDto dto)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // 1. Check if the code is correct and not expired
+            if (user.ResetToken != dto.Token || user.ResetTokenExpiry <= DateTime.UtcNow)
+            {
+                // SECURITY: Clear the token if it was invalid/expired to prevent brute-forcing attempts
+                user.ResetToken = null;
+                user.ResetTokenExpiry = null;
+                await _userRepository.SaveChangesAsync();
+
+                return BadRequest("Invalid or expired reset code.");
+            }
+
+            // 2. Check new password strength
+            var passwordValidationResult = IsPasswordStrong(dto.NewPassword);
+            if (!passwordValidationResult.IsStrong)
+            {
+                return BadRequest(passwordValidationResult.ErrorMessage);
+            }
+
+            // 3. Hash and update password
+            string hashedPassword = _passwordHasher.HashPassword(dto.NewPassword);
+
+            // Update user's password and clear the token fields
+            user.Password = hashedPassword;
+            user.ResetToken = null; // Important: Clear the used code
+            user.ResetTokenExpiry = null;
+            await _userRepository.SaveChangesAsync();
+
+            return Ok(new { Message = "Password has been successfully reset. You can now log in." });
         }
 
 
