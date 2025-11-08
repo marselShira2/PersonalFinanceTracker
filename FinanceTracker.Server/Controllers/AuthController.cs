@@ -9,7 +9,6 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens; 
 using System.Text; 
 using Microsoft.Extensions.Configuration;
-using FinanceTracker.Server.Services; 
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -29,7 +28,7 @@ namespace FinanceTracker.Server.Controllers
             _passwordHasher = passwordHasher;
             _emailService = emailService;
             _configuration = configuration;
-            _verificationStore = verificationStore;
+        _verificationStore = verificationStore;
         }
 
         [HttpPost("register")]
@@ -63,7 +62,8 @@ namespace FinanceTracker.Server.Controllers
                
                 Name = userDto.Username,
                 Email = userDto.Email,
-                Password = hashedPassword
+                Password = hashedPassword,
+                IsVerified = false
             };
 
             await _userRepository.AddUserAsync(newUser);
@@ -105,22 +105,16 @@ namespace FinanceTracker.Server.Controllers
                 return NotFound("User not found.");
             }
 
-            if (_verificationStore.IsUserVerified(user.UserId))
-            {
-                return BadRequest("Account is already verified.");
-            }
-
-            // 🎯 Validate code against the store
             var validationResult = _verificationStore.ValidateCode(dto.Code);
 
             if (!validationResult.IsValid || validationResult.UserId != user.UserId)
             {
-                // Check if the user ID from the token matches the user submitting the code
                 return BadRequest("Invalid or expired verification code.");
             }
 
-            // Verification successful: Update status in the store
-            _verificationStore.SetUserVerified(user.UserId);
+            user.IsVerified = true;
+            await _userRepository.SaveChangesAsync();
+            // _verificationStore.SetUserVerified(user.UserId);
 
             return Ok(new { Message = "Account successfully verified. You can now log in." });
         }
@@ -175,6 +169,7 @@ namespace FinanceTracker.Server.Controllers
             return (true, string.Empty);
         }
 
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
         {
@@ -185,7 +180,7 @@ namespace FinanceTracker.Server.Controllers
                 return Unauthorized(new { Message = "Invalid email or password." });
             }
 
-            if (!_verificationStore.IsUserVerified(user.UserId))
+            if (!user.IsVerified)
             {
                 return Unauthorized(new { Message = "Account is not verified. Please submit your 6-digit code to activate." });
             }
