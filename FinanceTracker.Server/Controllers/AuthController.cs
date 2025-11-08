@@ -40,21 +40,18 @@ namespace FinanceTracker.Server.Controllers
                 return BadRequest("Invalid email format.");
             }
 
-            // Acceptance Criterion: Duplicate email accounts check
             var existingUser = await _userRepository.GetUserByEmailAsync(userDto.Email);
             if (existingUser != null)
             {
                 return Conflict("An account with this email already exists.");
             }
 
-            // Acceptance Criterion: Password strength requirements check
             var passwordValidationResult = IsPasswordStrong(userDto.Password);
             if (!passwordValidationResult.IsStrong)
             {
                 return BadRequest(passwordValidationResult.ErrorMessage);
             }
 
-            // Acceptance Criterion: Passwords must be stored in encrypted form
             string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
 
             var newUser = new User
@@ -86,11 +83,10 @@ namespace FinanceTracker.Server.Controllers
                 newUser.Name,
                 newUser.Email,
 
-                // 🎯 Include the user message
                 Message = "Registration successful. Please enter the 6-digit code sent to your email to verify your account."
             };
 
-            // 🎯 FIX: Change the return status to 202 Accepted.
+            // Change the return status to 202 Accepted.
             return Accepted(responseData);
         }
 
@@ -114,7 +110,7 @@ namespace FinanceTracker.Server.Controllers
 
             user.IsVerified = true;
             await _userRepository.SaveChangesAsync();
-            // _verificationStore.SetUserVerified(user.UserId); // This is not needed since we update the user entity.
+            // _verificationStore.SetUserVerified(user.UserId); 
 
             return Ok(new { Message = "Account successfully verified. You can now log in." });
         }
@@ -130,17 +126,14 @@ namespace FinanceTracker.Server.Controllers
 
             var user = await _userRepository.GetUserByEmailAsync(dto.Email);
 
-            // SECURITY NOTE: Always respond with a generic success message to prevent email enumeration.
             if (user == null)
             {
                 return Ok(new { Message = "If an account with that email exists, a password reset code has been sent." });
             }
 
-            // Generate a simple 6-digit code
             string resetCode = new Random().Next(100000, 999999).ToString();
-            DateTime expiry = DateTime.UtcNow.AddMinutes(5); // Code valid for 5 minutes
+            DateTime expiry = DateTime.UtcNow.AddMinutes(5); 
 
-            // Store the code and expiry in the user record
             user.ResetToken = resetCode;
             user.ResetTokenExpiry = expiry;
             await _userRepository.SaveChangesAsync();
@@ -162,7 +155,6 @@ namespace FinanceTracker.Server.Controllers
             return Ok(new { Message = "If an account with that email exists, a password reset code has been sent." });
         }
 
-        // 🎯 NEW ENDPOINT: Reset Password with Code
         [HttpPost("reset-password-with-code")]
         public async Task<IActionResult> ResetPasswordWithCode([FromBody] ResetPasswordDto dto)
         {
@@ -173,10 +165,9 @@ namespace FinanceTracker.Server.Controllers
                 return NotFound("User not found.");
             }
 
-            // 1. Check if the code is correct and not expired
             if (user.ResetToken != dto.Token || user.ResetTokenExpiry <= DateTime.UtcNow)
             {
-                // SECURITY: Clear the token if it was invalid/expired to prevent brute-forcing attempts
+
                 user.ResetToken = null;
                 user.ResetTokenExpiry = null;
                 await _userRepository.SaveChangesAsync();
@@ -184,25 +175,21 @@ namespace FinanceTracker.Server.Controllers
                 return BadRequest("Invalid or expired reset code.");
             }
 
-            // 2. Check new password strength
             var passwordValidationResult = IsPasswordStrong(dto.NewPassword);
             if (!passwordValidationResult.IsStrong)
             {
                 return BadRequest(passwordValidationResult.ErrorMessage);
             }
 
-            // 3. Hash and update password
             string hashedPassword = _passwordHasher.HashPassword(dto.NewPassword);
 
-            // Update user's password and clear the token fields
             user.Password = hashedPassword;
-            user.ResetToken = null; // Important: Clear the used code
+            user.ResetToken = null;
             user.ResetTokenExpiry = null;
             await _userRepository.SaveChangesAsync();
 
             return Ok(new { Message = "Password has been successfully reset. You can now log in." });
         }
-
 
         private bool IsValidEmail(string email)
         {

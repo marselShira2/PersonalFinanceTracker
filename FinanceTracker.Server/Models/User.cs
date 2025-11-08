@@ -38,10 +38,10 @@ public partial class User
 
     [Column("reset_token")]
     [StringLength(255)]
-    public string? ResetToken { get; set; } // The secure, non-hashed token
+    public string? ResetToken { get; set; } 
 
     [Column("reset_token_expiry", TypeName = "datetime")]
-    public DateTime? ResetTokenExpiry { get; set; } // When the token expires
+    public DateTime? ResetTokenExpiry { get; set; } 
 
     [InverseProperty("User")]
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
