@@ -1,0 +1,58 @@
+<div class="layout-footer">
+  <div id="logoACSK">
+    <!--<img src="assets/layout/images/logo.png" alt="Logo" height="20" class="mr-2" style="margin-right: 0px !important;" />-->
+    <span class="font-medium ml-2" style="font-weight: bold !important; color: #183462 !important; font-size: 1em !important;"></span>
+  </div>
+  <div class="position" id="divLoadingPage">
+    <!--<span class="footer-company">{{'LNG_PAGE_LOAD' | translate}}</span>-->
+    <!--<span id="time-counter">{{loadTimeSec}} {{ 'SECONDS' | translate }} </span> -->
+  </div>
+</div>
+<style>
+
+  .layout-footer {
+    display: flex;
+    justify-content: space-between; /* Space between the elements */
+    align-items: center; /* Vertically center the content */
+    background-color: #f8f9fa; /* Light background color */
+    padding: 16px 20px;
+    border-top: 1px solid #e0e0e0; /* Subtle border at the top */
+  }
+
+  #logoACSK {
+    margin: 0 auto; /* This will center the logo in the flex container */
+    display: flex;
+    align-items: center;
+    padding-left: 16%; /* Align image and text vertically */
+  }
+
+  #divLoadingPage {
+    display: flex;
+    align-items: center; /* Align the text vertically */
+  }
+
+  .footer-company {
+    margin-right: 10px;
+  }
+
+  #time-counter {
+    font-size: 14px;
+    /*padding: 5px 10px;*/
+/*    background-color: #e9ecef;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
+  }
+
+  @media (min-width: 992px) and (max-width: 1300px) {
+    #logoACSK {
+      padding-left: 39%; /* Apply padding-left of 32% */
+    }
+  }
+
+  @media (max-width: 785px) {
+    #logoACSK {
+      padding-left: 0; /* Remove padding-left for smaller screens */
+    }
+  }
+
+</style>

@@ -1,0 +1,36 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden" style="background-image: url('../../../../../assets/demo/images/login/bg-3.jpg');">
+  <p-toast position="top-right" key="responseToast" />
+  <div class="flex flex-column align-items-center justify-content-center">
+    <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 100%);">
+      <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+        <div class="flex flex-column align-items-center p-5">
+          <img style="width:25%;" src="assets/layout/images/logo.png" class="mb-4" alt="logo">
+          <div class="text-900 text-3xl font-medium mb-3">{{ 'AUTHENTICATE_ACCOUNT' | translate }}</div>
+          <p class="text-color-secondary block mb-5">{{ textKey | translate }} </p>
+          <p-inputOtp [(ngModel)]="otpvalue" [length]="6" [integerOnly]="true" [autofocus]="true" class="p-5 m-5">
+            <ng-template pTemplate="input" let-token let-events="events" let-index="index">
+              <input pInputText
+                     class="custom-otp-input"
+                     (input)="events.input($event)"
+                     (keydown)="events.keydown($event)"
+                     (keydown.enter)="submit($event)"
+                     type="text"
+                     [attr.value]="token"
+                     [maxLength]="1" />
+            </ng-template>
+          </p-inputOtp>
+          <div class="flex justify-content-between mt-5 align-self-stretch">
+            <p-button label="{{ 'RESEND_CODE' | translate }}" [link]="true" [disabled]="resendButtonDisabled" class="p-0 resendButton" (click)="resendOtp()" />
+            <p-button label="{{ 'SUBMIT_CODE' | translate }}" (click)="submitOtp()" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  ::ng-deep .p-button.p-button-link {
+    color: var(--primary-color) !important;
+  }
+</style>

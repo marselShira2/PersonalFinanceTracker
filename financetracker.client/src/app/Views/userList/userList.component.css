@@ -1,0 +1,185 @@
+/* styles.css */
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.p-input-icon-right {
+  position: relative;
+  display: inline-block;
+}
+
+  .p-input-icon-right .pi {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    /*transform: translateY(-50%);*/
+    font-size: 1.2rem;
+    color: #ccc; /* Adjust icon color */
+  }
+
+  .p-input-icon-right input {
+    padding-right: 2.5rem;
+    width: calc(100% - 2.5rem);
+    border: 1px solid #ccc; /* Adjust input border */
+    border-radius: 5px; /* Adjust border radius */
+    height: 30px; /* Adjust input height */
+    box-sizing: border-box; /* Ensure padding is included in width calculation */
+  }
+
+.p-button-outlined {
+  height: 30px !important;
+  margin:8px;
+}
+
+
+.text-red {
+  color: #DE3163;
+  background-color: pink;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.text-green {
+  color: #00563B;
+  background-color: #ACE1AF;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.p-datatable-gridlines {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+  .p-datatable-gridlines th, .p-datatable-gridlines td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  .p-datatable-gridlines th {
+    background-color: #f2f2f2;
+  }
+
+  .p-datatable-gridlines tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  .p-datatable-gridlines tr:hover {
+    background-color: #e9f5f5;
+  }
+  th{
+      font-weight:bold;
+  }
+  h2{
+      margin-bottom:35px;
+  }
+#searchDiv{
+    justify-content:right;  
+}
+
+/*:host ::ng-deep .p-element.p-ripple.p-button-raised.p-button.p-component.p-button-costum {
+ width:125px !important;
+}*/
+@media(max-width:997px) {
+  :host ::ng-deep .p-element.p-ripple.p-button-raised.p-button.p-component.p-button-costum {
+    margin: 10px 0px 0px 10px !important;
+  }
+}
+.p-button {
+  padding: 0 !important;
+}
+
+
+:host ::ng-deep .p-menu.p-component.p-menu-overlay.ng-star-inserted {
+  width: 200px !important;
+}
+:host ::ng-deep .p-menuitem-content:hover {
+  background: var(--cyan-700) !important;
+  -webkit-text-fill-color:white;
+}
+
+
+.p-footer-flex-end {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-right: 20px;
+  margin-top: 30px;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .p-input-icon-left {
+        width: 100%;
+    }
+
+    .p-button {
+        /*width: 50%;*/
+        margin-right: 0;
+        margin-top: 1rem;
+    }
+
+    .button-row {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .button-container {
+        width: 100%;
+        margin: 0;
+        padding: 5px 0;
+    }
+
+    .custom-width-button {
+        width: 100%;
+        height: 45px;
+    }
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping of elements */
+  align-items: center;
+  justify-content: space-between;
+}
+

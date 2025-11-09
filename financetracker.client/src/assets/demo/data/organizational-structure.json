@@ -1,0 +1,78 @@
+{
+    "data":
+    [  
+        {  
+            "data":{  
+                "name":"Kryeministri",
+                "role":"Administrator"
+            },
+            "children":[  
+                {  
+                    "data":{  
+                        "name":"Punonjes 1",
+                        "role":""
+                    }
+                },
+                {
+                  "data": {
+                    "name": "Punonjes 2",
+                    "role": ""
+                  }
+                }
+            ]
+        },
+        {  
+            "data": {  
+                "name":"Ministria e drejtesise",
+                "role":""
+            },
+            "children":[  
+                {  
+                    "data":{  
+                        "name":"Punonjes 3",
+                        "role":""
+                    }
+                },
+                {  
+                    "data":{  
+                        "name":"Punonjes 4",
+                        "role":""
+                    }
+                }
+            ]
+        },
+        {  
+            "data":{  
+                "name":"Ministria e financave",
+                "role":""
+            },
+            "children":[
+                {  
+                    "data":{  
+                        "name":"Punonjes 5",
+                        "role":""
+                    }    
+                },
+                {
+                    "data": {
+                      "name": "Punonjes 6",
+                      "role": ""
+                    }
+                },
+                {  
+                    "data":{  
+                        "name":"Punonjes 7",
+                        "role":""
+                    }   
+                },
+                {  
+                    "data":{  
+                        "name":"Punonjes 8",
+                        "role":""
+                    }
+                }
+            ]
+        }
+          
+    ]
+}

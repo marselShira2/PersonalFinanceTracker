@@ -3,11 +3,10 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
-    "strict": false,
-    "strictNullChecks": false,
-    "noImplicitReturns": false, 
+    "strict": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true, 
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,12 +17,11 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false,
     "lib": [
       "ES2022",
-      "dom"
+      "dom",
+      "dom.iterable"
     ]
   },
   "angularCompilerOptions": {

@@ -1,0 +1,302 @@
+p-dropdown ::ng-deep .p-dropdown-item {
+  pointer-events: none; /* Prevent selection */
+  cursor: not-allowed;
+}
+
+p-dropdown ::ng-deep .p-dropdown-panel {
+  min-height: 100%;
+}
+
+.p-orderlist .p-orderlist-controls {
+  display: none;
+}
+
+/* Hide the placeholder for dragging */
+.p-orderlist .p-orderlist-placeholder {
+  display: none;
+}
+/* stilim per te hequr butonat e p-orderList */
+:host ::ng-deep .p-orderlist-controls {
+  display: none;
+}
+/*:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  margin-left: 40% !important;
+}*/
+
+@media (min-width: 1921px) {
+  .custom-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+
+.pdfclass {
+  margin: 25px !important;
+}
+
+@media (min-width: 1921px) {
+  .custom-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+.past-deadline {
+  background: #feb0b0;
+}
+
+.in-process {
+  background: #ffffff;
+}
+
+:host ::ng-deep .red-divider {
+  background: #feb0b0 !important;
+}
+
+  :host ::ng-deep .red-divider .p-divider-content {
+    background-color: inherit !important; /* Make sure content area inherits the background */
+  }
+
+:host ::ng-deep p-divider p-component p-divider-horizontal p-divider-solid p-divider-left {
+  background-color: inherit !important; /* Make sure content area inherits the background */
+}
+
+:host ::ng-deep div[role=separator] {
+  background-color: inherit !important; /* Make sure content area inherits the background */
+}
+
+:host ::ng-deep .p-tag-value {
+  font-size: 0.9rem;
+}
+
+.user-image-container {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.8);
+}
+
+.user-dropdown-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.p-orderlist {
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-tag {
+  font-weight: 500 !important;
+}
+:host ::ng-deep p-tag {
+  margin-left:5px !important;
+}
+
+::ng-deep .p-multiselect {
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-calendar {
+  width: 100% !important;
+}
+:host ::ng-deep .p-calendar-clear-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: 0;
+  cursor: pointer;
+}
+
+.p-chart-custom {
+  width: 1100px !important;
+}
+.spinner-div {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.8); 
+  z-index: 9999; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-width {
+  min-width: 380px !important;
+  max-height: 250px !important;
+}
+
+@media(max-width:992px){
+  .custom-width {
+    min-width: 400px !important;
+    max-width: 450px !important;
+    max-height: 250px !important;
+  }
+}
+
+:host ::ng-deep canvas {
+  height: 330px;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  margin-left: 40% !important;
+}
+
+@media (min-width: 1921px) {
+  .custom-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+
+.pdfclass {
+  margin: 25px !important;
+}
+
+@media (min-width: 1921px) {
+  .custom-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+.past-deadline {
+  background: #feb0b0;
+}
+
+.in-process {
+  background: #ffffff;
+}
+
+:host ::ng-deep .red-divider {
+  background: #feb0b0 !important;
+}
+
+  :host ::ng-deep .red-divider .p-divider-content {
+    background-color: inherit !important; /* Make sure content area inherits the background */
+  }
+
+:host ::ng-deep p-divider p-component p-divider-horizontal p-divider-solid p-divider-left {
+  background-color: inherit !important; /* Make sure content area inherits the background */
+}
+
+:host ::ng-deep div[role=separator] {
+  background-color: inherit !important; /* Make sure content area inherits the background */
+}
+
+:host ::ng-deep .p-tag-value {
+  font-size: 0.9rem;
+}
+
+.information {
+  background-color: #e0f7fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.information-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.info-icon-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 50px;
+}
+
+.steps-column {
+  flex: 1;
+}
+
+  .steps-column h5 {
+    margin-bottom: 15px;
+  }
+
+.step-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-left: 20px;
+}
+
+.step-button {
+  margin-right: 10px;
+}
+
+.steps-column p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.triangle-icon {
+  position: relative;
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid #183462;
+  display: flex;
+  margin-top: 60%;
+  margin-left: 20%;
+  justify-content: center;
+  align-items: center;
+}
+
+.exclamation-mark {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: white;
+  font-weight: bold;
+}
+::ng-deep .kuqe{
+  background: transparent !important;
+}
+
+.carousel-custom-style {
+  cursor: pointer;
+  max-width: 500px !important;
+}
+
+@media(max-width:518px){
+  .carousel-custom-style {
+    cursor: pointer;
+    max-width: 330px !important;
+  }
+  :host ::ng-deep .p-carousel-prev {
+    display: none !important;
+  }
+  :host ::ng-deep .p-carousel-next {
+    display: none !important;
+  }
+}
+@media screen and (max-width: 1267px) {
+  ::ng-deep .p-carousel-item {
+    flex: 1 0 100% !important;
+  }
+}
+@media screen and (min-width: 1268px) {
+  ::ng-deep .p-carousel-item {
+    flex: 1 0 50% !important;
+  }
+}
+@media screen and (min-width: 1670px) {
+  ::ng-deep .p-carousel-item {
+    flex: 1 0 33.333333333333336% !important;
+  }
+}

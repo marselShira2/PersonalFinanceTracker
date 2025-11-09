@@ -1,0 +1,60 @@
+
+  <div class="notifications">
+    <div class="bell-container" (click)="toggleNotificationsDropdown($event)">
+      <i class="pi pi-bell"></i>
+      <span class="badge" [ngClass]="{'show': unseenNotificationCount > 0}">{{ unseenNotificationCount }}</span>
+    </div>
+    <div class="notifications-dropdown" *ngIf="notificationsDropdownVisible">
+      <div class="header">{{ 'NOTIFICATION' | translate }}</div>
+      <div class="tabs">
+        <div class="tab" [ngClass]="{'active': activeTab === 'new'}" (click)="setActiveTab('new', $event)">
+          {{ 'NEW' | translate }} ({{ newNotificationsCount }})
+        </div>
+        <div class="tab" [ngClass]="{'active': activeTab === 'old'}" (click)="setActiveTab('old', $event)">
+          {{ 'OLD' | translate }} ({{ oldNotificationsCount }})
+        </div>
+      </div>
+      <div class="tab-content">
+        <div *ngFor="let notification of getFilteredNotifications()" class="notification-item" (click)="navigateToNotification(notification, $event)">
+          <div style="display: flex; align-items: center;">
+            <div *ngIf="notification.priority === 'Critical'" style="display: flex; align-items: center;">
+              <div>
+                <i class="pi pi-bell" style="color: red; margin-right: 10px; font-size: 1.5rem;"></i>
+              </div>
+              <div>
+                <p style="color:red">
+                  <span >{{ notification.displayMessage }}</span>
+                </p>
+                <small>{{ getTimeAgo(notification.time) }}</small>
+              </div>
+            </div>
+            <div *ngIf="notification.priority === 'High' && (notification.type === 'User_Register' || notification.type === 'Operator_Register')" style="display: flex; align-items: center;">
+              <div>
+                <i class="pi pi-user" style="color: blue; margin-right: 10px; font-size: 1.5rem;"></i>
+              </div>
+              <div>
+                <p style="color:blue">
+                  <span >{{ notification.displayMessage }}</span>
+                </p>
+                <small>{{ getTimeAgo(notification.time) }}</small>
+              </div>
+            </div>
+            <div *ngIf="notification.priority !== 'High' && notification.priority !== 'Critical'" style="display: flex; align-items: center;">
+              <div>
+                <i class="pi pi-history" style="margin-right: 10px; font-size: 1.5rem;"></i>
+              </div>
+              <div>
+                <p>
+                  <span >{{ notification.displayMessage }}</span>
+                </p>
+                <small>{{ getTimeAgo(notification.time) }}</small>
+              </div>
+              <div *ngIf="activeTab === 'old'" class="button-container">
+                <button class="close-button" (click)="deleteNotification(notification.idskvNotification, $event)">×</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

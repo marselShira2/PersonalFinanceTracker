@@ -1,0 +1,25 @@
+{
+  "LANGUAGE_EN": "English",
+  "LANGUAGE_SQ": "Albanian",
+  "WELCOME_BACK": "Welcome back!",
+  "WELCOME": "Welcome back",
+  "SIGN_IN_TO_CONTINUE": "Sign in to continue",
+  "EMAIL": "Email",
+  "EMAIL_PLACEHOLDER": "Email address",
+  "EMAIL_REQUIRED": "Email is required.",
+  "EMAIL_INVALID": "Invalid email address.",
+  "PASSWORD": "Password",
+  "PASSWORD_PLACEHOLDER": "Password",
+  "PASSWORD_REQUIRED": "Password is required.",
+  "PASSWORD_MINLENGTH": "Password must be at least 8 characters long.",
+  "REMEMBER_ME": "Remember me",
+  "FORGOT_PASSWORD": "Forgot password?",
+  "SIGN_IN": "Sign In",
+  "LOGOUT": "Logout",
+  "DASHBOARD": "Dashboard",
+  "REGISTER": "Register",
+  "FinanceTracker": "Personal finance tracker",
+  "LNG_BACK": "Back"
+
+}
+

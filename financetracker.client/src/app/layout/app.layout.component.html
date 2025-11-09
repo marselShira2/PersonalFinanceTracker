@@ -1,0 +1,18 @@
+<div class="layout-wrapper" [ngClass]="containerClass">
+  <app-topbar></app-topbar>
+  <button #menubutton id="sidemenubutton" class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <i class="pi pi-bars" style="color: var(--gray-400);font-size: 20px;margin-left:-10px !important "></i>
+  </button>
+  <div class="layout-sidebar" id="sidemenu">
+    <app-sidebar>
+    </app-sidebar>
+  </div>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
+    <!--<app-footer></app-footer>-->
+  </div>
+  <app-config></app-config>
+  <div class="layout-mask" (click)="layoutService.onMenuToggle()"></div>
+</div>

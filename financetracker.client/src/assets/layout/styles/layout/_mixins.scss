@@ -1,0 +1,12 @@
+@mixin focused() {
+    outline: 0 none;
+    outline-offset: 0;
+    transition: box-shadow .2s;
+     
+}
+
+@mixin focused-inset() {
+    outline: 0 none;
+    outline-offset: 0;
+    transition: box-shadow .2s;
+}

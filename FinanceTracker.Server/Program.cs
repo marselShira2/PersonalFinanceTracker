@@ -20,6 +20,22 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+
+//builder.Services.ConfigureApplicationCookie(options =>
+
+//{
+
+//    options.Cookie.SameSite = SameSiteMode.None; // Set SameSite to None for authentication cookies
+
+//    options.Cookie.HttpOnly = true; // Set cookie options as needed
+//    options.Cookie.IsEssential = true;
+
+//    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Use secure cookies
+
+//});
+
+
 var app = builder.Build();
 
 // Serve static files from wwwroot (for production Angular build)

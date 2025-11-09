@@ -1,0 +1,35 @@
+
+.p-timeline-event-opposite {
+  flex: 1;
+  padding: 0 1rem;
+  max-width: 0 !important
+
+}
+
+
+.p-timeline-event-opposite {
+  display: none;
+}
+
+/* Optionally, adjust the timeline line */
+.p-timeline-event .p-timeline-event-marker {
+  display: none;
+}
+
+
+.custom-timeline-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* Adjusting space around the event content */
+.p-timeline-vertical .p-timeline-event-content {
+  margin: 0; /* Adjust margin to remove space */
+  padding: 0; /* Adjust padding if needed */
+}
+
+/* If you need to adjust the space between events and the opposite side */
+.p-timeline-vertical .p-timeline-event-opposite {
+  margin: 0; /* Adjust margin to remove space */
+  padding: 0; /* Adjust padding if needed */
+}

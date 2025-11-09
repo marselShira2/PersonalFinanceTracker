@@ -1,0 +1,9 @@
+.layout-footer {
+  transition: margin-left 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Aligns content to the right */
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+  padding-right: 1rem; /* Optional: Adds padding to the right side */
+}

@@ -1,0 +1,393 @@
+/* Default styles (for larger screens) */
+.user-profile-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.profile-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+}
+
+.profile-column,
+.details-column{
+  display: flex;
+  /*margin-bottom: 20px;*/
+  margin-left: 20px;
+  flex-direction: column;
+}
+
+  .details-column h2 {
+    margin-bottom: 20px;
+  }
+
+  .details-row,
+  .additional-details-column p {
+    margin: 5px 0;
+    margin-bottom: 20px;
+  }
+
+.badge {
+  background-color: #ffcc00;
+  color: #fff;
+  padding: 8px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  width: 73px;
+}
+
+.verified-badge {
+  color: #709163;
+  margin-left: 10px;
+}
+
+.location {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.additional-details-column p strong {
+  font-weight: 600;
+}
+
+.profile-navigation ul li {
+  margin-right: 20px;
+  cursor: pointer;
+  padding-bottom: 10px;
+}
+
+  .profile-navigation ul li:hover,
+  .profile-navigation ul li.active {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+  }
+
+.profile-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: #f1f1f1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#image-upload-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background-color: #007bff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+  #image-upload-container input[type="file"] {
+    display: none;
+  }
+
+#upload-icon {
+  font-size: 15%;
+  color: white;
+}
+
+/* Responsive styles for screens smaller than 768px */
+@media screen and (max-width: 768px) {
+  .user-profile-header {
+    grid-template-columns: 1fr; /* Stack the columns */
+    gap: 10px;
+  }
+
+
+  .details-column h2 {
+    text-align: center;
+   /* margin-bottom: 15px;*/
+  }
+
+  .profile-column,
+  .details-column {
+    margin-left: 0;
+    /*margin-bottom: 15px;*/
+    align-items: center;
+  }
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .details-row p {
+    text-align: center;
+    margin-bottom: 10px;
+    width:100%;
+  }
+
+}
+
+/* Responsive styles for screens smaller than 470px */
+@media screen and (max-width: 470px) {
+  .profile-image-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .details-column h2 {
+    font-size: 1.2rem;
+    /*margin-bottom: 10px;*/
+  }
+
+  #upload-icon {
+    font-size: 15%;
+    width: 45%;
+    /*height: 30px;*/
+  }
+
+  .details-row p {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+}
+
+
+
+
+span {
+  padding: 0.5rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.gap-2 {
+  gap: 0.5rem; 
+}
+
+
+#userprofile {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+
+.profile-column {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.details-column {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.statistics-column {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+:host ::ng-deep .p-tabmenu-nav-content {
+  margin: 15px !important;
+  border-radius: 15px;
+  border: 1px solid var(--surface-border);
+}
+
+.earnings-card {
+  border: 2px dashed #d1d5db; 
+  border-radius: 0.375rem; 
+  padding: 1rem;
+  min-width: 125px; 
+  text-align: center;
+  background-color: #fff; 
+}
+
+.earnings-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem; 
+}
+
+.icon-up {
+  font-size: 1.25rem; 
+  color: #22c55e; 
+  margin-right: 0.25rem;
+}
+
+.amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background-color: #fff;
+  color: #639586;
+}
+
+.label {
+  font-size: 1rem; 
+  color: #6b7280; 
+}
+
+
+
+
+.auth-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center; 
+  margin: 0 auto; 
+}
+
+
+
+.auth-options .fancy-option span {
+    background-color: transparent !important;
+    border: none !important;
+    margin-left: 8px;
+  }
+
+.fancy-option.selected {
+  background: #d0d0d0;
+}
+
+.fancy-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: #f1f1f1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
+  width: 100%; 
+  /*max-width: 600px; */
+}
+
+  .fancy-option:hover {
+    background: #e0e0e0;
+  }
+
+.icon {
+  font-size: 24px;
+  margin-right: 1rem;
+}
+
+.p-button-secondary {
+  background: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+.switchbutton {
+  margin-left: auto !important;
+  margin-right: 10px !important;
+}
+
+
+
+.text-blue {
+  color: #ffffff;
+  background-color: #183462;
+  padding: 5px 18px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+
+#searchDiv {
+  justify-content: right;
+}
+
+.default-text {
+  color: #A52A2A;
+  background-color: #F4A8A8;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+.text-green {
+  color: #00563B;
+  background-color: #ACE1AF;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+:ng-deep .p-chart canvas {
+  width: 35% !important;
+  height: 35% !important;
+}
+
+::ng-deep .p-badge {
+  font-size: 0.9rem !important;
+}
+
+::ng-deep .tabview-custom a {
+  color: #16325B;
+}
+
+
+
+

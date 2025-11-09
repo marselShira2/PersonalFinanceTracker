@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
@@ -8,6 +8,41 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\financetracker.client\browser\</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="src\app\Views\finalControlRaport\**" />
+    <None Remove="src\app\Views\incidents\**" />
+    <None Remove="src\app\Views\infrastructureRiskLevel\**" />
+    <None Remove="src\app\Views\Infrastructure\**" />
+    <None Remove="src\app\Views\logs\**" />
+    <None Remove="src\app\Views\maturityReport\**" />
+    <None Remove="src\app\Views\Reports\RiskEvaluationAnexReport\**" />
+    <None Remove="src\app\Views\Reports\RiskEvaluationReport\**" />
+    <None Remove="src\app\Views\Reports\RiskLevel\**" />
+    <None Remove="src\app\Views\Reports\SecurityMeasuresFulfillment\**" />
+    <None Remove="src\app\Views\sectorList\**" />
+    <None Remove="src\app\Views\securityMeasures\**" />
+    <None Remove="src\app\Views\template\**" />
+    <None Remove="src\app\Views\user-roles\**" />
+    <None Remove="src\app\Views\workGroups\**" />
+    <None Remove="src\app\_metronic\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\finalControlRaport\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\incidents\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\infrastructureRiskLevel\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\Infrastructure\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\logs\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\maturityReport\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\Reports\RiskEvaluationAnexReport\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\Reports\RiskEvaluationReport\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\Reports\RiskLevel\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\Reports\SecurityMeasuresFulfillment\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\sectorList\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\securityMeasures\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\template\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\user-roles\**" />
+    <TypeScriptConfiguration Remove="src\app\Views\workGroups\**" />
+    <TypeScriptConfiguration Remove="src\app\_metronic\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="src\app\modules\NewFolder\" />
+    <Folder Include="src\app\services\user\" />
   </ItemGroup>
 </Project>

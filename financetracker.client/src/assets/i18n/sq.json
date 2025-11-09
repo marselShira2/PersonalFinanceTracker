@@ -1,0 +1,27 @@
+{
+  "LANGUAGE_EN": "Anglisht",
+  "LANGUAGE_SQ": "Shqip",
+  "WELCOME_BACK": "Mirë se vini!",
+  "WELCOME": "Mirë se vini",
+  "SIGN_IN_TO_CONTINUE": "Hyni për të vazhduar",
+  "EMAIL": "Email",
+  "EMAIL_PLACEHOLDER": "Adresa e Email-it",
+  "EMAIL_REQUIRED": "Email-i është i nevojshëm.",
+  "EMAIL_INVALID": "Adresa e Email-it është e pavlefshme.",
+  "PASSWORD": "Fjalëkalimi",
+  "PASSWORD_PLACEHOLDER": "Fjalëkalimi",
+  "PASSWORD_REQUIRED": "Fjalëkalimi është i nevojshëm.",
+  "PASSWORD_MINLENGTH": "Fjalëkalimi duhet të jetë të paktën 8 karaktere i gjatë.",
+  "REMEMBER_ME": "Më kujto",
+  "FORGOT_PASSWORD": "Keni harruar fjalëkalimin?",
+  "SIGN_IN": "Hyr",
+  "LOGOUT": "Dil",
+  "DASHBOARD": "Kryefaqja",
+  "REGISTER": "Regjistrohu",
+  "VIEWPROFILE": "Shiko Profilin",
+  "LOGININSYSTEM": "Logohu ne sistem",
+  "FinanceTracker": "Personal finance tracker",
+  "LNG_BACK": "Kthehu"
+
+}
+

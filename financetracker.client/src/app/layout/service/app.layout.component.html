@@ -1,0 +1,24 @@
+<div class="layout-wrapper" [ngClass]="containerClass" >
+  <app-topbar></app-topbar>
+  <button #menubutton id="sidemenubutton" class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <i class="pi pi-bars" style="color: var(--gray-400);font-size: 21px; "></i>
+  </button>
+  <div id="company-bar">
+    <!--<img class="sidebar-logo" src="assets/layout/images/Eagle.png" alt="logo">-->
+    <span class="vertical-line"></span>
+    <img class="sidebar-logo" src="assets/layout/images/logo.png" alt="logo">
+    <span id="CompanyName"></span>
+  </div>
+  <div class="layout-sidebar" (change)="layoutService.onMenuToggle()">
+
+    <app-sidebar></app-sidebar>
+  </div>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
+    <app-footer></app-footer>
+  </div>
+  <app-config></app-config>
+  <div class="layout-mask" (click)="layoutService.onMenuToggle()"></div>
+</div>

@@ -1,45 +1,43 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { ThemeModeService } from './_metronic/partials/layout/theme-mode-switcher/theme-mode.service';
-import { AuthService } from './modules/auth/auth.service';
-import { PrimeNGConfig } from 'primeng/api'; 
-
+import { Component, OnInit, Renderer2 } from '@angular/core';
+import { PrimeNGConfig } from 'primeng/api';
+import { Router, NavigationStart, NavigationEnd } from '@angular/router';
+import { InactivityService } from './services/ValidationFunctions/ActivityRefreshToken';
+import { AuthService } from './services/auth.service';
 @Component({
-  // tslint:disable-next-line:component-selector
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-  constructor( 
-    private modeService: ThemeModeService,
+  private startTime: number = 0;
+  private endTime: number = 0;
+  public loadTimeSec: string = '';
+
+  constructor(
+    private primengConfig: PrimeNGConfig,
+    private router: Router,
+    private renderer: Renderer2,
+    private inactivityService: InactivityService,
     private authService: AuthService,
-    private primengConfig: PrimeNGConfig, 
-  ) {
-    // register translations
-    
+  ) { }
+
+  async ngOnInit() {
+    this.primengConfig.ripple = true;
+   
+    if (await this.authService.isLoggedIn()) {
+      this.inactivityService.startMonitoring();
+    }
   }
 
-  ngOnInit() {
-    this.modeService.init();
-    this.configureCalendarLocale(); // Kalendari shqip 
+  setFooterColorBasedOnLoadTime(loadTime: number) {
+    const footerElement = document.getElementById('time-counter');
+    if (footerElement) {
+      if (loadTime < 0.03) {
+        this.renderer.setStyle(footerElement, 'color', 'green');
+      } else if (loadTime >= 0.03 && loadTime <= 0.066) {
+        this.renderer.setStyle(footerElement, 'color', 'orange');
+      } else if (loadTime > 0.06) {
+        this.renderer.setStyle(footerElement, 'color', 'red');
+      }
+    }
   }
-
-  private configureCalendarLocale() {
-    this.primengConfig.setTranslation({
-      dayNames: ["E Diel", "E Hënë", "E Martë", "E Mërkurë", "E Enjte", "E Premte", "E Shtunë"],
-      dayNamesShort: ["Die", "Hën", "Mar", "Mër", "Enj", "Pre", "Sht"],
-      dayNamesMin: ["D", "H", "M", "M", "E", "P", "S"],
-      monthNames: [
-        "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor",
-        "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor"
-      ],
-      monthNamesShort: ["Jan", "Shk", "Mar", "Pri", "Maj", "Qer", "Kor", "Gus", "Sht", "Tet", "Nën", "Dhj"],
-      today: "Sot",
-      clear: "Pastro"
-    });
-  }
-
-
 }
