@@ -187,7 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ]
       this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
       this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'],translations['LNG_NOT_APPLICABLE']];
-      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName
+      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName ?? '';
     });
     this.translateCalendar();
     this.translateService.onLangChange.subscribe((event) => {
@@ -203,7 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
         this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
         this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'], translations['LNG_NOT_APPLICABLE']];
-        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName
+        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName ?? ''
       });
     });
    

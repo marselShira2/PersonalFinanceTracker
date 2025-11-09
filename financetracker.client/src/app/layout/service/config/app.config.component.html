@@ -6,29 +6,4 @@
 </button>
 
 
-
-<p-sidebar [(visible)]="visible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'" [style]="{ width: '200px' }"   styleClass="layout-config-sidebar w-30rem">
-
-  <h6>Logs</h6>
-
-
-  <p-timeline [value]="logs" [style]="{width: '10px'}" id="timeline2">
-    <ng-template pTemplate="content" let-log>
-      <div>
-        <strong>{{ log.username }}</strong>
-        <br />
-        <small>{{ log.description }}</small>
-        <br />
-        <small>{{ log.elapsedTime }}</small>
-      </div>
-    </ng-template>
-    <ng-template pTemplate="opposite" let-log>
-      <b>IP</b> {{ log.createdIp }}
-    </ng-template>
-  </p-timeline>
-  <br>
-
-  <a (click)="navigateToLogs()" style="cursor: pointer; text-decoration: none;"
-     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"><h6 class="mb-3">Click to see all logs ...</h6></a>
-
-</p-sidebar>
+ 

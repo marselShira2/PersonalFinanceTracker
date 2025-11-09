@@ -98,7 +98,9 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/roboto.css"
+                
             ],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
