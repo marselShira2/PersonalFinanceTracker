@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using FinanceTracker.Server.Data;
 
 namespace FinanceTracker.Server.Repositories
 {
@@ -25,9 +26,25 @@ namespace FinanceTracker.Server.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<List<User>> GetAllUsers()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetUserByResetTokenAsync(string token)
+        {
+            return await _context.Users
+         .FirstOrDefaultAsync(u => u.ResetToken == token);
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
         }
     }
 }

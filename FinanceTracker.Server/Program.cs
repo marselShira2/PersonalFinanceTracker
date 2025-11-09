@@ -3,6 +3,11 @@ using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using FinanceTracker.Server.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens; 
+using System.Text;
+
 
 //using FinanceTracker.Server.Repositories;
 //using FinanceTracker.Server.Interfaces;
@@ -15,8 +20,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<FinanceTracker.Server.Services.IPasswordHasher, FinanceTracker.Server.Services.PasswordHasher>();
+builder.Services.AddScoped<FinanceTracker.Server.Interfaces.IEmailService, FinanceTracker.Server.Services.EmailService>();
+builder.Services.AddSingleton<FinanceTracker.Server.Interfaces.IVerificationStore, FinanceTracker.Server.Services.VerificationStore>();
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtKey = builder.Configuration["Jwt:Key"];
 
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
+        };
+    });
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
