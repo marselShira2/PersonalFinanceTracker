@@ -52,9 +52,9 @@
             <p *ngIf="role !== 'Admin' && role !== 'Operator'">{{ 'User' | translate }}</p>
 
           </div>
-          <li (click)="viewProfile()">
+          <!--<li (click)="viewProfile()">
             <i class="pi pi-id-card"></i> {{ 'VIEWPROFILE' | translate }}
-          </li>
+          </li>-->
           <div class="user-dropdown-footer">
             <button (click)="logout()"><i class="pi pi-sign-out"></i> {{ 'LOGOUT' | translate }}</button>
           </div>

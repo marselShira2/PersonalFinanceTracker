@@ -1,9 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { LayoutService } from '../../../../layout/service/app.layout.service';
-import { AuthService } from '../../../../services/auth.service';
+import { AuthService, ForgotPasswordRequest, ResetPasswordRequest } from '../../../../services/auth.service';
 import { LoginRequest } from '../../../../interfaces/login-request';
-import { PasswordResetRequest } from '../../../../interfaces/password-reset-request';
-import { AuthResponse } from '../../../../interfaces/auth-response';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,17 +11,17 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   templateUrl: './login.component.html'
 })
-
 export class LoginComponent {
   authService = inject(AuthService);
   router = inject(Router);
   valCheck: string[] = ['remember'];
   isCollapsedMobile = 'no-block';
+
   email!: string;
   password!: string;
-  rememberMe: boolean = false; // Added for "Remember Me" functionality
+  rememberMe: boolean = false;
 
-
+  mode: 'login' | 'forgot' | 'reset' = 'login';
   isSendingEmailConfirmationCode: boolean = false;
 
   languages = [
@@ -34,6 +32,10 @@ export class LoginComponent {
   selectedLanguageFlag: string;
   dropdownVisible: boolean = false;
 
+  resetCode: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+
   translatedLabels: any = {};
 
   constructor(
@@ -42,7 +44,6 @@ export class LoginComponent {
     private cookieService: CookieService,
     private translate: TranslateService,
     private http: HttpClient
-
   ) {
     this.selectedLanguage = this.cookieService.get('selectedLanguage') || 'sq';
     this.selectedLanguageFlag = this.languages.find(lang => lang.code === this.selectedLanguage)?.flag || 'assets/flag/al-flag.png';
@@ -53,23 +54,22 @@ export class LoginComponent {
   }
 
   async ngOnInit(): Promise<void> {
-    const isLoggedIn = await this.authService.isLoggedIn(); // Await the asynchronous call
-
+    await this.authService.isLoggedIn();
     this.updateTranslations();
-
-    this.translate.onLangChange.subscribe(() => {
-      this.updateTranslations();
-    });
+    this.translate.onLangChange.subscribe(() => this.updateTranslations());
   }
 
   updateTranslations() {
     this.translate.get([
-      'LNG_PASSWORD_INCORRECT', 'LNG_USER_NOT_EXISTS','LNG_USER_IS_INACTIVE', 'ERROR', 'SUKSES'
+      'LNG_PASSWORD_INCORRECT',
+      'LNG_USER_NOT_EXISTS',
+      'LNG_USER_IS_INACTIVE',
+      'ERROR',
+      'SUKSES'
     ]).subscribe(translations => {
       this.translatedLabels = translations;
     });
   }
-
 
   toggleDropdown() {
     this.dropdownVisible = !this.dropdownVisible;
@@ -81,59 +81,148 @@ export class LoginComponent {
     this.dropdownVisible = false;
     this.translate.use(this.selectedLanguage);
     this.cookieService.set('selectedLanguage', this.selectedLanguage);
-    console.log('Language changed to:', this.selectedLanguage);
   }
 
   onLogin() {
-    debugger
-    console.log('entered login ')
     const loginRequest: LoginRequest = {
       email: this.email,
       password: this.password
-    }
-
-  
+    };
 
     this.cookieService.set('rememberMeChecked', this.rememberMe ? 'true' : 'false');
     this.cookieService.set('rememberMeCheckedUsername', btoa(this.email));
-    /*this.cookieService.set('rememberCheckedPassword', btoa(this.password));*/
 
     this.authService.login(loginRequest).subscribe({
-        next: response => {
-          if (response.token) {
-            localStorage.setItem('user', JSON.stringify(response)); 
-            this.router.navigate(['/dashboard']);
-          } 
-        else {
-          this.messageService.add({ key: 'responseToast', severity: 'error', summary: this.translatedLabels['ERROR'], detail: this.translatedLabels[response.message] });
+      next: response => {
+        if (response.token) {
+          localStorage.setItem('user', JSON.stringify(response));
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.messageService.add({
+            key: 'responseToast',
+            severity: 'error',
+            summary: this.translatedLabels['ERROR'],
+            detail: this.translatedLabels[response.message]
+          });
         }
       },
-      error: (error) => {
-        this.messageService.add({ key: 'responseToast', severity: 'error', summary: this.translatedLabels['ERROR'], detail: this.translatedLabels[error.error.message] });
+      error: error => {
+        this.messageService.add({
+          key: 'responseToast',
+          severity: 'error',
+          summary: this.translatedLabels['ERROR'],
+          detail: this.translatedLabels[error.error.message]
+        });
       }
     });
   }
 
-  onSignUp() { 
+  onForgotPassword() {
+    if (!this.email) {
+      this.messageService.add({
+        key: 'responseToast',
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please enter your email before resetting password.'
+      });
+      return;
+    }
+
+    this.isSendingEmailConfirmationCode = true;
+    const payload: ForgotPasswordRequest = { email: this.email };
+
+    this.authService.forgotPassword(payload).subscribe({
+      next: response => {
+        this.messageService.add({
+          key: 'responseToast',
+          severity: 'success',
+          summary: 'Success',
+          detail: response.message
+        });
+        this.mode = 'reset';
+      },
+      error: err => {
+        this.messageService.add({
+          key: 'responseToast',
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error || 'An error occurred.'
+        });
+      },
+      complete: () => (this.isSendingEmailConfirmationCode = false)
+    });
+  }
+
+  get enterEmailText(): string {
+    const translated = this.translate.instant('ENTER_EMAIL_RESET_CODE');
+    return translated && translated !== 'ENTER_EMAIL_RESET_CODE'
+      ? translated
+      : 'Enter your email to receive a 6-digit reset code.';
+  }
+
+  onResetPassword() {
+    if (!this.resetCode || !this.newPassword || !this.confirmPassword) {
+      this.messageService.add({
+        key: 'responseToast',
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please fill in all fields.'
+      });
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.messageService.add({
+        key: 'responseToast',
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Passwords do not match.'
+      });
+      return;
+    }
+
+    const payload: ResetPasswordRequest = {
+      email: this.email,
+      token: this.resetCode,
+      newPassword: this.newPassword
+    };
+
+    this.authService.resetPasswordWithCode(payload).subscribe({
+      next: response => {
+        this.messageService.add({
+          key: 'responseToast',
+          severity: 'success',
+          summary: 'Success',
+          detail: response.message
+        });
+        this.mode = 'login';
+        this.resetCode = this.newPassword = this.confirmPassword = '';
+      },
+      error: err => {
+        this.messageService.add({
+          key: 'responseToast',
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error || 'Invalid or expired code.'
+        });
+      }
+    });
+  }
+
+  onSignUp() {
     this.router.navigate(['/auth/register']);
   }
 
   checkCookies(): void {
     const rememberMeChecked = this.cookieService.get('rememberMeChecked');
     const rememberMeCheckedUsername = this.cookieService.get('rememberMeCheckedUsername');
-    /*const rememberMeCheckedPassword = this.cookieService.get('rememberCheckedPassword');*/
 
     if (rememberMeChecked === 'true') {
       this.rememberMe = true;
       this.email = atob(rememberMeCheckedUsername);
-      /*this.password = atob(rememberMeCheckedPassword);*/
-      console.log('rememberMeChecked is set to:', rememberMeChecked);
-      console.log('rememberMeCheckedUsername is set to:', rememberMeCheckedUsername);
     } else {
-      this.email = "";
+      this.email = '';
       this.rememberMe = false;
-      console.log('rememberMeChecked is not set.');
-      console.log('rememberMeCheckedUsername is not set.');
     }
   }
 }
