@@ -1,13 +1,30 @@
 import { Injectable, Injector } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { LoginRequest } from '../interfaces/login-request';
+import { RegisterRequest } from '../interfaces/register-request';
 import { PasswordResetRequest } from '../interfaces/password-reset-request';
 import { Observable, map, catchError, of } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
-import { CheckMfa } from '../interfaces/check-mfa'; 
-import { InactivityService } from  './ValidationFunctions/ActivityRefreshToken'
+import { CheckMfa } from '../interfaces/check-mfa';
+import { InactivityService } from './ValidationFunctions/ActivityRefreshToken'
+
+
+export interface VerifyCodeRequest {
+  email: string;
+  code: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+}
 
 export interface JwtPayload {
   iss?: string;
@@ -28,7 +45,7 @@ export interface JwtPayload {
 })
 
 export class AuthService {
-  
+
   apiUrl: string = environment.apiUrl;
   private userKey = 'user'
   private lastTime = 0;
@@ -45,13 +62,28 @@ export class AuthService {
     return this._inactivityService;
   }
 
-  login(data: LoginRequest): Observable<AuthResponse> {
+  login(data: LoginRequest): Observable<any> {
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/account/login`, data)
+      .post<any>(`${this.apiUrl}/Auth/login`, data)
+      .pipe(
+        map((response) => {
+          if (response.token) {
+            // Login successful
+            localStorage.setItem(this.userKey, JSON.stringify(response));
+            this.inactivityService.startMonitoring();
+          }
+          return response;
+        })
+      );
+  }
+
+  register(data: RegisterRequest): Observable<any> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/Auth/register`, data)
       .pipe(
         map((response) => {
           if (response.isSuccess) {
-            
+
             localStorage.setItem(this.userKey, JSON.stringify(response))
             this.inactivityService.startMonitoring();
           }
@@ -66,24 +98,76 @@ export class AuthService {
       );
   }
    
+  verifyCode(data: VerifyCodeRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/verify-code`, data).pipe(
+      map((response) => ({
+        success: true,
+        message: response.message || 'Account verified successfully.'
+      }))
+    );
+  }
 
-  setToLocalStorage(response: { token: string, email: string, authSource: string, refreshTokenValidity: Date,refreshToken: string}): Promise<void> {
+  
+   
+  forgotPassword(data: ForgotPasswordRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/forgot-password`, data).pipe(
+      map((response) => ({
+        success: true,
+        message: response.message || 'If an account exists, a reset code has been sent.'
+      }))
+    );
+  }
+   
+  resetPasswordWithCode(data: ResetPasswordRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/reset-password-with-code`, data).pipe(
+      map((response) => ({
+        success: true,
+        message: response.message || 'Password has been reset successfully.'
+      }))
+    );
+  }
+
+  resendVerificationCode(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/Auth/resend-code`, { email }).pipe(
+      map((response) => {
+        return {
+          success: true,
+          message: response.message || 'A new verification code has been sent to your email.'
+        };
+      }),
+      catchError((error) => {
+        let errorMessage = 'Failed to resend verification code.';
+        if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        return of({ success: false, message: errorMessage });
+      })
+    );
+  }
+
+  /////__________________________________________
+
+
+
+  setToLocalStorage(response: { token: string, email: string, authSource: string, refreshTokenValidity: Date, refreshToken: string }): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         console.log(" setToLocalStorage " + JSON.stringify(response))
 
-        localStorage.setItem('user', JSON.stringify(response)); 
-        localStorage.setItem('authSource', response.authSource); 
-        resolve();  
+        localStorage.setItem('user', JSON.stringify(response));
+        localStorage.setItem('authSource', response.authSource);
+        resolve();
       } catch (error) {
         console.log("Error: " + error)
-        reject(error);  
+        reject(error);
       }
     });
   }
- 
+
   validateParameters(userId: string, refreshToken: string, email: string): Observable<boolean> {
-    const requestPayload = { userId, refreshToken, email }; 
+    const requestPayload = { userId, refreshToken, email };
     return this.http
       .post<boolean>(`${this.apiUrl}/account/validate-login`, requestPayload)
       .pipe(
@@ -92,7 +176,7 @@ export class AuthService {
         })
       );
   }
-   
+
 
   // SSO Login Method
   ssoLogin(accessToken: string): Observable<AuthResponse> {
@@ -109,14 +193,14 @@ export class AuthService {
   }
   //Ben resetimin dhe dergimin e password te ri
   passwordReset(passwordResetRequest: PasswordResetRequest): Observable<AuthResponse> {
-      
+
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/account/passwordReset`, passwordResetRequest) 
+      .post<AuthResponse>(`${this.apiUrl}/account/passwordReset`, passwordResetRequest)
       .pipe(
         map((response) => {
-          if (response.isSuccess) { 
+          if (response.isSuccess) {
             var useremail = passwordResetRequest.email.replace(/['"]+/g, '');
-            localStorage.setItem("userEmail", useremail); 
+            localStorage.setItem("userEmail", useremail);
           }
           return response;
         })
@@ -124,20 +208,28 @@ export class AuthService {
   }
 
   getUserDetail = () => {
+    debugger
     const token = this.getToken();
     if (!token) return null;
-    const decodedToken = jwtDecode<JwtPayload>(token); // Assert the type here
-    
-    const userDetail = {
-      id: decodedToken.nameid,
-      fullName: decodedToken.name,
-      email: decodedToken.email,
-      roles: decodedToken.role || [],
-        rights: decodedToken.rights || "",
-        selfDeclaration: decodedToken.jti,
-    };
-    return userDetail;
+
+    try {
+      const decodedToken = jwtDecode<JwtPayload>(token);
+
+      const userDetail = {
+        id: decodedToken.nameid || null,      // userId from token
+        fullName: decodedToken.name || null,  // user name
+        email: decodedToken.email || null,    // user email
+        // roles and rights not present in token yet
+      };
+
+      return userDetail;
+
+    } catch (error) {
+      console.error("Failed to decode JWT:", error);
+      return null;
+    }
   }
+
 
   getToken = (): string | null => {
     const user = localStorage.getItem(this.userKey);
@@ -146,7 +238,7 @@ export class AuthService {
     return userDetail.token
   }
 
-  getRefreshToken = (): string | null => { 
+  getRefreshToken = (): string | null => {
     const user = localStorage.getItem(this.userKey);
     if (!user) return null;
     const userDetail: AuthResponse = JSON.parse(user);
@@ -176,8 +268,8 @@ export class AuthService {
       return false;
     }
     return true;
-  } 
-   
+  }
+
   private async isTokenExpired(): Promise<boolean> {
     const token = this.getToken();
     if (!token) return true;
@@ -186,20 +278,18 @@ export class AuthService {
     const isExpired = Date.now() >= (decodedToken.exp ?? 0) * 1000;
 
     if (isExpired) {
-      console.log("Token expired. Attempting refresh as a fallback..."); 
+      console.log("Token expired. Attempting refresh as a fallback...");
       const success = await this.refreshesToken().toPromise();
-      return !success;  
+      return !success;
     }
 
     return false; // Not expired
   }
-   
-   logout(): Observable<any> {
-    this.inactivityService.stopMonitoring();
-    localStorage.removeItem(this.userKey);
-    const authSource = localStorage.getItem("authSource");
-    return this.http.post<void>(`${this.apiUrl}/Logs/logout`, {});
-  } 
+
+  logout(){ 
+    localStorage.removeItem(this.userKey); 
+    this.clearLocalStorage();
+  }
   clearLocalStorage(): void {
     this.inactivityService.stopMonitoring();
     localStorage.removeItem(this.userKey);
@@ -212,7 +302,7 @@ export class AuthService {
   }): Observable<AuthResponse> =>
     this.http.post<AuthResponse>(`${this.apiUrl}/account/refresh-token`, data);
 
-     
+
   refreshesToken(): Observable<boolean> {
     return this.refreshToken({
       email: this.getUserDetail()?.email || "",
@@ -232,5 +322,5 @@ export class AuthService {
       })
     );
   }
-   
+
 }

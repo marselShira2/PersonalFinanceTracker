@@ -151,18 +151,10 @@ export class AppTopBarComponent implements OnInit {
 
 
   logout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.authService.clearLocalStorage();
-        this.router.navigate(['/auth/login']);
-      },
-      error: (err) => {
-        console.error('Error during logout:', err);
-
-      }
-    });
-
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
+
 
 
   

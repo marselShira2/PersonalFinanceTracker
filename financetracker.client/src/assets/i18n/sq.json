@@ -21,7 +21,32 @@
   "VIEWPROFILE": "Shiko Profilin",
   "LOGININSYSTEM": "Logohu ne sistem",
   "FinanceTracker": "Personal finance tracker",
-  "LNG_BACK": "Kthehu"
+  "LNG_BACK": "Kthehu",
+  "SIGN_UP": "Regjistrohu",
+  "REGISTERINSYSTEM": "Regjistrohu në sistem",
+  "USERNAME": "Përdoruesi",
+  "USERNAME_PLACEHOLDER": "Shkruani përdoruesin tuaj",
+  "USERNAME_REQUIRED": "Përdoruesi është i detyrueshëm",
+  "REGISTER_SUCCESS": "Regjistrimi u krye me sukses!",
+  "REGISTER_ERROR": "Ju lutemi plotësoni të gjitha fushat.",
+  "ERROR": "Gabim",
 
+  "TOTAL_BALANCE": "Bilanci Total",
+  "CURRENT_BALANCE": "Bilanci Aktual",
+  "MONTHLY_INCOME": "Të Ardhurat Mujore",
+  "MONTHLY_EXPENSES": "Shpenzimet Mujore",
+  "SAVINGS_GOAL": "Qëllimi i Kursimeve",
+  "OF_GOAL": "nga {{goal}} Qëllimi",
+  "INCOME_VS_EXPENSES": "Të Ardhurat kundrejt Shpenzimeve (6 Muajt e Fundit)",
+  "EXPENSE_CATEGORIES": "Kategoritë e Shpenzimeve",
+  "RECENT_TRANSACTIONS": "Transaksionet e Fundit",
+  "DATE": "Data",
+  "DESCRIPTION": "Përshkrimi",
+  "CATEGORY": "Kategoria",
+  "TYPE": "Lloji",
+  "AMOUNT": "Shuma",
+  "NOVEMBER": "Nëntor",
+  "WELCOME_MESSAGE": "Mirësevini në Finance Tracker",
+  "STATIC_DATA_NOTICE": "Të dhënat e mëposhtme janë statike për qëllime testimi, aplikacioni është ende në zhvillim."
 }
 

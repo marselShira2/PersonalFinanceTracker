@@ -23,7 +23,7 @@ export class NotificationsComponent implements OnInit {
   activeTab: 'new' | 'old' = 'new';
   notifications: any[] = [];
   languageChangeSubscription?: Subscription;
-  userId: string | undefined;
+  userId: string | undefined | null;
   constructor(private router: Router, private notificationService: NotificationService, private authService: AuthService, private translate: TranslateService, private cdr: ChangeDetectorRef) { }
 
 

@@ -1,0 +1,52 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden"
+     style="background-image: url('../../../../../assets/demo/images/login/bg-3.jpg');">
+  <p-toast position="top-right" key="responseToast" />
+
+  <div class="flex flex-column align-items-center justify-content-center large-screen lg:mb-2 medium-screen md\:-mb-2 small-screen mobile">
+    <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, #183462 10%, rgba(33, 150, 243, 0) 100%); ">
+      <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+
+        <div class="text-center mb-3">
+          <img style="width:25%;" src="assets/layout/images/logo.png" alt="logo">
+          <div class="text-900 text-2xl font-medium mb-1">{{ 'FinanceTracker' | translate }}<br /></div>
+          <span class="text-600 font-medium" *ngIf="!isVerifying">{{ 'REGISTERINSYSTEM' | translate }}</span>
+          <span class="text-600 font-medium" *ngIf="isVerifying">{{ 'VERIFY_YOUR_ACCOUNT' | translate }}</span>
+        </div>
+
+        <!-- 🔹 Registration Form -->
+        <div *ngIf="!isVerifying">
+          <label for="username" class="block text-900 text-xl font-medium mb-2">{{ 'USERNAME' | translate }}</label>
+          <input id="username" [(ngModel)]="username" type="text" placeholder="{{ 'USERNAME_PLACEHOLDER' | translate }}" required #usernameModel="ngModel" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem;">
+
+          <label for="email" class="block text-900 text-xl font-medium mb-2">{{ 'EMAIL' | translate }}</label>
+          <input id="email" [(ngModel)]="email" type="text" placeholder="{{ 'EMAIL_PLACEHOLDER' | translate }}" required email #emailModel="ngModel" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem;">
+
+          <label for="password" class="block text-900 font-medium text-xl mb-2">{{ 'PASSWORD' | translate }}</label>
+          <p-password id="password" [(ngModel)]="password" placeholder="{{ 'PASSWORD_PLACEHOLDER' | translate }}" required #passwordModel="ngModel" [feedback]="false" [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem"></p-password>
+
+          <button pButton pRipple label="{{ 'SIGN_UP' | translate }}" class="w-full p-3 text-xl"
+                  (click)="onRegister()"
+                  [disabled]="usernameModel.invalid || emailModel.invalid || passwordModel.invalid"></button>
+
+          <hr class="my-5">
+          <button pButton pRipple class="w-full p-2 text-xl position-relative sso-button-white2" (click)="onBack()">
+            <span class="sso-label2">{{ 'LNG_BACK' | translate }}</span>
+          </button>
+        </div>
+
+        <!-- 🔹 Verification Form -->
+        <div *ngIf="isVerifying">
+          <label for="verificationCode" class="block text-900 text-xl font-medium mb-2">{{ 'ENTER_VERIFICATION_CODE' | translate }}</label>
+          <input id="verificationCode" [(ngModel)]="verificationCode" type="text" placeholder="{{ 'CODE_PLACEHOLDER' | translate }}" required pInputText class="w-full md:w-30rem mb-5" style="padding:1rem;">
+
+          <button pButton pRipple label="{{ 'VERIFY_ACCOUNT' | translate }}" class="w-full p-3 text-xl mb-3"
+                  (click)="onVerifyCode()" [disabled]="!verificationCode"></button>
+
+          <button pButton pRipple label="{{ 'RESEND_CODE' | translate }}" class="w-full p-2 text-lg p-button-outlined"
+                  (click)="onResendCode()"></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,76 +1,86 @@
 <p-blockUI [blocked]="loading">
   <p-progressSpinner *ngIf="loading" styleClass="custom-spinner"></p-progressSpinner>
 </p-blockUI>
+
 <div style="text-align:center; margin:15px" class="mt-2 mb-2">
   <h4 class="page-header">{{ welcomeMessage }}</h4>
-</div>
+
+
+
+  <!-- Info message about static data -->
+  <p style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#555;">
+    <i class="pi pi-info-circle" style="font-size:1.2rem;"></i>
+    <span>{{ 'STATIC_DATA_NOTICE' | translate }}</span>
+  </p>
+</div> 
+
 <div class="grid p-4 gap-4">
   <!-- Summary Cards -->
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Total Balance" class="shadow-2">
+    <p-card header="{{ 'TOTAL_BALANCE' | translate }}" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-wallet text-4xl text-blue-500"></i>
         <h2>$12,430</h2>
-        <p>Current Balance</p>
+        <p>{{ 'CURRENT_BALANCE' | translate }}</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Monthly Income" class="shadow-2">
+    <p-card header="{{ 'MONTHLY_INCOME' | translate }}" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
         <h2>$3,200</h2>
-        <p>November</p>
+        <p>{{ 'NOVEMBER' | translate }}</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Monthly Expenses" class="shadow-2">
+    <p-card header="{{ 'MONTHLY_EXPENSES' | translate }}" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
         <h2>$2,450</h2>
-        <p>November</p>
+        <p>{{ 'NOVEMBER' | translate }}</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Savings Goal" class="shadow-2">
+    <p-card header="{{ 'SAVINGS_GOAL' | translate }}" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-chart-line text-4xl text-purple-500"></i>
         <h2>76%</h2>
-        <p>of $5,000 Goal</p>
+        <p>{{ 'OF_GOAL' | translate:{goal: '$5,000'} }}</p>
       </div>
     </p-card>
   </div>
 
   <!-- Chart Section -->
   <div class="col-12 lg:col-8">
-    <p-card header="Income vs Expenses (Last 6 Months)" class="shadow-2">
+    <p-card header="{{ 'INCOME_VS_EXPENSES' | translate }}" class="shadow-2">
       <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
     </p-card>
   </div>
 
   <!-- Expense Categories -->
   <div class="col-12 lg:col-4">
-    <p-card header="Expense Categories" class="shadow-2">
+    <p-card header="{{ 'EXPENSE_CATEGORIES' | translate }}" class="shadow-2">
       <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions"></p-chart>
     </p-card>
   </div>
 
   <!-- Recent Transactions -->
   <div class="col-12">
-    <p-card header="Recent Transactions" class="shadow-2">
+    <p-card header="{{ 'RECENT_TRANSACTIONS' | translate }}" class="shadow-2">
       <p-table [value]="transactions" [paginator]="true" [rows]="5" responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Amount</th>
+            <th>{{ 'DATE' | translate }}</th>
+            <th>{{ 'DESCRIPTION' | translate }}</th>
+            <th>{{ 'CATEGORY' | translate }}</th>
+            <th>{{ 'TYPE' | translate }}</th>
+            <th>{{ 'AMOUNT' | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-tx>

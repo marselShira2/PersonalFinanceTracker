@@ -85,27 +85,25 @@ export class LoginComponent {
   }
 
   onLogin() {
+    debugger
+    console.log('entered login ')
     const loginRequest: LoginRequest = {
       email: this.email,
-      password: this.password,
-      rememberMe: this.rememberMe // Include rememberMe in the request
+      password: this.password
     }
+
+  
 
     this.cookieService.set('rememberMeChecked', this.rememberMe ? 'true' : 'false');
     this.cookieService.set('rememberMeCheckedUsername', btoa(this.email));
     /*this.cookieService.set('rememberCheckedPassword', btoa(this.password));*/
 
     this.authService.login(loginRequest).subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
-          if (response.twoFactorAuthenticationChecked) {
-            this.messageService.add({ key: 'responseToast', severity: 'success', summary: this.translatedLabels['SUKSES'], detail: this.translatedLabels[response.message],  });
+        next: response => {
+          if (response.token) {
+            localStorage.setItem('user', JSON.stringify(response)); 
             this.router.navigate(['/dashboard']);
-          }
-          else {
-            this.router.navigate(['/auth/mfa']);
-          }
-        }
+          } 
         else {
           this.messageService.add({ key: 'responseToast', severity: 'error', summary: this.translatedLabels['ERROR'], detail: this.translatedLabels[response.message] });
         }
@@ -114,6 +112,10 @@ export class LoginComponent {
         this.messageService.add({ key: 'responseToast', severity: 'error', summary: this.translatedLabels['ERROR'], detail: this.translatedLabels[error.error.message] });
       }
     });
+  }
+
+  onSignUp() { 
+    this.router.navigate(['/auth/register']);
   }
 
   checkCookies(): void {

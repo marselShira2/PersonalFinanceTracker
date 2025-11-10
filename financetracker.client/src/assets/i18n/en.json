@@ -19,7 +19,31 @@
   "DASHBOARD": "Dashboard",
   "REGISTER": "Register",
   "FinanceTracker": "Personal finance tracker",
-  "LNG_BACK": "Back"
+  "LNG_BACK": "Back",
+  "REGISTERINSYSTEM": "Register in System",
+  "USERNAME": "Username",
+  "USERNAME_PLACEHOLDER": "Enter your username",
+  "USERNAME_REQUIRED": "Username is required",
+  "REGISTER_SUCCESS": "Registration successful!",
+  "REGISTER_ERROR": "Please fill all fields.",
+  "SIGN_UP": "Sign Up",
+  "ERROR": "Error",
 
+  "TOTAL_BALANCE": "Total Balance",
+  "CURRENT_BALANCE": "Current Balance",
+  "MONTHLY_INCOME": "Monthly Income",
+  "MONTHLY_EXPENSES": "Monthly Expenses",
+  "SAVINGS_GOAL": "Savings Goal",
+  "OF_GOAL": "of {{goal}} Goal",
+  "INCOME_VS_EXPENSES": "Income vs Expenses (Last 6 Months)",
+  "EXPENSE_CATEGORIES": "Expense Categories",
+  "RECENT_TRANSACTIONS": "Recent Transactions",
+  "DATE": "Date",
+  "DESCRIPTION": "Description",
+  "CATEGORY": "Category",
+  "TYPE": "Type",
+  "AMOUNT": "Amount",
+  "NOVEMBER": "November",
+  "STATIC_DATA_NOTICE": "The data below is static for testing purposes. The application is still under development."
 }
 

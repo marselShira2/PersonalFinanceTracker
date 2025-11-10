@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   jsonData?: any;
   items!: MenuItem[]; 
 
-  FullName: string | undefined = this.authService.getUserDetail()?.fullName;
+  FullName: string | null | undefined = this.authService.getUserDetail()?.fullName;
 
   responsiveOptions: any[] | undefined;
 
@@ -171,7 +171,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-
+    debugger
+    var test = this.authService.getUserDetail();
     this.items = [
       { label: 'Add New', icon: 'pi pi-fw pi-plus' },
       { label: 'Remove', icon: 'pi pi-fw pi-minus' }
@@ -187,7 +188,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ]
       this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
       this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'],translations['LNG_NOT_APPLICABLE']];
-      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName ?? '';
+      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName;
     });
     this.translateCalendar();
     this.translateService.onLangChange.subscribe((event) => {
@@ -203,7 +204,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
         this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
         this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'], translations['LNG_NOT_APPLICABLE']];
-        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName ?? ''
+        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName
       });
     });
    

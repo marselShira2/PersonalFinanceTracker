@@ -37,6 +37,8 @@
           </div>
           <button pButton pRipple label="{{ 'SIGN_IN' | translate }}" class="w-full p-3 text-xl" (click)="onLogin()" [disabled]="emailModel.invalid || passwordModel.invalid"></button>
 
+          <button pButton pRipple label="{{ 'SIGN_UP' | translate }}" class="w-full p-3 text-xl" (click)="onSignUp()"></button>
+
           <hr class="my-5">
 
           <button pButton pRipple class="w-full p-2 text-xl position-relative sso-button-white2">
@@ -44,9 +46,9 @@
             <span class="sso-label2">{{ 'LNG_BACK' | translate }}</span>
           </button>
           <!--<button pButton pRipple class="w-full p-3 text-xl flex align-items-center justify-content-center sso-button-white" (click)="onSSOLogin()">
-          <img src="assets/layout/images/e-albaniaLogo.png" alt="SSO Logo" class="sso-logo-white">
-          {{ 'LNG_GOVERNMENT_EMPLOYEE_LOGIN' | translate }}
-        </button>-->
+    <img src="assets/layout/images/e-albaniaLogo.png" alt="SSO Logo" class="sso-logo-white">
+    {{ 'LNG_GOVERNMENT_EMPLOYEE_LOGIN' | translate }}
+  </button>-->
         </div>
       </div>
     </div>

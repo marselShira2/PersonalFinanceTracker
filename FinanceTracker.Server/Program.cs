@@ -44,6 +44,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SpecificOrigin", builder =>
+    {
+        builder.WithOrigins(
+                "https://localhost:4200",
+                "https://127.0.0.1:5001",
+                "https://127.0.0.1:42312",
+                "https://localhost:4200",
+                "https://localhost:5001",
+                "https://127.0.0.1:4200"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 //builder.Services.ConfigureApplicationCookie(options =>
 
@@ -58,12 +75,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 //});
 
-
+//builder.Services.AddSession();
 var app = builder.Build();
 
 // Serve static files from wwwroot (for production Angular build)
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseHttpsRedirection();
+
+app.UseCors("SpecificOrigin");
 
 // Swagger in development
 if (app.Environment.IsDevelopment())
@@ -84,9 +104,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
-
-// Map API controllers
+app.UseAuthentication();
+app.UseAuthorization();// Map API controllers
 app.MapControllers();
 
 // Fallback to index.html for client-side routing in production

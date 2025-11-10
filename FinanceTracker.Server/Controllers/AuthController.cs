@@ -79,6 +79,7 @@ namespace FinanceTracker.Server.Controllers
 
             var responseData = new
             {
+                success = true,
                 newUser.UserId,
                 newUser.Name,
                 newUser.Email,
@@ -115,7 +116,31 @@ namespace FinanceTracker.Server.Controllers
             return Ok(new { Message = "Account successfully verified. You can now log in." });
         }
 
-        
+        [HttpPost("resend-code")]
+        public async Task<IActionResult> ResendCode([FromBody] UserVerifyCodeDto dto)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+            if (user == null)
+                return NotFound("User not found.");
+
+            if (user.IsVerified)
+                return BadRequest("User is already verified.");
+
+            string newCode = new Random().Next(100000, 999999).ToString();
+            _verificationStore.AddCode(user.UserId, newCode);
+
+            var emailBody = $"Your new Finance Tracker verification code is: <strong>{newCode}</strong>. Please enter this code to activate your account.";
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Your New Verification Code",
+                emailBody
+            );
+
+            return Ok(new { Message = "A new verification code has been sent to your email." });
+        }
+
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] UserForgotPasswordDto dto)
         {
@@ -132,7 +157,7 @@ namespace FinanceTracker.Server.Controllers
             }
 
             string resetCode = new Random().Next(100000, 999999).ToString();
-            DateTime expiry = DateTime.UtcNow.AddMinutes(5); 
+            DateTime expiry = DateTime.UtcNow.AddMinutes(5);
 
             user.ResetToken = resetCode;
             user.ResetTokenExpiry = expiry;
@@ -244,34 +269,46 @@ namespace FinanceTracker.Server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
         {
-            var user = await _userRepository.GetUserByEmailAsync(loginDto.Email);
-
-            if (user == null || !_passwordHasher.VerifyPassword(loginDto.Password, user.Password))
+            try
             {
-                return Unauthorized(new { Message = "Invalid email or password." });
+                var user = await _userRepository.GetUserByEmailAsync(loginDto.Email);
+
+                if (user == null || !_passwordHasher.VerifyPassword(loginDto.Password, user.Password))
+                {
+                    return Unauthorized(new { Message = "Invalid email or password." });
+                }
+
+                if (!user.IsVerified)
+                {
+                    return Unauthorized(new { Message = "Account is not verified. Please submit your 6-digit code to activate." });
+                }
+
+                var token = GenerateJwtToken(user);
+
+                return Ok(new
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    User = new { user.UserId, user.Name, user.Email }
+                });
             }
-
-            if (!user.IsVerified)
+            catch (Exception ex)
             {
-                return Unauthorized(new { Message = "Account is not verified. Please submit your 6-digit code to activate." });
+                // ✅ Return a clean 500 response
+                return StatusCode(500, new
+                {
+                    message = "An internal server error occurred.",
+                    error = ex.Message // optional, you can remove in production
+                });
             }
-
-            var token = GenerateJwtToken(user);
-
-            return Ok(new
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                User = new { user.UserId, user.Name, user.Email }
-            });
         }
 
         private JwtSecurityToken GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Name)
+                new Claim("id", user.UserId.ToString()),
+                new Claim("name", user.Name),
+                new Claim("email", user.Email)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

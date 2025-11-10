@@ -48,8 +48,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { MenuModule } from 'primeng/menu';
-import { RegisterComponent } from './Views/register/register.component';
+import { MenuModule } from 'primeng/menu'; 
+import { RegisterComponent } from './demo/components/auth/register/register.component';  
 import { UserProfileComponent } from './Views/userProfile/userProfile.component';
 import { SliderModule } from 'primeng/slider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -95,8 +95,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     DashboardComponent,
     NotfoundComponent,
     UserListComponent,
-    UserProfileComponent,
-    RegisterComponent
+    UserProfileComponent
   ],
 
 

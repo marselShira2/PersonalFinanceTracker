@@ -5,9 +5,9 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
 import { UserProfileComponent } from './Views/userProfile/userProfile.component';
 import { authGuard } from './guards/auth.guard'; 
 import { LoginComponent } from './demo/components/auth/login/login.component';
+import { RegisterComponent } from './demo/components/auth/register/register.component'; 
 //import { Login1Component } from './demo/components/auth/login1/login1.component';
-import { DashboardComponent } from './demo/components/dashboard/dashboard.component';
-import { RegisterComponent } from './Views/register/register.component';
+import { DashboardComponent } from './demo/components/dashboard/dashboard.component'; 
 import { UserListComponent } from './Views/userList/userList.component';
 
 @NgModule({
@@ -16,10 +16,8 @@ import { UserListComponent } from './Views/userList/userList.component';
       {
         path: '', component: AppLayoutComponent,
         children: [
-          { path: 'dashboard', component: DashboardComponent},
-          { path: 'login', component: LoginComponent },
+          { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
           //{ path: 'loginCredential', component: Login1Component },
-          { path: 'register', component: RegisterComponent, canActivate: [authGuard] },
           { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
           { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule), canActivate: [authGuard] },
           { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule), canActivate: [authGuard] },
@@ -28,7 +26,6 @@ import { UserListComponent } from './Views/userList/userList.component';
           { path: 'pages', loadChildren: () => import('./demo/components/pages/pages.module').then(m => m.PagesModule), canActivate: [authGuard] },
           { path: 'userProfile', component: UserProfileComponent, canActivate: [authGuard] },
           { path: 'usersList', component: UserListComponent, canActivate: [authGuard] },
-          { path: 'register', component: RegisterComponent, canActivate: [authGuard] },
        
         ]
       },
