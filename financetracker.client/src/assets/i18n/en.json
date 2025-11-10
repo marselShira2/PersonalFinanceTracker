@@ -44,6 +44,13 @@
   "TYPE": "Type",
   "AMOUNT": "Amount",
   "NOVEMBER": "November",
-  "STATIC_DATA_NOTICE": "The data below is static for testing purposes. The application is still under development."
+  "STATIC_DATA_NOTICE": "The data below is static for testing purposes. The application is still under development.",
+  "RESET_PASSWORD": "Reset Password",
+  "ENTER_RESET_CODE": "Enter the 6-digit reset code",
+  "NEW_PASSWORD": "New Password",
+  "CONFIRM_PASSWORD": "Confirm Password",
+  "BACK_TO_LOGIN": "Back to Login",
+  "SEND_RESET_CODE": "Send Reset Code",
+  "ENTER_EMAIL_RESET_CODE": "Enter your email to receive a 6-digit reset code"
 }
 

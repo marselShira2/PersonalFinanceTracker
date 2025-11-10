@@ -2,53 +2,124 @@
      style="background-image: url('../../../../../assets/demo/images/login/bg-3.jpg');">
   <p-toast position="top-right" key="responseToast" />
   <div class="flex flex-column align-items-center justify-content-center large-screen lg:mb-2 medium-screen md\:-mb-2 small-screen mobile">
-
-
-    <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, #183462 10%, rgba(33, 150, 243, 0) 100%); ">
+    <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, #183462 10%, rgba(33, 150, 243, 0) 100%);">
       <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
         <div class="text-center mb-3">
-          <img style="width:25%;" src="assets/layout/images/logo.png" alt="logo">
-
+          <img style="width:25%;" src="assets/layout/images/logo.png" alt="logo" />
           <div class="text-900 text-2xl font-medium mb-1">{{ 'FinanceTracker' | translate }}<br /></div>
-          <span class="text-600 font-medium">{{ 'LOGININSYSTEM' | translate }}</span>
+          <span class="text-600 font-medium">
+            {{ mode === 'login' ? ('LOGININSYSTEM' | translate) : mode === 'forgot' ? ('FORGOT_PASSWORD' | translate) : ('RESET_PASSWORD' | translate) }}
+          </span>
         </div>
-        <div>
+
+        <!-- ===================== LOGIN FORM ===================== -->
+        <div *ngIf="mode === 'login'">
           <label for="email1" class="block text-900 text-xl font-medium mb-2">{{ 'EMAIL' | translate }}</label>
-          <input id="email1" [(ngModel)]="email" type="text" placeholder="{{ 'EMAIL_PLACEHOLDER' | translate }}" required email #emailModel="ngModel" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem; margin-bottom:0px !important;"
-                 (keydown.enter)="onLogin()">
+          <input id="email1"
+                 [(ngModel)]="email"
+                 type="text"
+                 placeholder="{{ 'EMAIL_PLACEHOLDER' | translate }}"
+                 required
+                 email
+                 #emailModel="ngModel"
+                 pInputText
+                 class="w-full md:w-30rem mb-5"
+                 style="padding:1rem; margin-bottom:0px !important;"
+                 (keydown.enter)="onLogin()" />
           <div *ngIf="emailModel.invalid && emailModel.dirty" class="text-red-500 mb-5">
             <div *ngIf="emailModel.errors?.['required']">{{ 'EMAIL_REQUIRED' | translate }}</div>
             <div *ngIf="emailModel.errors?.['email']">{{ 'EMAIL_INVALID' | translate }}</div>
           </div>
 
           <label for="password1" class="block text-900 font-medium text-xl mb-2" style="margin-top:25px !important;">{{ 'PASSWORD' | translate }}</label>
-          <p-password id="password1" [(ngModel)]="password" placeholder="{{ 'PASSWORD_PLACEHOLDER' | translate }}" required #passwordModel="ngModel" [feedback]="false" [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem"
+          <p-password id="password1"
+                      [(ngModel)]="password"
+                      placeholder="{{ 'PASSWORD_PLACEHOLDER' | translate }}"
+                      required
+                      #passwordModel="ngModel"
+                      [feedback]="false"
+                      [toggleMask]="true"
+                      styleClass="mb-5"
+                      inputStyleClass="w-full p-3 md:w-30rem"
                       (keydown.enter)="onLogin()"></p-password>
-          <div *ngIf="passwordModel.invalid && passwordModel.dirty " class="text-red-500 mb-5">
+
+          <div *ngIf="passwordModel.invalid && passwordModel.dirty" class="text-red-500 mb-5">
             <div *ngIf="passwordModel.errors?.['required']">{{ 'PASSWORD_REQUIRED' | translate }}</div>
           </div>
 
           <div class="flex align-items-center justify-content-between mb-5 gap-5" style="margin-top:25px;">
-            <div class="flex align-items-center">
-              <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2" [(ngModel)]="rememberMe"></p-checkbox>
-              <label for="rememberme1">{{ 'REMEMBER_ME' | translate }}</label>
-            </div>
-            <a (click)="!emailModel.errors?.['email']  && !isSendingEmailConfirmationCode" class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">{{ 'FORGOT_PASSWORD' | translate }}</a>
+            <div class="flex align-items-center"></div>
+            <a class="font-medium no-underline ml-2 text-right cursor-pointer"
+               style="color: var(--primary-color)"
+               (click)="mode = 'forgot'">{{ 'FORGOT_PASSWORD' | translate }}</a>
           </div>
-          <button pButton pRipple label="{{ 'SIGN_IN' | translate }}" class="w-full p-3 text-xl" (click)="onLogin()" [disabled]="emailModel.invalid || passwordModel.invalid"></button>
 
+          <button pButton
+                  pRipple
+                  label="{{ 'SIGN_IN' | translate }}"
+                  class="w-full p-3 text-xl"
+                  (click)="onLogin()"
+                  [disabled]="emailModel.invalid || passwordModel.invalid"></button>
+          <br />
+          <br />
           <button pButton pRipple label="{{ 'SIGN_UP' | translate }}" class="w-full p-3 text-xl" (click)="onSignUp()"></button>
 
-          <hr class="my-5">
-
-          <button pButton pRipple class="w-full p-2 text-xl position-relative sso-button-white2">
-            <!--<img src="assets/layout/images/azureLoginImage.png" alt="SSO Logo" class="sso-logo-white2">-->
+          <hr class="my-5" />
+          <!--<button pButton pRipple class="w-full p-2 text-xl position-relative sso-button-white2">
             <span class="sso-label2">{{ 'LNG_BACK' | translate }}</span>
+          </button>-->
+        </div>
+
+        <!-- ===================== FORGOT PASSWORD (STEP 1) ===================== -->
+        <div *ngIf="mode === 'forgot'">
+          <!--<h3 class="text-center mb-4">{{ 'FORGOT_PASSWORD' | translate }}</h3>-->
+          <p class="text-center mb-4">{{ enterEmailText }}</p>
+
+          <input type="email"
+                 pInputText
+                 [(ngModel)]="email"
+                 placeholder="{{ 'EMAIL_PLACEHOLDER' | translate }}"
+                 class="w-full md:w-30rem mb-4" />
+
+          <button pButton
+                  pRipple
+                  label="{{ 'SEND_RESET_CODE' | translate }}"
+                  class="w-full p-3 text-xl mb-5"
+                  (click)="onForgotPassword()"
+                  [disabled]="isSendingEmailConfirmationCode"></button>
+
+           
+          <!--<a class="font-medium no-underline mt-3 d-block text-center cursor-pointer"
+             style="color: var(--primary-color)"
+             (click)="mode = 'login'">{{ 'BACK_TO_LOGIN' | translate }}</a>-->
+
+          <button pButton pRipple (click)="mode = 'login'" class="w-full p-2 text-xl position-relative sso-button-white2">
+            <span class="sso-label2">{{ 'BACK_TO_LOGIN' | translate }}</span>
           </button>
-          <!--<button pButton pRipple class="w-full p-3 text-xl flex align-items-center justify-content-center sso-button-white" (click)="onSSOLogin()">
-    <img src="assets/layout/images/e-albaniaLogo.png" alt="SSO Logo" class="sso-logo-white">
-    {{ 'LNG_GOVERNMENT_EMPLOYEE_LOGIN' | translate }}
-  </button>-->
+
+        </div>
+
+        <!-- ===================== RESET PASSWORD (STEP 2) ===================== -->
+        <div *ngIf="mode === 'reset'">
+          <h3 class="text-center mb-4">{{ 'RESET_PASSWORD' | translate }}</h3>
+
+          <label for="code" class="block text-900 font-medium mb-2">{{ 'ENTER_RESET_CODE' | translate }}</label>
+          <input id="code" type="text" pInputText class="w-full mb-4" [(ngModel)]="resetCode" maxlength="6" />
+
+          <label for="newPassword" class="block text-900 font-medium mb-2">{{ 'NEW_PASSWORD' | translate }}</label>
+          <p-password id="newPassword" [(ngModel)]="newPassword" class="w-full mb-4" [feedback]="true"></p-password>
+
+          <label for="confirmPassword" class="block text-900 font-medium mb-2">{{ 'CONFIRM_PASSWORD' | translate }}</label>
+          <p-password id="confirmPassword" [(ngModel)]="confirmPassword" class="w-full mb-4" [feedback]="false"></p-password>
+
+          <button pButton pRipple label="{{ 'RESET_PASSWORD' | translate }}" class="w-full p-3 text-xl" (click)="onResetPassword()"></button>
+
+          <!--<a class="font-medium no-underline mt-3 d-block text-center cursor-pointer"
+             style="color: var(--primary-color)"
+             (click)="mode = 'login'">{{ 'BACK_TO_LOGIN' | translate }}</a>-->
+          <button pButton pRipple  (click)="mode = 'login'" class="w-full p-2 text-xl position-relative sso-button-white2">
+          <span class="sso-label2">{{ 'LNG_BACK' | translate }}</span>
+        </button>
         </div>
       </div>
     </div>

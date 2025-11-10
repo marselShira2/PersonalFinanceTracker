@@ -3,13 +3,13 @@ import { environment } from '../../environments/environment';
 import { LoginRequest } from '../interfaces/login-request';
 import { RegisterRequest } from '../interfaces/register-request';
 import { PasswordResetRequest } from '../interfaces/password-reset-request';
-import { Observable, map, catchError, of } from 'rxjs';
+import { Observable, map, catchError, of, throwError } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 import { CheckMfa } from '../interfaces/check-mfa';
 import { InactivityService } from './ValidationFunctions/ActivityRefreshToken'
-
+//  
 
 export interface VerifyCodeRequest {
   email: string;
@@ -111,21 +111,43 @@ export class AuthService {
    
   forgotPassword(data: ForgotPasswordRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Auth/forgot-password`, data).pipe(
-      map((response) => ({
+      map(response => ({
         success: true,
-        message: response.message || 'If an account exists, a reset code has been sent.'
-      }))
+        message:
+          response.message ||
+          response.Message ||
+          'If an account with that email exists, a password reset code has been sent.'
+      })),
+      catchError((error: HttpErrorResponse) => {
+        const msg =
+          error.error?.Message ||
+          error.error ||
+          'Failed to send password reset email. Please try again.';
+        return throwError(() => ({ success: false, message: msg }));
+      })
     );
   }
-   
+
+  // ✅ Reset Password with 6-digit code
   resetPasswordWithCode(data: ResetPasswordRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Auth/reset-password-with-code`, data).pipe(
-      map((response) => ({
+      map(response => ({
         success: true,
-        message: response.message || 'Password has been reset successfully.'
-      }))
+        message:
+          response.message ||
+          response.Message ||
+          'Password has been successfully reset. You can now log in.'
+      })),
+      catchError((error: HttpErrorResponse) => {
+        const msg =
+          error.error?.Message ||
+          error.error ||
+          'Invalid or expired reset code.';
+        return throwError(() => ({ success: false, message: msg }));
+      })
     );
   }
+
 
   resendVerificationCode(email: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/Auth/Auth/resend-code`, { email }).pipe(
