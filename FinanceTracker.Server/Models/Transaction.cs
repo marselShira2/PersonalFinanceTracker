@@ -36,6 +36,9 @@ public partial class Transaction
     [Column("date")]
     public DateOnly Date { get; set; }
 
+    [Column("is_recurring")]
+    public bool IsRecurring { get; set; } = false; // Added
+
     [ForeignKey("CategoryId")]
     [InverseProperty("Transactions")]
     public virtual Category? Category { get; set; }
