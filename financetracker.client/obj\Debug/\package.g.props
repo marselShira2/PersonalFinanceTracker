@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PackageJsonName Condition="$(PackageJsonName) == ''">financetracker.client</PackageJsonName>
+    <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">0.0.0</PackageJsonVersion>
+    <PackageJsonScriptsNg Condition="$(PackageJsonScriptsNg) == ''">ng</PackageJsonScriptsNg>
+    <PackageJsonScriptsStart Condition="$(PackageJsonScriptsStart) == ''">run-script-os</PackageJsonScriptsStart>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">ng build --configuration=production 2&gt; /dev/null</PackageJsonScriptsBuild>
+    <PackageJsonScriptsWatch Condition="$(PackageJsonScriptsWatch) == ''">ng build --watch --configuration development 2&gt; /dev/null</PackageJsonScriptsWatch>
+    <PackageJsonScriptsTest Condition="$(PackageJsonScriptsTest) == ''">ng test 2&gt; /dev/null</PackageJsonScriptsTest>
+    <PackageJsonScriptsPrestart Condition="$(PackageJsonScriptsPrestart) == ''">node aspnetcore-https</PackageJsonScriptsPrestart>
+    <PackageJsonScriptsStartWindows Condition="$(PackageJsonScriptsStartWindows) == ''">ng serve --ssl --ssl-cert "%APPDATA%\ASP.NET\https\%npm_package_name%.pem" --ssl-key "%APPDATA%\ASP.NET\https\%npm_package_name%.key" --host=localhost 2&gt; NUL</PackageJsonScriptsStartWindows>
+    <PackageJsonScriptsStartDefault Condition="$(PackageJsonScriptsStartDefault) == ''">ng serve --ssl --ssl-cert "$HOME/.aspnet/https/${npm_package_name}.pem" --ssl-key "$HOME/.aspnet/https/${npm_package_name}.key" --host=localhost 2&gt; /dev/null</PackageJsonScriptsStartDefault>
+    <PackageJsonPrivate Condition="$(PackageJsonPrivate) == ''">true</PackageJsonPrivate>
+    <PackageJsonDependenciesAngularSliderNgxSlider Condition="$(PackageJsonDependenciesAngularSliderNgxSlider) == ''">^18.0.0</PackageJsonDependenciesAngularSliderNgxSlider>
+    <PackageJsonDependenciesAngularAnimations Condition="$(PackageJsonDependenciesAngularAnimations) == ''">^18.2.8</PackageJsonDependenciesAngularAnimations>
+    <PackageJsonDependenciesAngularCdk Condition="$(PackageJsonDependenciesAngularCdk) == ''">^17.3.0</PackageJsonDependenciesAngularCdk>
+    <PackageJsonDependenciesAngularCommon Condition="$(PackageJsonDependenciesAngularCommon) == ''">^18.2.12</PackageJsonDependenciesAngularCommon>
+    <PackageJsonDependenciesAngularCompiler Condition="$(PackageJsonDependenciesAngularCompiler) == ''">^18.2.8</PackageJsonDependenciesAngularCompiler>
+    <PackageJsonDependenciesAngularCore Condition="$(PackageJsonDependenciesAngularCore) == ''">^18.2.8</PackageJsonDependenciesAngularCore>
+    <PackageJsonDependenciesAngularForms Condition="$(PackageJsonDependenciesAngularForms) == ''">^18.2.8</PackageJsonDependenciesAngularForms>
+    <PackageJsonDependenciesAngularPlatformBrowser Condition="$(PackageJsonDependenciesAngularPlatformBrowser) == ''">^18.2.8</PackageJsonDependenciesAngularPlatformBrowser>
+    <PackageJsonDependenciesAngularPlatformBrowserDynamic Condition="$(PackageJsonDependenciesAngularPlatformBrowserDynamic) == ''">^18.2.8</PackageJsonDependenciesAngularPlatformBrowserDynamic>
+    <PackageJsonDependenciesAngularRouter Condition="$(PackageJsonDependenciesAngularRouter) == ''">^18.2.8</PackageJsonDependenciesAngularRouter>
+    <PackageJsonDependenciesCanvasjsAngularCharts Condition="$(PackageJsonDependenciesCanvasjsAngularCharts) == ''">^1.2.0</PackageJsonDependenciesCanvasjsAngularCharts>
+    <PackageJsonDependenciesCanvasjsCharts Condition="$(PackageJsonDependenciesCanvasjsCharts) == ''">^3.10.13</PackageJsonDependenciesCanvasjsCharts>
+    <PackageJsonDependenciesFortawesomeFontawesomeFree Condition="$(PackageJsonDependenciesFortawesomeFontawesomeFree) == ''">^6.6.0</PackageJsonDependenciesFortawesomeFontawesomeFree>
+    <PackageJsonDependenciesFullcalendarAngular Condition="$(PackageJsonDependenciesFullcalendarAngular) == ''">^6.1.15</PackageJsonDependenciesFullcalendarAngular>
+    <PackageJsonDependenciesFullcalendarCore Condition="$(PackageJsonDependenciesFullcalendarCore) == ''">^6.1.15</PackageJsonDependenciesFullcalendarCore>
+    <PackageJsonDependenciesFullcalendarDaygrid Condition="$(PackageJsonDependenciesFullcalendarDaygrid) == ''">^6.1.15</PackageJsonDependenciesFullcalendarDaygrid>
+    <PackageJsonDependenciesFullcalendarInteraction Condition="$(PackageJsonDependenciesFullcalendarInteraction) == ''">^6.1.15</PackageJsonDependenciesFullcalendarInteraction>
+    <PackageJsonDependenciesFullcalendarList Condition="$(PackageJsonDependenciesFullcalendarList) == ''">^6.1.15</PackageJsonDependenciesFullcalendarList>
+    <PackageJsonDependenciesFullcalendarTimegrid Condition="$(PackageJsonDependenciesFullcalendarTimegrid) == ''">^6.1.15</PackageJsonDependenciesFullcalendarTimegrid>
+    <PackageJsonDependenciesMicrosoftSignalr Condition="$(PackageJsonDependenciesMicrosoftSignalr) == ''">^8.0.7</PackageJsonDependenciesMicrosoftSignalr>
+    <PackageJsonDependenciesNgxTranslateCore Condition="$(PackageJsonDependenciesNgxTranslateCore) == ''">^15.0.0</PackageJsonDependenciesNgxTranslateCore>
+    <PackageJsonDependenciesNgxTranslateHttpLoader Condition="$(PackageJsonDependenciesNgxTranslateHttpLoader) == ''">^8.0.0</PackageJsonDependenciesNgxTranslateHttpLoader>
+    <PackageJsonDependenciesAngularFileSaver Condition="$(PackageJsonDependenciesAngularFileSaver) == ''">^1.1.3</PackageJsonDependenciesAngularFileSaver>
+    <PackageJsonDependenciesBootstrap Condition="$(PackageJsonDependenciesBootstrap) == ''">^5.3.3</PackageJsonDependenciesBootstrap>
+    <PackageJsonDependenciesChartJs Condition="$(PackageJsonDependenciesChartJs) == ''">^4.4.3</PackageJsonDependenciesChartJs>
+    <PackageJsonDependenciesChartjsPluginDatalabels Condition="$(PackageJsonDependenciesChartjsPluginDatalabels) == ''">^2.2.0</PackageJsonDependenciesChartjsPluginDatalabels>
+    <PackageJsonDependenciesDocx Condition="$(PackageJsonDependenciesDocx) == ''">^9.1.0</PackageJsonDependenciesDocx>
+    <PackageJsonDependenciesFabric Condition="$(PackageJsonDependenciesFabric) == ''">^6.4.3</PackageJsonDependenciesFabric>
+    <PackageJsonDependenciesFileSaver Condition="$(PackageJsonDependenciesFileSaver) == ''">^2.0.5</PackageJsonDependenciesFileSaver>
+    <PackageJsonDependenciesHtml2canvas Condition="$(PackageJsonDependenciesHtml2canvas) == ''">^1.4.1</PackageJsonDependenciesHtml2canvas>
+    <PackageJsonDependenciesJestEditorSupport Condition="$(PackageJsonDependenciesJestEditorSupport) == ''">*</PackageJsonDependenciesJestEditorSupport>
+    <PackageJsonDependenciesJspdf Condition="$(PackageJsonDependenciesJspdf) == ''">^2.5.2</PackageJsonDependenciesJspdf>
+    <PackageJsonDependenciesJwtDecode Condition="$(PackageJsonDependenciesJwtDecode) == ''">^4.0.0</PackageJsonDependenciesJwtDecode>
+    <PackageJsonDependenciesNg2PdfViewer Condition="$(PackageJsonDependenciesNg2PdfViewer) == ''">10.3.0</PackageJsonDependenciesNg2PdfViewer>
+    <PackageJsonDependenciesNgxCookieService Condition="$(PackageJsonDependenciesNgxCookieService) == ''">^18.0.0</PackageJsonDependenciesNgxCookieService>
+    <PackageJsonDependenciesPdfLib Condition="$(PackageJsonDependenciesPdfLib) == ''">^1.17.1</PackageJsonDependenciesPdfLib>
+    <PackageJsonDependenciesPdfjsDist Condition="$(PackageJsonDependenciesPdfjsDist) == ''">^4.8.69</PackageJsonDependenciesPdfjsDist>
+    <PackageJsonDependenciesPrimeflex Condition="$(PackageJsonDependenciesPrimeflex) == ''">^3.3.1</PackageJsonDependenciesPrimeflex>
+    <PackageJsonDependenciesPrimeicons Condition="$(PackageJsonDependenciesPrimeicons) == ''">^7.0.0</PackageJsonDependenciesPrimeicons>
+    <PackageJsonDependenciesPrimeng Condition="$(PackageJsonDependenciesPrimeng) == ''">^17.18.7</PackageJsonDependenciesPrimeng>
+    <PackageJsonDependenciesQuill Condition="$(PackageJsonDependenciesQuill) == ''">^2.0.2</PackageJsonDependenciesQuill>
+    <PackageJsonDependenciesRunScriptOs Condition="$(PackageJsonDependenciesRunScriptOs) == ''">*</PackageJsonDependenciesRunScriptOs>
+    <PackageJsonDependenciesRxjs Condition="$(PackageJsonDependenciesRxjs) == ''">~7.8.0</PackageJsonDependenciesRxjs>
+    <PackageJsonDependenciesSignaturePad Condition="$(PackageJsonDependenciesSignaturePad) == ''">^5.0.4</PackageJsonDependenciesSignaturePad>
+    <PackageJsonDependenciesTslib Condition="$(PackageJsonDependenciesTslib) == ''">^2.3.0</PackageJsonDependenciesTslib>
+    <PackageJsonDependenciesXlsx Condition="$(PackageJsonDependenciesXlsx) == ''">^0.18.5</PackageJsonDependenciesXlsx>
+    <PackageJsonDependenciesZoneJs Condition="$(PackageJsonDependenciesZoneJs) == ''">~0.14.3</PackageJsonDependenciesZoneJs>
+    <PackageJsonDevdependenciesAngularDevkitBuildAngular Condition="$(PackageJsonDevdependenciesAngularDevkitBuildAngular) == ''">^18.2.12</PackageJsonDevdependenciesAngularDevkitBuildAngular>
+    <PackageJsonDevdependenciesAngularCli Condition="$(PackageJsonDevdependenciesAngularCli) == ''">^18.2.12</PackageJsonDevdependenciesAngularCli>
+    <PackageJsonDevdependenciesAngularCompilerCli Condition="$(PackageJsonDevdependenciesAngularCompilerCli) == ''">^18.2.8</PackageJsonDevdependenciesAngularCompilerCli>
+    <PackageJsonDevdependenciesTypesFileSaver Condition="$(PackageJsonDevdependenciesTypesFileSaver) == ''">^2.0.7</PackageJsonDevdependenciesTypesFileSaver>
+    <PackageJsonDevdependenciesTypesHtml2canvas Condition="$(PackageJsonDevdependenciesTypesHtml2canvas) == ''">^1.0.0</PackageJsonDevdependenciesTypesHtml2canvas>
+    <PackageJsonDevdependenciesTypesJasmine Condition="$(PackageJsonDevdependenciesTypesJasmine) == ''">~5.1.0</PackageJsonDevdependenciesTypesJasmine>
+    <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">^9.7.0</PackageJsonDevdependenciesEslint>
+    <PackageJsonDevdependenciesJasmineCore Condition="$(PackageJsonDevdependenciesJasmineCore) == ''">~5.1.0</PackageJsonDevdependenciesJasmineCore>
+    <PackageJsonDevdependenciesKarma Condition="$(PackageJsonDevdependenciesKarma) == ''">~6.4.0</PackageJsonDevdependenciesKarma>
+    <PackageJsonDevdependenciesKarmaChromeLauncher Condition="$(PackageJsonDevdependenciesKarmaChromeLauncher) == ''">~3.2.0</PackageJsonDevdependenciesKarmaChromeLauncher>
+    <PackageJsonDevdependenciesKarmaCoverage Condition="$(PackageJsonDevdependenciesKarmaCoverage) == ''">~2.2.0</PackageJsonDevdependenciesKarmaCoverage>
+    <PackageJsonDevdependenciesKarmaJasmine Condition="$(PackageJsonDevdependenciesKarmaJasmine) == ''">~5.1.0</PackageJsonDevdependenciesKarmaJasmine>
+    <PackageJsonDevdependenciesKarmaJasmineHtmlReporter Condition="$(PackageJsonDevdependenciesKarmaJasmineHtmlReporter) == ''">~2.1.0</PackageJsonDevdependenciesKarmaJasmineHtmlReporter>
+    <PackageJsonDevdependenciesTypescript Condition="$(PackageJsonDevdependenciesTypescript) == ''">~5.4.2</PackageJsonDevdependenciesTypescript>
+    <PackageJsonDevdependenciesVite Condition="$(PackageJsonDevdependenciesVite) == ''">^5.4.14</PackageJsonDevdependenciesVite>
+  </PropertyGroup>
+</Project>

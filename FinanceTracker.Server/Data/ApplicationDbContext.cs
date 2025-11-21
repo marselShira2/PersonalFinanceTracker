@@ -20,7 +20,7 @@ namespace FinanceTracker.Server.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=DESKTOP-K6CTF30,1433;Database=finance_tracker;User Id=sa;Password=kleaklea2003;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=35.190.192.133,1433;Database=HotelManagement;User Id=anisa;Password=anisa123;TrustServerCertificate=True;");
             }
         }
 

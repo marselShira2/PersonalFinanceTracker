@@ -171,7 +171,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    debugger
     var test = this.authService.getUserDetail();
     this.items = [
       { label: 'Add New', icon: 'pi pi-fw pi-plus' },
