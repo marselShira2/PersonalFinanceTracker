@@ -7,11 +7,11 @@ namespace FinanceTracker.Server.Interfaces
     {
         Task<Transaction> AddTransactionAsync(Transaction transaction);
 
-        // C-R-U-D methods
+        // CRUDs
         Task<Transaction?> GetTransactionByIdAsync(int transactionId, int userId);
         Task<List<Transaction>> GetAllTransactionsAsync(int userId);
+        Task<bool> UpdateTransactionAsync(Transaction transaction);
 
-       // Task<bool> UpdateTransactionAsync(Transaction transaction);
         //Task<bool> DeleteTransactionAsync(int transactionId, int userId);
 
       //  Task<FinancialSummaryDto> GetFinancialSummaryAsync(int userId);

@@ -96,5 +96,40 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
+        //update 
+        //e leme anynomous per testing
+        [AllowAnonymous]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateDto dto)
+        {
+            //int userId = GetUserId();
+            int userId = 17;
+            var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
+
+            if (transaction == null)
+            {
+                return NotFound("Transaction not found or unauthorized.");
+            }
+
+           
+            transaction.Type = dto.Type ?? transaction.Type;
+            transaction.Amount = dto.Amount ?? transaction.Amount;
+            transaction.Currency = dto.Currency ?? transaction.Currency;
+            transaction.Date = dto.Date ?? transaction.Date;
+            transaction.CategoryId = dto.CategoryId ?? transaction.CategoryId;
+            transaction.Description = dto.Description ?? transaction.Description;
+            transaction.IsRecurring = dto.IsRecurring ?? transaction.IsRecurring;
+
+            if (transaction.Amount <= 0 || string.IsNullOrEmpty(transaction.Currency) || string.IsNullOrEmpty(transaction.Type))
+            {
+                return BadRequest("Mandatory fields (Type, Amount, Currency) cannot be empty or invalid.");
+            }
+
+            await _transactionRepository.UpdateTransactionAsync(transaction);
+
+            return Ok(transaction);
+        }
+
+
     }
 }

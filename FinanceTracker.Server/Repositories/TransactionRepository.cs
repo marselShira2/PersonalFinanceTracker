@@ -58,5 +58,11 @@ namespace FinanceTracker.Server.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> UpdateTransactionAsync(Transaction transaction)
+        {
+            _context.Transactions.Update(transaction);
+            var changes = await _context.SaveChangesAsync();
+            return changes > 0;
+        }
     }
 }
