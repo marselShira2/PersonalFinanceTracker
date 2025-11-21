@@ -64,5 +64,20 @@ namespace FinanceTracker.Server.Repositories
             var changes = await _context.SaveChangesAsync();
             return changes > 0;
         }
+
+        public async Task<bool> DeleteTransactionAsync(int transactionId, int userId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.TransactionId == transactionId && t.UserId == userId);
+
+            if (transaction == null)
+            {
+                return false;
+            }
+
+            _context.Transactions.Remove(transaction);
+            var changes = await _context.SaveChangesAsync();
+            return changes > 0;
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace FinanceTracker.Server.Interfaces
         Task<List<Transaction>> GetAllTransactionsAsync(int userId);
         Task<bool> UpdateTransactionAsync(Transaction transaction);
 
-        //Task<bool> DeleteTransactionAsync(int transactionId, int userId);
+        Task<bool> DeleteTransactionAsync(int transactionId, int userId);
 
       //  Task<FinancialSummaryDto> GetFinancialSummaryAsync(int userId);
         Task<List<Transaction>> GetFilteredTransactionsAsync(int userId, string? type, bool? isRecurring);

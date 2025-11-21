@@ -130,6 +130,22 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
+        [AllowAnonymous]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTransaction(int id)
+        {
+            //int userId = GetUserId();
+            int userId = 17;
+
+            bool success = await _transactionRepository.DeleteTransactionAsync(id, userId);
+
+            if (!success)
+            {
+                return NotFound("Transaction not found or unauthorized.");
+            }
+
+            return NoContent();
+        }
 
     }
 }
