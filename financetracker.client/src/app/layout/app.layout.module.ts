@@ -22,6 +22,9 @@ import { TableModule } from 'primeng/table';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationsComponent } from '../Views/notifications/notifications.component';  
 import { ToastModule } from 'primeng/toast';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { TransactionAddComponent } from '../Views/transactions/transaction.add.component';
 
 
 @NgModule({
@@ -31,9 +34,11 @@ import { ToastModule } from 'primeng/toast';
         AppMenuComponent,
         AppSidebarComponent,
         AppLayoutComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    TransactionAddComponent
     ],
     imports: [
+        ReactiveFormsModule,
         BrowserModule,
         FormsModule,
         HttpClientModule,
@@ -52,6 +57,9 @@ import { ToastModule } from 'primeng/toast';
       TranslateModule, 
       ToastModule
     ],
-    exports: [AppLayoutComponent]
+    exports: [AppLayoutComponent,
+
+    TransactionAddComponent
+    ]
 })
 export class AppLayoutModule { }

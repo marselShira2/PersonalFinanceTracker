@@ -1,0 +1,63 @@
+/* ========== SIDEBAR HEADER ========== */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+/* Logo + Name */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 1.2rem;
+}
+
+.sidebar-logo {
+  width: 48px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.company-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ========== BUTTONS ========== */
+.button-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top:2rem;
+}
+
+.sidebar-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 0.7rem;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Primary action button */
+.sidebar-btn.primary {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.sidebar-btn.primary:hover {
+  background: #1d4ed8;
+}

@@ -54,6 +54,14 @@
   "CONFIRM_PASSWORD": "Konfirmo Fjalëkalimin",
   "BACK_TO_LOGIN": "Kthehu te login",
   "SEND_RESET_CODE": "Dërgo Kodin për Rivendosje",
-  "ENTER_EMAIL_RESET_CODE": "Shkruani email-in tuaj për të marrë një kod 6-shifror për rivendosjen"
+  "ENTER_EMAIL_RESET_CODE": "Shkruani email-in tuaj për të marrë një kod 6-shifror për rivendosjen",
+  "SAVE": "Ruaj",
+  "CANCEL": "Anullo",
+  "TYPE_INCOME": "Hyrje",
+  "TYPE_EXPENSE": "Dalje",
+  "TRANSACTION_DESCRIPTION":"Përshkrimi",
+  "ADD_TRANSACTION":"Shto Transaksion",
+  "CURRENCY":"Monedha"
+  
 }
 

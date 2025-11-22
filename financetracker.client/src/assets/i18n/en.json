@@ -51,6 +51,13 @@
   "CONFIRM_PASSWORD": "Confirm Password",
   "BACK_TO_LOGIN": "Back to Login",
   "SEND_RESET_CODE": "Send Reset Code",
-  "ENTER_EMAIL_RESET_CODE": "Enter your email to receive a 6-digit reset code"
+  "ENTER_EMAIL_RESET_CODE": "Enter your email to receive a 6-digit reset code",
+  "SAVE": "Save",
+  "CANCEL": "Cancel",
+  "TYPE_INCOME": "Income",
+  "TYPE_EXPENSE": "Expense",
+  "TRANSACTION_DESCRIPTION":"Description",
+  "ADD_TRANSACTION":"Add Transaction",
+  "CURRENCY":"Currency"
 }
 

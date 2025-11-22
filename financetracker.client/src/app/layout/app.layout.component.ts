@@ -1,10 +1,10 @@
-import { Component, OnDestroy, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnDestroy, Renderer2, viewChild, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { LayoutService } from "./service/app.layout.service";
 import { AppSidebarComponent } from "./app.sidebar.component";
 import { AppTopBarComponent } from './app.topbar.component';
-
+import { TransactionAddComponent } from '../Views/transactions/transaction.add.component';
 
 
 @Component({
@@ -22,8 +22,16 @@ export class AppLayoutComponent implements OnDestroy {
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
 
   @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
+    @ViewChild(TransactionAddComponent) transactionAddComponent!: TransactionAddComponent;
+        handleTransaction(data: any) {
+            console.log('Transaction submitted:', data);
+            alert(JSON.stringify(data));
+            // send to API/service here
+        }
 
-
+        openTransactionModal(transaction?: any) {
+            this.transactionAddComponent.openModal(transaction);
+        }
     constructor(public layoutService: LayoutService, public renderer: Renderer2, public router: Router) {
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (this.layoutService.state.staticMenuMobileActive) {

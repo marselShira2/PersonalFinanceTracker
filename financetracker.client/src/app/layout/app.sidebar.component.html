@@ -1,12 +1,17 @@
-
-<div id="company-bar">
-  <a href="dashboard">
-    <!--<img class="sidebar-logo" src="assets/layout/images/Eagle.png" alt="logo">-->
-    <span class="vertical-line"></span>
-
-    <img class="sidebar-logo" src="assets/layout/images/logo.png" alt="logo">
+<div id="company-bar" >
+  <a routerLink="/dashboard" class="logo-section">
+    <img class="sidebar-logo" src="assets/layout/images/logo.png" alt="logo" />
+    <span class="company-name">Finance Tracker</span>
   </a>
-  <span id="CompanyName">Finance Tracker</span>
+
+  <div class="button-group">
+    <button (click)="openTransaction.emit()" class="sidebar-btn">{{ 'ADD_TRANSACTION' | translate }}</button>
+    <!--
+    <button routerLink="/transactions" class="sidebar-btn">All Transactions</button>
+    <button routerLink="/categories" class="sidebar-btn">Categories</button>
+    <button routerLink="/reports" class="sidebar-btn">Reports</button> 
+    -->
+  </div>
 </div>
-<app-menu>
-</app-menu>
+
+<app-menu></app-menu>

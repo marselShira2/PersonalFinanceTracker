@@ -569,12 +569,13 @@ p:last-child {
   z-index: 998;
   height: 7rem;
   transition: transform 0.2s, left 0.2s;
+  background-color: white;
 }
 
 #sidemenubutton {
   position: fixed;
   top: 2.2rem;
-  left: 230px; /* Adjusted value */
+  left: 270px; 
   z-index: 999;
   transition: transform 0.2s, left 0.1s;
 }
