@@ -40,3 +40,27 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Your existing rules are above...
+
+# --- .NET / Visual Studio Build Results & Artifacts ---
+# This is the essential section to fix your conflicts (obj and bin folders)
+# The [Oo] and [Bb] ensure case-insensitivity across operating systems.
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio Solution and Project files
+*.user
+*.suo
+*.sln.docstates
+
+# NuGet files and folders
+*.nupkg
+*.snupkg
+.nuget/
+**/packages/
+Project.lock.json
+
+# Test results and coverage
+*.trx
+*.coverage
