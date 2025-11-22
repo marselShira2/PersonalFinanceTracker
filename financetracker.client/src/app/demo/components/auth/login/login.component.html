@@ -104,20 +104,26 @@
           <h3 class="text-center mb-4">{{ 'RESET_PASSWORD' | translate }}</h3>
 
           <label for="code" class="block text-900 font-medium mb-2">{{ 'ENTER_RESET_CODE' | translate }}</label>
-          <input id="code" type="text" pInputText class="w-full mb-4" [(ngModel)]="resetCode" maxlength="6" />
+          <input id="code" type="text" pInputText class="w-full mb-4 p-3" [(ngModel)]="resetCode" maxlength="6" />
 
           <label for="newPassword" class="block text-900 font-medium mb-2">{{ 'NEW_PASSWORD' | translate }}</label>
           <p-password id="newPassword" [(ngModel)]="newPassword" class="w-full mb-4" [feedback]="true"></p-password>
 
           <label for="confirmPassword" class="block text-900 font-medium mb-2">{{ 'CONFIRM_PASSWORD' | translate }}</label>
-          <p-password id="confirmPassword" [(ngModel)]="confirmPassword" class="w-full mb-4" [feedback]="false"></p-password>
+          <p-password id="confirmPassword" [(ngModel)]="confirmPassword" class="w-full mb-6" [feedback]="false"></p-password> 
 
-          <button pButton pRipple label="{{ 'RESET_PASSWORD' | translate }}" class="w-full p-3 text-xl" (click)="onResetPassword()"></button>
+
+          <br/>
+          <br/>
+          
+          <button pButton pRipple label="{{ 'RESET_PASSWORD' | translate }}" class="w-full p-3 text-xl mb-3" (click)="onResetPassword()"></button>
 
           <!--<a class="font-medium no-underline mt-3 d-block text-center cursor-pointer"
              style="color: var(--primary-color)"
              (click)="mode = 'login'">{{ 'BACK_TO_LOGIN' | translate }}</a>-->
-          <button pButton pRipple  (click)="mode = 'login'" class="w-full p-2 text-xl position-relative sso-button-white2">
+
+
+          <button pButton pRipple  (click)="mode = 'login'" class="w-full p-3 text-xl position-relative sso-button-white2">
           <span class="sso-label2">{{ 'LNG_BACK' | translate }}</span>
         </button>
         </div>

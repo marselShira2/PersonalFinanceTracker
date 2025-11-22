@@ -306,7 +306,7 @@ namespace FinanceTracker.Server.Controllers
         {
             var claims = new List<Claim>
             {
-                new Claim("id", user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("name", user.Name),
                 new Claim("email", user.Email)
             };
