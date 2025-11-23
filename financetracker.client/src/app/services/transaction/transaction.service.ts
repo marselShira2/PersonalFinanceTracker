@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { Category } from '../categories/category.service';
  
 export interface TransactionCreateDto {
   type: string;
@@ -128,4 +129,5 @@ export interface Transaction {
   isRecurring: boolean;
   categoryId?: number;
   description?: string;
+  category?: Category;
 }

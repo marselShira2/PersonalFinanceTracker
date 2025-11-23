@@ -727,3 +727,37 @@ pdf-viewer .ng2-pdf-viewer-container {
   scrollbar-width: thin !important;
   scrollbar-color: lightgray transparent !important;
 }
+
+/* The Overlay Container */
+.loading-overlay {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
+  z-index: 9999; /* High z-index to sit on top of everything */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* The Spinner Animation */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db; /* Blue color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

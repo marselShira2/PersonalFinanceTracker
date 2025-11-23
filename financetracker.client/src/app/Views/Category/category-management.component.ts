@@ -12,19 +12,19 @@ import { Table } from 'primeng/table';
 export class CategoryManagementComponent implements OnInit {
 
   @ViewChild('dt') dt: Table | undefined;
-
-  // CRITICAL FIX 1: Get a reference to the form using @ViewChild
   @ViewChild('categoryForm') categoryForm!: NgForm;
 
   // Data
   categories: Category[] = [];
+
+  // --- CHANGE 1: Ensure it starts true ---
   isLoading = true;
 
   // UI State
   isCategoryModalOpen = false;
   isEditMode = false;
 
-  // Form Model: Removed | undefined since it's always initialized.
+  // Form Model
   selectedCategory: CategoryCreateDto | Category;
 
   // Deletion State
@@ -35,13 +35,11 @@ export class CategoryManagementComponent implements OnInit {
   // Dropdown options
   categoryTypes: ('Income' | 'Expense')[] = ['Expense', 'Income'];
 
-  // Example icons (you should define a proper list)
   availableIcons = [
     'shopping_cart', 'attach_money', 'home', 'electric_bolt', 'local_dining'
   ];
 
   constructor(private categoryService: CategoryService) {
-    // Initialization ensures selectedCategory is never undefined
     this.selectedCategory = this.resetCategoryForm();
   }
 
@@ -50,30 +48,31 @@ export class CategoryManagementComponent implements OnInit {
   }
 
   /**
-   * Fetches all categories for the current user from the API.
+   * Fetches all categories.
    */
   loadCategories(): void {
+    // 1. Turn spinner ON
     this.isLoading = true;
+
     this.categoryService.getCategories()
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(
+        // 2. Turn spinner OFF when done
+        finalize(() => this.isLoading = false)
+      )
       .subscribe({
         next: (data) => {
           this.categories = data;
         },
         error: (err) => {
           console.error('Failed to load categories', err);
-          // Using console.error instead of alert as per general instruction
         }
       });
   }
 
-  /**
-   * Resets the form model for a new category.
-   */
   resetCategoryForm(): CategoryCreateDto {
     return {
       name: '',
-      type: 'Expense', // Default to Expense
+      type: 'Expense',
       icon: 'shopping_cart'
     };
   }
@@ -87,17 +86,16 @@ export class CategoryManagementComponent implements OnInit {
   }
 
   async openEditModal(id: number): Promise<void> {
-    this.isLoading = true;
+    this.isLoading = true; // Spinner ON while fetching single item
     this.isEditMode = true;
     try {
-      // Fetch the category to populate the form
       const category = await this.categoryService.getCategory(id).toPromise();
-      this.selectedCategory = category as Category; // Ensure type consistency for editing
+      this.selectedCategory = category as Category;
       this.isCategoryModalOpen = true;
     } catch (err) {
       console.error(`Failed to fetch category ${id}`, err);
     } finally {
-      this.isLoading = false;
+      this.isLoading = false; // Spinner OFF
     }
   }
 
@@ -108,10 +106,6 @@ export class CategoryManagementComponent implements OnInit {
 
   // --- CRUD Operations ---
 
-  /**
-   * CRITICAL FIX 2: New method to trigger submission from the footer button.
-   * It checks the ViewChild reference and passes it to the main save method.
-   */
   triggerSave(): void {
     if (this.categoryForm) {
       this.saveCategory(this.categoryForm);
@@ -120,18 +114,32 @@ export class CategoryManagementComponent implements OnInit {
     }
   }
 
+  // --- CHANGE 2: Saving Logic ---
   saveCategory(form: NgForm): void {
-    // Form validation is now done correctly using the NgForm object
     if (form.invalid) {
       console.error('Please fill out all required fields.');
       return;
     }
 
-    // Safety check to ensure selectedCategory is an object before proceeding
     if (!this.selectedCategory) {
       console.error('Category data is missing.');
       return;
     }
+
+    // 1. Turn spinner ON
+    this.isLoading = true;
+
+    // Helper to clean up state after success/error
+    const handleComplete = () => {
+      this.isLoading = false; // Turn spinner OFF
+      this.closeCategoryModal();
+      this.loadCategories(); // Will trigger spinner again briefly
+    };
+
+    const handleError = (err: any) => {
+      this.isLoading = false; // Turn spinner OFF
+      console.error('Failed to save category:', err);
+    };
 
     if (this.isEditMode) {
       // UPDATE LOGIC
@@ -139,34 +147,20 @@ export class CategoryManagementComponent implements OnInit {
 
       if (!('categoryId' in this.selectedCategory)) {
         console.error('Cannot update category: ID missing.');
+        this.isLoading = false; // Ensure spinner turns off if we abort here
         return;
       }
       const id = (this.selectedCategory as Category).categoryId;
 
       this.categoryService.updateCategory(id, updateDto)
-        .subscribe({
-          next: () => {
-            this.closeCategoryModal();
-            this.loadCategories();
-          },
-          error: (err) => {
-            console.error('Failed to update category:', err);
-          }
-        });
+        .subscribe({ next: handleComplete, error: handleError });
+
     } else {
       // CREATE LOGIC
       const createDto: CategoryCreateDto = this.selectedCategory as CategoryCreateDto;
 
       this.categoryService.createCategory(createDto)
-        .subscribe({
-          next: () => {
-            this.closeCategoryModal();
-            this.loadCategories();
-          },
-          error: (err) => {
-            console.error('Failed to create category:', err);
-          }
-        });
+        .subscribe({ next: handleComplete, error: handleError });
     }
   }
 
@@ -182,9 +176,18 @@ export class CategoryManagementComponent implements OnInit {
     this.categoryToDeleteName = '';
   }
 
+  // --- CHANGE 3: Deletion Logic ---
   confirmDelete(): void {
     if (this.categoryToDeleteId !== null) {
+
+      // 1. Turn spinner ON
+      this.isLoading = true;
+
       this.categoryService.deleteCategory(this.categoryToDeleteId)
+        .pipe(
+          // 2. Ensure spinner turns off (or hands over to loadCategories)
+          finalize(() => this.isLoading = false)
+        )
         .subscribe({
           next: () => {
             this.closeDeleteModal();

@@ -1,3 +1,6 @@
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>
 <div class="category-management-container">
   <h2>📁 Category Management</h2>
 
@@ -15,8 +18,7 @@
                     [value]="categories"
                     dataKey="categoryId"
                     [rows]="10"
-                    [showCurrentPageReport]="true"
-                    [loading]="isLoading"
+                    [showCurrentPageReport]="true" 
                     [rowHover]="true"
                     styleClass="p-datatable-striped"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"

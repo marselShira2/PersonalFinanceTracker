@@ -1,3 +1,6 @@
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>
 <div class="transactions-page-container">
   <h2>💰 Transaction History</h2>
 
@@ -36,8 +39,7 @@
            [rows]="10"
            [showCurrentPageReport]="true"
            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-           [rowsPerPageOptions]="[5,10, 25, 50]"
-           [loading]="isLoading"
+           [rowsPerPageOptions]="[5,10, 25, 50]" 
            dataKey="transactionId"
            styleClass="p-datatable-striped"
            [globalFilterFields]="['date', 'type', 'description', 'amount']">
@@ -75,7 +77,14 @@
           </span>
         </td>
         <td>{{ transaction.description }}</td>
-        <td>{{ transaction.categoryId }}</td>
+        <td>
+          <span *ngIf="transaction.category">
+            {{ transaction.category.name }}
+          </span>
+          <span *ngIf="!transaction.category" style="color: #ccc; font-style: italic;">
+            Uncategorized
+          </span>
+        </td>
         <td>{{ transaction.amount | currency: transaction.currency : 'symbol' }}</td>
         <td class="text-center">
           <i class="pi"
@@ -156,8 +165,9 @@
                     [(ngModel)]="selectedTransaction.categoryId"
                     [options]="categories"
                     optionLabel="name"
-                    optionValue="id"
-                    placeholder="Select Category"></p-dropdown>
+                    optionValue="categoryId"
+                    placeholder="Select Category"
+                    [appendTo]="'body'"> </p-dropdown>
       </div>
 
       <div class="field col-12 md:col-6 flex align-items-center" style="padding-top: 30px;">
@@ -168,16 +178,18 @@
       </div>
 
     </div>
-
-    <ng-template pTemplate="footer">
-      <button pButton type="button" label="Cancel" icon="pi pi-times"
-              (click)="closeTransactionModal()"
-              class="p-button-text"></button>
-      <button pButton type="submit" [label]="isEditMode ? 'Update' : 'Save'" icon="pi pi-check"
-              [disabled]="!transactionForm.valid"
-              class="p-button-success"></button>
-    </ng-template>
   </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel" icon="pi pi-times"
+            (click)="closeTransactionModal()"
+            class="p-button-text"></button>
+
+    <button pButton type="button" [label]="isEditMode ? 'Update' : 'Save'" icon="pi pi-check"
+            (click)="saveTransaction(transactionForm)"
+            [disabled]="!transactionForm.valid || isLoading"
+            class="p-button-success"></button>
+  </ng-template>
 </p-dialog>
 
 <p-dialog [(visible)]="isDeleteModalOpen"
