@@ -1,138 +1,65 @@
-/* Main Page Container Styling */
-.transactions-page {
+/*
+ * Main Page Container Styling
+ * The central wrapper for the content.
+ */
+.transactions-page-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+/* ---------------------------------------------------- */
+/* PrimeNG Component Styling Overrides */
+
+/* General Table Styling - Ensures margin-bottom is set for the toolbar (PrimeFlex utility) */
+:host ::ng-deep .mb-4 {
+  margin-bottom: 1.5rem !important;
 }
 
-.divider {
-  border: 0;
-  height: 1px;
-  background-color: #e0e0e0;
-  margin-bottom: 20px;
+/* Center icons in the Recurring column for better alignment */
+/* Targets the 6th column in the table body */
+:host ::ng-deep .p-datatable-tbody tr td:nth-child(6) {
+  text-align: center;
 }
 
-/* Filter Controls */
-.filter-controls {
-  margin-bottom: 20px;
-  display: flex;
-  gap: 10px;
+/* ---------------------------------------------------- */
+/* Transaction Type and Status Coloring */
+
+/* Style for the Income/Expense type display in the table body (as a pill) */
+.transaction-type {
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  /* Use 'display: inline-block' to allow padding/background */
+  display: inline-block;
 }
 
-  .filter-controls button {
-    padding: 8px 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-    .filter-controls button:hover {
-      background-color: #e9ecef;
-    }
-
-    .filter-controls button.active {
-      background-color: var(--primary-color, #1e88e5);
-      color: white;
-      border-color: var(--primary-color, #1e88e5);
-    }
-
-/* PrimeNG Table Customizations */
-:host ::ng-deep .p-datatable-caption {
-  padding: 1rem;
-}
-
-.table-caption {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Transaction Type Coloring */
+/* Specific colors for Income */
 .income {
-  color: #4CAF50; /* Green */
-  font-weight: 600;
+  color: #1e88e5;
+  background-color: #e3f2fd;
 }
 
+/* Specific colors for Expense */
 .expense {
-  color: #F44336; /* Red */
-  font-weight: 600;
+  color: #f44336;
+  background-color: #ffebee;
 }
 
+/* Text status colors (for recurring check/times icons) */
 .text-success {
-  color: #4CAF50 !important;
+  color: #4CAF50 !important; /* Green */
 }
 
 .text-danger {
-  color: #F44336 !important;
+  color: #F44336 !important; /* Red */
 }
 
-/* Action Buttons in Table */
-.action-btn {
-  padding: 6px 10px;
-  margin-right: 5px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-  .action-btn.edit {
-    background-color: #ffc107;
-    color: #333;
-  }
-
-  .action-btn.delete {
-    background-color: #dc3545;
-    color: white;
-  }
-
+/* ---------------------------------------------------- */
+/* Empty Message Styling */
 .no-data {
   text-align: center;
   padding: 20px;
   font-style: italic;
   color: #999;
-}
-
-/* Custom Modal Overlay (for Delete Confirmation) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-  text-align: center;
-}
-
-  .modal-content h3 {
-    color: #dc3545;
-    margin-top: 0;
-  }
-
-.modal-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
 }

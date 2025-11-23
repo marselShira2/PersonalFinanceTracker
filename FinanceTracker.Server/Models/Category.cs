@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization; // 👈 Add this using statement
 
 namespace FinanceTracker.Server.Models;
 
@@ -31,6 +32,10 @@ public partial class Category
     [InverseProperty("Category")]
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
 
+    // 🛑 CRITICAL FIX: Add [JsonIgnore] here.
+    // This tells the System.Text.Json serializer to skip this property 
+    // when serializing the Category object, breaking the loop (Category -> Transactions -> Category).
+    [JsonIgnore]
     [InverseProperty("Category")]
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 

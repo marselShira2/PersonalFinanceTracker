@@ -1,0 +1,20 @@
+/* FinanceTracker.Client/src/app/category-management/category-management.component.css */
+
+.category-management-container {
+  padding: 20px;
+}
+
+.category-type {
+  padding: 0.25em 0.4em;
+  border-radius: 4px;
+  font-weight: bold;
+  color: white;
+}
+
+.expense {
+  background-color: var(--red-500); /* Use your project's color variables */
+}
+
+.income {
+  background-color: var(--green-500); /* Use your project's color variables */
+}
