@@ -4,6 +4,9 @@ import { finalize } from 'rxjs/operators';
 import { Table } from 'primeng/table';
 
 import { Transaction, TransactionService, TransactionCreateDto, TransactionUpdateDto } from '../../services/transaction/transaction.service';
+// 1. Import CategoryService and Category interface
+import { Category, CategoryService } from '../../services/categories/category.service';
+
 
 @Component({
   selector: 'app-transactions-list',
@@ -13,6 +16,9 @@ import { Transaction, TransactionService, TransactionCreateDto, TransactionUpdat
 export class TransactionsListComponent implements OnInit {
 
   @ViewChild('dt') dt: Table | undefined;
+
+  // Optional: To support form submission via dialog footer, though not needed yet.
+  // @ViewChild('transactionForm') transactionForm!: NgForm; 
 
   // Data
   transactions: Transaction[] = []; // The dataset displayed by PrimeNG table
@@ -30,24 +36,26 @@ export class TransactionsListComponent implements OnInit {
   isEditMode = false; // New state flag
 
   // Form Model - used for both Create (TransactionCreateDto) and Edit (TransactionUpdateDto)
-  // We use the full Transaction type to handle both cases, casting for the service call.
   selectedTransaction: Transaction | TransactionCreateDto;
 
   // Dropdown Data
   currencies = ['USD', 'EUR', 'GBP'];
-  categories = [
-    { id: 1, name: 'Groceries' },
-    { id: 2, name: 'Salary' },
-    { id: 3, name: 'Rent' }
-  ];
+  // 2. Changed categories to be dynamic, initially empty
+  categories: Category[] = [];
 
-  constructor(private transactionService: TransactionService) {
+  // 3. Inject CategoryService
+  constructor(
+    private transactionService: TransactionService,
+    private categoryService: CategoryService
+  ) {
     this.selectedTransaction = this.resetTransactionForm();
   }
 
   ngOnInit(): void {
     // Load data with the initial (undefined) filter
     this.loadTransactions();
+    // 4. Load categories on initialization
+    this.loadCategories();
   }
 
   /**
@@ -59,197 +67,57 @@ export class TransactionsListComponent implements OnInit {
       amount: 0,
       currency: 'USD',
       date: new Date(),
-      categoryId: 1,
+      // Default to the first category found, or 0/null if categories is empty.
+      categoryId: this.categories.length > 0 ? this.categories[0].categoryId : 0,
       description: '',
       isRecurring: false
     };
   }
+
+  /**
+   * Fetches all categories for the current user from the API.
+   */
+  loadCategories(): void {
+    // No need to set isLoading here, as it's primarily for the transaction table
+    this.categoryService.getCategories()
+      .subscribe({
+        next: (data) => {
+          this.categories = data;
+          // Optional: If the form was reset before categories loaded, reset again
+          if (!this.isTransactionModalOpen && !this.isEditMode) {
+            this.selectedTransaction = this.resetTransactionForm();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load categories', err);
+        }
+      });
+  }
+
+  // --- Data Loading & Filtering (API-based) ---
+  /**
+   * Fetches transactions from the backend API based on the current filter state.
+   */
   loadTransactions(): void {
     this.isLoading = true;
 
-    const USE_STATIC_DATA = true;
-
-    if (USE_STATIC_DATA) {
-      this.transactions = [
-        {
-          transactionId: 1,
-          type: 'Income',
-          amount: 1200,
-          currency: 'EUR',
-          date: new Date('2025-01-05'),
-          categoryId: 2,
-          description: 'Monthly salary',
-          isRecurring: true
+    // Pass the current filter type to the API
+    this.transactionService.getTransactions(this.currentFilterType)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (data) => {
+          // The API returns the DateOnly as a string (YYYY-MM-DD), 
+          // convert it to a Date object for the calendar component binding.
+          this.transactions = data.map(t => ({
+            ...t,
+            date: new Date(t.date as string)
+          }));
         },
-        {
-          transactionId: 2,
-          type: 'Expense',
-          amount: 85.50,
-          currency: 'EUR',
-          date: new Date('2025-01-09'),
-          categoryId: 1,
-          description: 'Groceries',
-          isRecurring: false
-        },
-        {
-          transactionId: 3,
-          type: 'Expense',
-          amount: 350,
-          currency: 'EUR',
-          date: new Date('2025-01-10'),
-          categoryId: 3,
-          description: 'Apartment rent',
-          isRecurring: true
-        },
-        {
-          transactionId: 4,
-          type: 'Income',
-          amount: 250,
-          currency: 'USD',
-          date: new Date('2025-01-12'),
-          categoryId: 2,
-          description: 'Freelance design project',
-          isRecurring: false
-        },
-        {
-          transactionId: 5,
-          type: 'Expense',
-          amount: 49.99,
-          currency: 'USD',
-          date: new Date('2025-01-13'),
-          categoryId: 1,
-          description: 'Restaurant dinner',
-          isRecurring: false
-        },
-        {
-          transactionId: 6,
-          type: 'Expense',
-          amount: 15.25,
-          currency: 'EUR',
-          date: new Date('2025-01-14'),
-          categoryId: 1,
-          description: 'Coffee and snacks',
-          isRecurring: false
-        },
-        {
-          transactionId: 7,
-          type: 'Income',
-          amount: 180,
-          currency: 'EUR',
-          date: new Date('2025-01-15'),
-          categoryId: 2,
-          description: 'Bonus payout',
-          isRecurring: false
-        },
-        {
-          transactionId: 8,
-          type: 'Expense',
-          amount: 60,
-          currency: 'EUR',
-          date: new Date('2025-01-16'),
-          categoryId: 3,
-          description: 'Electricity bill',
-          isRecurring: true
-        },
-        {
-          transactionId: 9,
-          type: 'Expense',
-          amount: 25,
-          currency: 'EUR',
-          date: new Date('2025-01-17'),
-          categoryId: 1,
-          description: 'Gym pass',
-          isRecurring: false
-        },
-        {
-          transactionId: 10,
-          type: 'Income',
-          amount: 320,
-          currency: 'USD',
-          date: new Date('2025-01-18'),
-          categoryId: 2,
-          description: 'Part-time teaching',
-          isRecurring: false
-        },
-        {
-          transactionId: 11,
-          type: 'Expense',
-          amount: 12.99,
-          currency: 'EUR',
-          date: new Date('2025-01-19'),
-          categoryId: 1,
-          description: 'Streaming subscription',
-          isRecurring: true
-        },
-        {
-          transactionId: 12,
-          type: 'Expense',
-          amount: 90,
-          currency: 'EUR',
-          date: new Date('2025-01-20'),
-          categoryId: 3,
-          description: 'Internet bill',
-          isRecurring: true
-        },
-        {
-          transactionId: 13,
-          type: 'Income',
-          amount: 500,
-          currency: 'EUR',
-          date: new Date('2025-01-21'),
-          categoryId: 2,
-          description: 'Project milestone payment',
-          isRecurring: false
-        },
-        {
-          transactionId: 14,
-          type: 'Expense',
-          amount: 140,
-          currency: 'EUR',
-          date: new Date('2025-01-22'),
-          categoryId: 1,
-          description: 'Clothing purchase',
-          isRecurring: false
-        },
-        {
-          transactionId: 15,
-          type: 'Expense',
-          amount: 7.5,
-          currency: 'EUR',
-          date: new Date('2025-01-23'),
-          categoryId: 1,
-          description: 'Bus ticket',
-          isRecurring: false
+        error: (err) => {
+          console.error('Failed to load transactions. Check console for 401 Unauthorized error.', err);
         }
-      ];
-
-
-      this.isLoading = false;
-      return;
-    }
-     
+      });
   }
-
-  // --- Data Loading & Filtering (Now API-based) ---
-  //loadTransactions(): void {
-  //  this.isLoading = true;
-  //  // Pass the current filter type to the API
-  //  this.transactionService.getTransactions(this.currentFilterType)
-  //    .pipe(finalize(() => this.isLoading = false))
-  //    .subscribe({
-  //      next: (data) => {
-  //        // The API returns the DateOnly as a string, convert it to a Date object for the calendar component
-  //        this.transactions = data.map(t => ({
-  //          ...t,
-  //          date: new Date(t.date as string)
-  //        }));
-  //      },
-  //      error: (err) => {
-  //        console.error('Failed to load transactions', err);
-  //        alert('Failed to load transactions. Check console.');
-  //      }
-  //    });
-  //}
 
   /**
    * Applies the transaction type filter and reloads data from the API.
@@ -269,19 +137,24 @@ export class TransactionsListComponent implements OnInit {
   async editTransaction(id: number): Promise<void> {
     this.isLoading = true;
     this.isEditMode = true;
+
+    // Convert Observable to Promise for async/await simplicity in edit flow
     try {
+      // Fetch the specific transaction from the API
       const transaction = await this.transactionService.getTransaction(id).toPromise();
 
       // Set the date to a JS Date object for the p-calendar to bind correctly
       this.selectedTransaction = {
         ...transaction,
+        // The API returns a string, so we convert it back to a Date object
         date: new Date(transaction?.date as string)
       } as Transaction;
 
       this.isTransactionModalOpen = true;
     } catch (err) {
       console.error(`Failed to fetch transaction ${id}`, err);
-      alert('Error loading transaction for editing.');
+      // Replaced alert
+      console.error('Error loading transaction for editing.');
     } finally {
       this.isLoading = false;
     }
@@ -295,7 +168,8 @@ export class TransactionsListComponent implements OnInit {
 
   saveTransaction(form: NgForm): void {
     if (form.invalid) {
-      alert('Please fill out all required fields correctly.');
+      // Replaced alert
+      console.error('Please fill out all required fields correctly.');
       return;
     }
 
@@ -315,7 +189,8 @@ export class TransactionsListComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to update transaction:', err);
-            alert('Error updating transaction. Check console for details.');
+            // Replaced alert
+            console.error('Error updating transaction. Check console for details.');
           }
         });
     } else {
@@ -330,7 +205,8 @@ export class TransactionsListComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to create transaction:', err);
-            alert('Error creating transaction. Check console for details.');
+            // Replaced alert
+            console.error('Error creating transaction. Check console for details.');
           }
         });
     }
@@ -357,7 +233,8 @@ export class TransactionsListComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to delete transaction', err);
-            alert('Error deleting transaction. Check console for details.');
+            // Replaced alert
+            console.error('Error deleting transaction. Check console for details.');
             this.closeDeleteModal();
           }
         });

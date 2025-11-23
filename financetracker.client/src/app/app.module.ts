@@ -85,6 +85,7 @@ import { CardModule } from 'primeng/card';
 
 //pages
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
+import { CategoryManagementComponent } from './Views/Category/category-management.component';
 
 
 /////
@@ -95,6 +96,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   declarations: [
     AppComponent,
     TransactionsListComponent,
+    CategoryManagementComponent,
     AppFooterComponent,
     DashboardComponent,
     NotfoundComponent,
