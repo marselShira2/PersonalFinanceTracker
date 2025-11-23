@@ -1,0 +1,139 @@
+import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+/**
+ * Data Transfer Object for creating a new transaction.
+ * Mirrors the C# TransactionCreateDto.
+ */
+export interface TransactionCreateDto {
+  type: string;
+  amount: number;
+  currency: string;
+  // NOTE: This will be a JS Date object in the component,
+  // but must be formatted to a YYYY-MM-DD string for the backend.
+  date: Date; // Keep as Date for component use
+  categoryId?: number;
+  description?: string;
+  isRecurring: boolean;
+}
+
+/**
+ * Data Transfer Object for updating an existing transaction.
+ * All fields are optional (C# nullable).
+ */
+export interface TransactionUpdateDto {
+  type?: string;
+  amount?: number;
+  currency?: string;
+  // NOTE: Date is also a JS Date object and must be formatted.
+  date?: Date; // Keep as Date for component use
+  categoryId?: number;
+  description?: string;
+  isRecurring?: boolean;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TransactionService {
+  // 🎯 FIX: Explicitly set the base URL to your ASP.NET Core backend server.
+  // Using 7001 as the example port. **CHANGE THIS IF YOUR PORT IS DIFFERENT.**
+  private apiBaseUrl = 'https://localhost:7012';
+
+  // Base path for the entire Transactions Controller
+  private transactionControllerUrl = `${this.apiBaseUrl}/api/Transactions`;
+
+  constructor(private http: HttpClient) { }
+
+  /**
+   * Fetches transactions from the API with optional filtering.
+   * C# Route: GET /api/Transactions
+   */
+  getTransactions(type?: string, isRecurring?: boolean): Observable<Transaction[]> {
+    let params = new HttpParams();
+
+    // Log the full controller URL for debugging
+    console.log("Fetching transactions from:", this.transactionControllerUrl);
+
+    if (type) {
+      params = params.set('type', type);
+    }
+    if (isRecurring !== undefined && isRecurring !== null) {
+      params = params.set('isRecurring', isRecurring.toString());
+    }
+
+    return this.http.get<Transaction[]>(this.transactionControllerUrl, { params: params });
+  }
+
+  /**
+   * Fetches a single transaction by ID.
+   * C# Route: GET /api/Transactions/{id}
+   */
+  getTransaction(id: number): Observable<Transaction> {
+    return this.http.get<Transaction>(`${this.transactionControllerUrl}/${id}`);
+  }
+
+  /**
+   * Creates a new transaction.
+   * C# Route: POST /api/Transactions/create
+   */
+  createTransaction(dto: TransactionCreateDto): Observable<Transaction> {
+    const formattedDto = this.formatDateDto(dto);
+    // 🎯 Using the explicit /create route
+    const createUrl = `${this.transactionControllerUrl}/create`;
+    return this.http.post<Transaction>(createUrl, formattedDto);
+  }
+
+  /**
+   * Updates an existing transaction.
+   * C# Route: PUT /api/Transactions/{id}
+   */
+  updateTransaction(id: number, dto: TransactionUpdateDto): Observable<Transaction> {
+    const formattedDto = this.formatDateDto(dto);
+    return this.http.put<Transaction>(`${this.transactionControllerUrl}/${id}`, formattedDto);
+  }
+
+  /**
+   * Deletes a transaction.
+   * C# Route: DELETE /api/Transactions/{id}
+   */
+  deleteTransaction(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.transactionControllerUrl}/${id}`);
+  }
+
+  /**
+   * Helper function to format the Date object to a YYYY-MM-DD string
+   * for the C# DateOnly type compatibility.
+   */
+  private formatDateDto<T extends { date?: Date | string }>(dto: T): T {
+    if (dto.date instanceof Date) {
+      // Format as YYYY-MM-DD string
+      const date = dto.date;
+      const year = date.getFullYear();
+      // Month is 0-indexed, so add 1
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return {
+        ...dto,
+        date: `${year}-${month}-${day}`
+      };
+    }
+    return dto; // Return as is if date is already a string or null/undefined
+  }
+}
+
+/**
+ * Interface representing a full Transaction entity returned from the API.
+ */
+export interface Transaction {
+  transactionId: number;
+  type: string;
+  amount: number;
+  currency: string;
+  date: string | Date; // Can be string from API or Date after parsing/setting
+  isRecurring: boolean;
+  categoryId?: number;
+  description?: string;
+}

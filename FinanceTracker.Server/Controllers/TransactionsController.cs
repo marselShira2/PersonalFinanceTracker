@@ -3,12 +3,11 @@ using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace FinanceTracker.Server.Controllers
-{
-    [Authorize] // 🎯 Secure all transaction endpoints
-    [Route("api/[controller]")]
+{ 
+    [Route("api/[controller]")] // Base Route: /api/Transactions
     [ApiController]
     public class TransactionsController : ControllerBase
     {
@@ -30,18 +29,16 @@ namespace FinanceTracker.Server.Controllers
             throw new UnauthorizedAccessException("User ID not found in token claims.");
         }
 
-        //krijojme transaksionin
-        //permomentin anonim per test
+        // 🎯 ROUTE: /api/Transactions/create
         [AllowAnonymous]
-        [HttpPost]
-
+        [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto)
         {
+
+            try { 
             //anynomous per momentin
             // int userId = GetUserId();
-            int userId = 17;
-
-            
+            int userId = 6; 
             if (dto.Amount <= 0)
             {
                 return BadRequest("Transaction amount must be positive.");
@@ -65,27 +62,41 @@ namespace FinanceTracker.Server.Controllers
 
             var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
             return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500);
+            }
         }
 
-        //marrim ter transaksionet i lexojme 
-
+        // 🎯 ROUTE: /api/Transactions (for fetching the list)
         [HttpGet]
         public async Task<IActionResult> GetTransactions(
             [FromQuery] string? type,
             [FromQuery] bool? isRecurring)
-        {
-            int userId = GetUserId();
-
+        {  
+            int userId;
+            try
+            {
+                userId = GetUserId();
+            }
+            catch (InvalidOperationException)
+            { 
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
+             
             var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, type, isRecurring);
 
             return Ok(transactions);
         }
 
-      //lexojme 1 transaksion
+        // 🎯 ROUTE: /api/Transactions/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
-            int userId = GetUserId();
+            // Note: This needs to be uncommented for production/auth
+            // int userId = GetUserId();
+            int userId = 17; // Using fixed ID for testing
             var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
 
             if (transaction == null)
@@ -96,8 +107,7 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
-        //update 
-        //e leme anynomous per testing
+        // 🎯 ROUTE: /api/Transactions/{id}
         [AllowAnonymous]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateDto dto)
@@ -111,7 +121,7 @@ namespace FinanceTracker.Server.Controllers
                 return NotFound("Transaction not found or unauthorized.");
             }
 
-           
+
             transaction.Type = dto.Type ?? transaction.Type;
             transaction.Amount = dto.Amount ?? transaction.Amount;
             transaction.Currency = dto.Currency ?? transaction.Currency;
@@ -130,6 +140,7 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
+        // 🎯 ROUTE: /api/Transactions/{id}
         [AllowAnonymous]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
@@ -147,5 +158,8 @@ namespace FinanceTracker.Server.Controllers
             return NoContent();
         }
 
+
+
+ 
     }
 }

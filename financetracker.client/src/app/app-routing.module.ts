@@ -9,6 +9,7 @@ import { RegisterComponent } from './demo/components/auth/register/register.comp
 //import { Login1Component } from './demo/components/auth/login1/login1.component';
 import { DashboardComponent } from './demo/components/dashboard/dashboard.component'; 
 import { UserListComponent } from './Views/userList/userList.component';
+import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { UserListComponent } from './Views/userList/userList.component';
         path: '', component: AppLayoutComponent,
         children: [
           { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+          { path: 'transactions', component: TransactionsListComponent, canActivate: [authGuard] },
           //{ path: 'loginCredential', component: Login1Component },
           { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
           { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule), canActivate: [authGuard] },

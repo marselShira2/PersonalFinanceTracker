@@ -81,7 +81,10 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { FileUploadModule } from 'primeng/fileupload'; 
 /// 
-import { CardModule } from 'primeng/card'; 
+import { CardModule } from 'primeng/card';  
+
+//pages
+import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
 
 
 /////
@@ -91,6 +94,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
 @NgModule({
   declarations: [
     AppComponent,
+    TransactionsListComponent,
     AppFooterComponent,
     DashboardComponent,
     NotfoundComponent,
