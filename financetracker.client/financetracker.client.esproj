@@ -44,6 +44,7 @@
   <ItemGroup>
     <Folder Include="src\app\modules\NewFolder\" />
     <Folder Include="src\app\services\user\" />
+    <Folder Include="src\app\Views\Category\" />
     <Folder Include="src\app\Views\Transactions\" />
   </ItemGroup>
 </Project>

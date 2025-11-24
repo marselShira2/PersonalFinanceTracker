@@ -3,28 +3,28 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { UserDetailsDTO, SelfDeclarationODTO, OperatorsdDTO, SDDocumentsDTO } from '../Models/user-details-dto.model';
 import { catchError } from 'rxjs/operators';
-import { PersonDTO, PersonDTOEmail,PersonDTOResult, newPhoneNumberDTO, editPhoneNumber, newEmailDTO, EmailDTOResult, PersonDTOPhoneNumbers, editEmail, newPassword, PersonDTOEdit, PasswordDTOResult, SubjectOperatorDTO, OperatorDTO, SectorDropdown, eventsDTO, operatorsDropdown, eventsHistoryDTO } from '../Models/register-request';
+import { PersonDTO, PersonDTOEmail, PersonDTOResult, newPhoneNumberDTO, editPhoneNumber, newEmailDTO, EmailDTOResult, PersonDTOPhoneNumbers, editEmail, newPassword, PersonDTOEdit, PasswordDTOResult, SubjectOperatorDTO, OperatorDTO, SectorDropdown, eventsDTO, operatorsDropdown, eventsHistoryDTO } from '../Models/register-request';
 import { AuthResponse } from '../interfaces/auth-response';
 import { environment } from '../../environments/environment';
-import { Router } from '@angular/router'; 
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class usersService {
-  private apiUrl: string = environment.apiUrl; 
-    constructor(private http: HttpClient, private router: Router) { }
-    visibleComponents: boolean = true;
-    EditOrCreateNew: boolean = false;
-    personId!: string | null;
+  private apiUrl: string = environment.apiUrl;
+  constructor(private http: HttpClient, private router: Router) { }
+  visibleComponents: boolean = true;
+  EditOrCreateNew: boolean = false;
+  personId!: string | null;
   userIdEdit!: string | null;
   userRole!: string | null;
 
 
-  getUsers(type : string): Observable<UserDetailsDTO[]> {
+  getUsers(type: string): Observable<UserDetailsDTO[]> {
     const url = `${this.apiUrl}/Users/list?type=${type}`;
     return this.http.get<UserDetailsDTO[]>(url);
-  } 
+  }
 
   getOperatorsSDList(): Observable<SelfDeclarationODTO[]> {
     //
@@ -35,12 +35,12 @@ export class usersService {
   getDocumentsofSD(userId: string): Observable<SDDocumentsDTO[]> {
     //
     return this.http.get<SDDocumentsDTO[]>(`${this.apiUrl}/Users/GetDocumentsofSD`, {
-      params: { id: userId } 
+      params: { id: userId }
     });
   }
 
   getContent(idSelfdeclaration: number): Observable<SDDocumentsDTO[]> {
-    
+
     return this.http.get<SDDocumentsDTO[]>(`${this.apiUrl}/Users/GeContentbySD`, {
       params: {
         id: idSelfdeclaration
@@ -50,7 +50,7 @@ export class usersService {
 
 
   getUserDetails(): Observable<UserDetailsDTO> {
-    const url = `${this.apiUrl}/Users/details`; 
+    const url = `${this.apiUrl}/Users/details`;
     return this.http.get<UserDetailsDTO>(url)
       .pipe(
         catchError(error => {
@@ -59,7 +59,23 @@ export class usersService {
         })
       );
   }
-  
+
+  /**
+   * Updates the current user's personal profile information.
+   * @param data The user details to update (PersonDTOEdit, containing name fields).
+   * @returns An Observable indicating the success of the operation.
+   * * ENDPOINT: POST /Users/EditPersonDetails
+   */
+  updatePersonDetails(data: PersonDTOEdit): Observable<Object> {
+    const url = `${this.apiUrl}/Users/EditPersonDetails`;
+    return this.http.post<Object>(url, data).pipe(
+      catchError(error => {
+        console.error('Error updating person details:', error);
+        return throwError(error);
+      })
+    );
+  }
+
   ChangePassword(data: newPassword) {
     console.log(data);
     const url = `${this.apiUrl}/Users/ChangePassword`;
@@ -75,5 +91,5 @@ export class usersService {
     return this.http.get<UserDetailsDTO[]>(url);
   }
 
-  
+
 }
