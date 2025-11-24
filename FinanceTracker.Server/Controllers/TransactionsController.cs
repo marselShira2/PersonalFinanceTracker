@@ -5,6 +5,7 @@ using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims; // Make sure this is present
 
 namespace FinanceTracker.Server.Controllers
@@ -166,5 +167,103 @@ namespace FinanceTracker.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("import")]
+        // The parameter name 'file' must match formData.append('file', file, ...) in Angular
+        public async Task<IActionResult> ImportTransactions(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded or file is empty." });
+            }
+
+            // 🛡️ Security: In a real app, GET USER ID from authenticated context (ClaimsPrincipal)
+            // For demonstration, use a placeholder or known user ID.
+            int currentUserId = 1;
+
+            try
+            {
+                var transactionsToCreate = await ParseCsvFile(file, currentUserId);
+
+                if (transactionsToCreate.Count == 0)
+                {
+                    return BadRequest(new { message = "The CSV file contained no valid transaction data after processing." });
+                }
+
+                // 💾 Call a repository method to save the batch
+                await _transactionRepository.AddTransactionsFromCsvAsync(transactionsToCreate);
+
+                return Ok(new { message = $"Successfully imported {transactionsToCreate.Count} transactions." });
+            }
+            catch (Exception ex)
+            {
+                // Log the detailed exception here
+                return StatusCode(500, new { message = $"Internal server error during import: {ex.Message}" });
+            }
+        }
+
+        // Helper method to parse the CSV content
+        private async Task<List<CsvTransactionDto>> ParseCsvFile(IFormFile file, int userId)
+        {
+            // 💡 IMPORTANT: The list now contains CsvTransactionDto objects
+            var transactions = new List<CsvTransactionDto>();
+            var culture = CultureInfo.InvariantCulture;
+
+            const int DATE_INDEX = 0;
+            const int TYPE_INDEX = 1;
+            const int AMOUNT_INDEX = 2;
+            const int CURRENCY_INDEX = 3;
+            const int DESCRIPTION_INDEX = 4;
+            const int RECURRING_INDEX = 5;
+            const int CATEGORY_ID_INDEX = 6;
+            const int MIN_COLUMNS = 7;
+
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                await reader.ReadLineAsync(); // Skip header row
+
+                string? line;
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    var values = line.Split(',');
+
+                    if (values.Length < MIN_COLUMNS) continue;
+
+                    try
+                    {
+                        // Safely parse Date, Amount
+                        if (!DateTime.TryParse(values[DATE_INDEX].Trim(), culture, DateTimeStyles.None, out var date) ||
+                            !decimal.TryParse(values[AMOUNT_INDEX].Trim(), NumberStyles.Any, culture, out var amount) ||
+                            amount <= 0.01M)
+                        {
+                            continue; // Skip invalid line
+                        }
+
+                        int? categoryId = int.TryParse(values[CATEGORY_ID_INDEX].Trim(), out var catId) ? catId : null;
+                        bool isRecurring = bool.TryParse(values[RECURRING_INDEX].Trim(), out var recurring) ? recurring : false;
+
+                        // 💡 Creating the new CsvTransactionDto instance
+                        transactions.Add(new CsvTransactionDto
+                        {
+                            UserId = userId,
+                            Date = date,
+                            Type = values[TYPE_INDEX].Trim(),
+                            Amount = amount,
+                            Currency = values[CURRENCY_INDEX].Trim(),
+                            Description = values[DESCRIPTION_INDEX].Trim(),
+                            IsRecurring = isRecurring,
+                            CategoryId = categoryId
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        // Log and skip bad line
+                        continue;
+                    }
+                }
+            }
+            return transactions;
+        }
+
     }
 }

@@ -118,6 +118,19 @@ export class TransactionService {
     }
     return dto; // Return as is if date is already a string or null/undefined
   }
+
+
+  uploadCsv(file: File): Observable<any> {
+    const formData: FormData = new FormData();
+    // 'file' here must match the parameter name used in your ASP.NET Core controller action (e.g., IFormFile file)
+    formData.append('file', file, file.name);
+
+    // Assuming the transactions controller URL is 'api/transactions'
+    // and the import endpoint is 'api/transactions/import'
+    return this.http.post(`${this.apiUrl}/import`, formData);
+
+
+  }
 }
  
 export interface Transaction {

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Table } from 'primeng/table';
-
+import { MessageService } from 'primeng/api';
 import { Transaction, TransactionService, TransactionCreateDto, TransactionUpdateDto } from '../../services/transaction/transaction.service';
 import { Category, CategoryService } from '../../services/categories/category.service';
 
@@ -37,7 +37,8 @@ export class TransactionsListComponent implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private messageService: MessageService
   ) {
     this.selectedTransaction = this.resetTransactionForm();
   }
@@ -212,6 +213,42 @@ export class TransactionsListComponent implements OnInit {
           error: (err) => {
             console.error('Error deleting transaction.', err);
             this.closeDeleteModal();
+          }
+        });
+    }
+  }
+
+  onCsvFileSelect(event: any): void {
+    const file: File = event.files[0];
+
+    if (file) {
+      this.isLoading = true; // Show loading spinner
+
+      // 💡 The transactionService.uploadCsv method must be created next!
+      this.transactionService.uploadCsv(file)
+        .pipe(
+          finalize(() => {
+            this.isLoading = false; // Hide loading spinner regardless of outcome
+            // Clear the file selection manually if not using auto="true" or if you want custom logic
+            event.target.value = null;
+          })
+        )
+        .subscribe({
+          next: (response) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Import Successful',
+              detail: response.message || 'Transactions imported successfully.'
+            });
+            this.loadTransactions(); // Reload the table to show the new data
+          },
+          error: (err) => {
+            console.error('CSV Upload failed:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Import Failed',
+              detail: err.error?.message || 'An error occurred during CSV import.'
+            });
           }
         });
     }
