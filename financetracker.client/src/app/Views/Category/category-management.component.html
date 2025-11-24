@@ -2,44 +2,44 @@
   <div class="spinner"></div>
 </div>
 <div class="category-management-container">
-  <h2>📁 Category Management</h2>
+  <h2>📁 {{ 'T.CAT_PAGE_HEADER' | translate }}</h2>
 
   <p-toolbar styleClass="mb-4">
     <div class="p-toolbar-group-left">
       <button pButton
-                         label="New Category"
-                         icon="pi pi-plus"
-                         class="p-button-success mr-2"
-                         (click)="openCreateModal()"></button>
+              label="{{ 'T.CAT_NEW_BTN' | translate }}"
+              icon="pi pi-plus"
+              class="p-button-success mr-2"
+              (click)="openCreateModal()"></button>
     </div>
   </p-toolbar>
 
   <p-table #dt
-                    [value]="categories"
-                    dataKey="categoryId"
-                    [rows]="10"
-                    [showCurrentPageReport]="true" 
-                    [rowHover]="true"
-                    styleClass="p-datatable-striped"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                    [paginator]="true"
-                    [globalFilterFields]="['name','type']">
+           [value]="categories"
+           dataKey="categoryId"
+           [rows]="10"
+           [showCurrentPageReport]="true"
+           [rowHover]="true"
+           styleClass="p-datatable-striped"
+           currentPageReportTemplate="{{ 'T.PAGINATION_REPORT' | translate }}"
+           [paginator]="true"
+           [globalFilterFields]="['name','type']">
 
     <ng-template pTemplate="caption">
       <div class="flex">
         <span class="p-input-icon-left ml-auto">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search categories" />
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="{{ 'T.CAT_SEARCH_PLACEHOLDER' | translate }}" />
         </span>
       </div>
     </ng-template>
 
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 5rem;">Icon</th>
-        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-        <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
-        <th style="width: 10rem">Actions</th>
+        <th style="width: 5rem;">{{ 'T.CAT_TABLE_ICON' | translate }}</th>
+        <th pSortableColumn="name">{{ 'T.CAT_TABLE_NAME' | translate }} <p-sortIcon field="name"></p-sortIcon></th>
+        <th pSortableColumn="type">{{ 'T.CAT_TABLE_TYPE' | translate }} <p-sortIcon field="type"></p-sortIcon></th>
+        <th style="width: 10rem">{{ 'T.CAT_TABLE_ACTIONS' | translate }}</th>
       </tr>
     </ng-template>
 
@@ -63,66 +63,66 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="4">No categories found for this user.</td>
+        <td colspan="4">{{ 'T.CAT_NO_CATEGORIES' | translate }}</td>
       </tr>
     </ng-template>
 
   </p-table>
 
   <p-dialog [(visible)]="isCategoryModalOpen"
-                     [header]="isEditMode ? 'Edit Category' : 'Create New Category'"
-                     [modal]="true"
-                     styleClass="p-fluid">
+            [header]="isEditMode ? ('T.CAT_EDIT_MODAL_HEADER' | translate) : ('T.CAT_CREATE_MODAL_HEADER' | translate)"
+            [modal]="true"
+            styleClass="p-fluid">
 
-    <!-- 1. Define template variable #categoryForm="ngForm" for @ViewChild access -->
     <form *ngIf="selectedCategory" #categoryForm="ngForm">
 
       <div class="field">
-        <label for="name">Name</label>
+        <label for="name">{{ 'T.CAT_FIELD_NAME' | translate }}</label>
         <input pInputText id="name" type="text" name="name" [(ngModel)]="selectedCategory.name" required autofocus />
       </div>
 
       <div class="field">
-        <label for="type">Type</label>
+        <label for="type">{{ 'T.CAT_FIELD_TYPE' | translate }}</label>
         <p-dropdown id="type"
-                                   [options]="categoryTypes"
-                                   name="type"
-                                   [(ngModel)]="selectedCategory.type"
-                                   placeholder="Select Type"
-                                   required></p-dropdown>
+                    [options]="categoryTypes"
+                    name="type"
+                    [(ngModel)]="selectedCategory.type"
+                    placeholder="{{ 'T.CAT_SELECT_TYPE_PLACEHOLDER' | translate }}"
+                    required></p-dropdown>
       </div>
 
       <div class="field">
-        <label for="icon">Icon (e.g., shopping_cart)</label>
+        <label for="icon">{{ 'T.CAT_FIELD_ICON' | translate }} ({{ 'T.CAT_ICON_EXAMPLE' | translate }})</label>
         <input pInputText id="icon" type="text" name="icon" [(ngModel)]="selectedCategory.icon" />
         <small *ngIf="selectedCategory.icon">
-          Current Icon Preview: <i [class]="'pi pi-fw pi-' + selectedCategory.icon"></i>
+          {{ 'T.CAT_ICON_PREVIEW' | translate }}: <i [class]="'pi pi-fw pi-' + selectedCategory.icon"></i>
         </small>
       </div>
 
     </form>
 
     <ng-template pTemplate="footer">
-      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeCategoryModal()"></button>
+      <button pButton pRipple label="{{ 'T.BTN_CANCEL' | translate }}" icon="pi pi-times" class="p-button-text" (click)="closeCategoryModal()"></button>
 
-      <button pButton pRipple [label]="isEditMode ? 'Update' : 'Save'"
-                     icon="pi pi-check"
-                     class="p-button-success" 
-              (click)="triggerSave()">
-      </button>
+      <button pButton pRipple [label]="isEditMode ? ('T.BTN_UPDATE' | translate) : ('T.BTN_SAVE' | translate)"
+              icon="pi pi-check"
+              class="p-button-success"
+              (click)="triggerSave()"
+              [disabled]="!categoryForm.valid || isLoading">
+      </button>
 
     </ng-template>
   </p-dialog>
 
 
-  <p-dialog [(visible)]="isDeleteModalOpen" header="Confirm Deletion" [modal]="true" [style]="{width: '450px'}">
+  <p-dialog [(visible)]="isDeleteModalOpen" header="{{ 'T.DELETE_MODAL_HEADER' | translate }}" [modal]="true" [style]="{width: '450px'}">
     <div class="flex align-items-center">
       <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-      <span>Are you sure you want to delete the category <b>{{ categoryToDeleteName }}</b>?</span>
+      <span>{{ 'T.CAT_DELETE_CONFIRM_TEXT' | translate }} <b>{{ categoryToDeleteName }}</b>?</span>
     </div>
     <ng-template pTemplate="footer">
-      <button pButton pRipple icon="pi pi-times" class="p-button-text" (click)="closeDeleteModal()" label="No"></button>
-      <button pButton pRipple icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()" label="Yes"></button>
+      <button pButton pRipple icon="pi pi-times" class="p-button-text" (click)="closeDeleteModal()" label="{{ 'T.BTN_NO' | translate }}"></button>
+      <button pButton pRipple icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()" label="{{ 'T.BTN_YES' | translate }}"></button>
     </ng-template>
   </p-dialog>
 
