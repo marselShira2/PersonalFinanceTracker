@@ -25,13 +25,12 @@ namespace FinanceTracker.Server.Repositories
             var query = _context.Categories.Where(c => c.UserId == userId);
 
             if (!string.IsNullOrEmpty(type))
-            {
-                // Case-insensitive filtering by Type ('Income' or 'Expense')
+            { 
                 query = query.Where(c => c.Type.ToLower() == type.ToLower());
             }
 
             return await query
-                .OrderBy(c => c.Name) // Order alphabetically for better UI presentation
+                .OrderBy(c => c.Name)  
                 .ToListAsync();
         }
 
@@ -59,9 +58,7 @@ namespace FinanceTracker.Server.Repositories
         /// Updates an existing category in the database.
         /// </summary>
         public async Task<Category> UpdateCategoryAsync(Category category)
-        {
-            // Note: Since the category object passed in is already tracked and verified by the controller,
-            // we just need to update it.
+        { 
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
             return category;
@@ -71,27 +68,15 @@ namespace FinanceTracker.Server.Repositories
         /// Deletes a category by ID, ensuring it belongs to the specified user.
         /// </summary>
         public async Task<bool> DeleteCategoryAsync(int id, int userId)
-        {
-            // 1. Fetch the category, secure by userId
+        { 
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.CategoryId == id && c.UserId == userId);
 
             if (category == null)
             {
-                return false; // Not found or doesn't belong to the user
+                return false;  
             }
-
-            // 2. IMPORTANT: Handle foreign key constraints (Transactions, Budgets)
-            // You cannot delete a category if active transactions or budgets rely on it.
-            // Depending on your database setup (Cascade vs. Restrict), you may need to:
-            // a) Remove the CategoryId reference from dependent entities (Set NULL)
-            // b) Check for dependent entities and throw an exception/return false if found.
-            // 
-            // For simplicity here, we assume the DB is configured to handle related entities
-            // (e.g., setting Transaction.CategoryId to NULL on cascade delete). 
-            // If the DB policy is RESTRICT, this SaveChangesAsync() will fail, and you must
-            // manually set dependent IDs to null first.
-
+ 
             _context.Categories.Remove(category);
             var changes = await _context.SaveChangesAsync();
 
