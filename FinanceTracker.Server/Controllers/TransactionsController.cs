@@ -5,11 +5,11 @@ using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims; // Make sure this is present
+using System.Globalization;
+using System.Security.Claims;
 
 namespace FinanceTracker.Server.Controllers
 {
-    // Apply [Authorize] at the controller level to protect ALL methods by default
     [Authorize]
     [Route("api/[controller]")] // Base Route: /api/Transactions
     [ApiController]
@@ -22,7 +22,6 @@ namespace FinanceTracker.Server.Controllers
             _transactionRepository = transactionRepository;
         }
 
-        // Helper to securely get UserId from the JWT token
         private int GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -31,18 +30,14 @@ namespace FinanceTracker.Server.Controllers
             {
                 return userId;
             }
-            // Throw an exception if the ID is missing or not an integer
             throw new UnauthorizedAccessException("User ID not found or invalid in token claims.");
         }
 
-        // 🎯 ROUTE: /api/Transactions/create
-        // REMOVED [AllowAnonymous] and fixed ID
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto)
         {
             try
             {
-                // **FIXED: Use GetUserId() to associate the transaction with the logged-in user**
                 int userId = GetUserId();
 
                 if (dto.Amount <= 0)
@@ -79,7 +74,6 @@ namespace FinanceTracker.Server.Controllers
             }
         }
 
-        // 🎯 ROUTE: /api/Transactions (for fetching the list)
         [HttpGet]
         public async Task<IActionResult> GetTransactions(
             [FromQuery] string? type,
@@ -88,7 +82,6 @@ namespace FinanceTracker.Server.Controllers
             int userId;
             try
             {
-                // CORRECT: Get UserId from the authorized token
                 userId = GetUserId();
             }
             catch (UnauthorizedAccessException)
@@ -101,11 +94,9 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transactions);
         }
 
-        // 🎯 ROUTE: /api/Transactions/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
-            // **FIXED: Use GetUserId()**
             int userId = GetUserId();
             var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
 
@@ -117,12 +108,9 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
-        // 🎯 ROUTE: /api/Transactions/{id}
-        // REMOVED [AllowAnonymous] and fixed ID
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateDto dto)
         {
-            // **FIXED: Use GetUserId()**
             int userId = GetUserId();
             var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
 
@@ -130,7 +118,7 @@ namespace FinanceTracker.Server.Controllers
             {
                 return NotFound("Transaction not found or unauthorized.");
             }
-            // ... (rest of the update logic)
+
             transaction.Type = dto.Type ?? transaction.Type;
             transaction.Amount = dto.Amount ?? transaction.Amount;
             transaction.Currency = dto.Currency ?? transaction.Currency;
@@ -149,12 +137,9 @@ namespace FinanceTracker.Server.Controllers
             return Ok(transaction);
         }
 
-        // 🎯 ROUTE: /api/Transactions/{id}
-        // REMOVED [AllowAnonymous] and fixed ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {
-            // **FIXED: Use GetUserId()**
             int userId = GetUserId();
 
             bool success = await _transactionRepository.DeleteTransactionAsync(id, userId);
@@ -166,5 +151,102 @@ namespace FinanceTracker.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportTransactions(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded or file is empty." });
+            }
+
+            int currentUserId;
+            try
+            {
+                currentUserId = GetUserId();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
+
+            try
+            {
+                var transactionsToCreate = await ParseCsvFile(file, currentUserId);
+
+                if (transactionsToCreate.Count == 0)
+                {
+                    return BadRequest(new { message = "The CSV file contained no valid transaction data after processing." });
+                }
+
+                await _transactionRepository.AddTransactionsFromCsvAsync(transactionsToCreate);
+
+                return Ok(new { message = $"Successfully imported {transactionsToCreate.Count} transactions." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Internal server error during import: {ex.Message}" });
+            }
+        }
+
+        private async Task<List<CsvTransactionDto>> ParseCsvFile(IFormFile file, int userId)
+        {
+            var transactions = new List<CsvTransactionDto>();
+            var culture = CultureInfo.InvariantCulture;
+
+            const int DATE_INDEX = 0;
+            const int TYPE_INDEX = 1;
+            const int AMOUNT_INDEX = 2;
+            const int CURRENCY_INDEX = 3;
+            const int DESCRIPTION_INDEX = 4;
+            const int RECURRING_INDEX = 5;
+            const int CATEGORY_ID_INDEX = 6;
+            const int MIN_COLUMNS = 7;
+
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                await reader.ReadLineAsync(); // Skip header row
+
+                string? line;
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    var values = line.Split(',');
+
+                    if (values.Length < MIN_COLUMNS) continue;
+
+                    try
+                    {
+                        if (!DateTime.TryParse(values[DATE_INDEX].Trim(), culture, DateTimeStyles.None, out var date) ||
+                            !decimal.TryParse(values[AMOUNT_INDEX].Trim(), NumberStyles.Any, culture, out var amount) ||
+                            amount <= 0.01M)
+                        {
+                            continue; // Skip invalid line
+                        }
+
+                        int? categoryId = int.TryParse(values[CATEGORY_ID_INDEX].Trim(), out var catId) ? catId : null;
+                        bool isRecurring = bool.TryParse(values[RECURRING_INDEX].Trim(), out var recurring) ? recurring : false;
+
+                        transactions.Add(new CsvTransactionDto
+                        {
+                            UserId = userId,
+                            Date = date,
+                            Type = values[TYPE_INDEX].Trim(),
+                            Amount = amount,
+                            Currency = values[CURRENCY_INDEX].Trim(),
+                            Description = values[DESCRIPTION_INDEX].Trim(),
+                            IsRecurring = isRecurring,
+                            CategoryId = categoryId
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        // Log and skip bad line
+                        continue;
+                    }
+                }
+            }
+            return transactions;
+        }
+
     }
 }

@@ -79,5 +79,29 @@ namespace FinanceTracker.Server.Repositories
             var changes = await _context.SaveChangesAsync();
             return changes > 0;
         }
+
+
+        public async Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> csvTransactions)
+        {
+            // 1. Map DTOs to Entity Models
+            var newTransactions = csvTransactions.Select(dto => new Transaction
+            {
+                UserId = dto.UserId,
+                Type = dto.Type,
+                Amount = dto.Amount,
+                Currency = dto.Currency,
+                // Convert DateTime (from CSV) back to DateOnly (for EF Core Model)
+                Date = DateOnly.FromDateTime(dto.Date),
+                CategoryId = dto.CategoryId,
+                Description = dto.Description,
+                IsRecurring = dto.IsRecurring
+            }).ToList();
+
+            // 2. Perform Batch Insertion
+            _context.Transactions.AddRange(newTransactions);
+
+            // 3. Save Changes
+            await _context.SaveChangesAsync();
+        }
     }
 }
