@@ -51,6 +51,70 @@
   "CONFIRM_PASSWORD": "Confirm Password",
   "BACK_TO_LOGIN": "Back to Login",
   "SEND_RESET_CODE": "Send Reset Code",
-  "ENTER_EMAIL_RESET_CODE": "Enter your email to receive a 6-digit reset code"
-}
+  "ENTER_EMAIL_RESET_CODE": "Enter your email to receive a 6-digit reset code",
+  "T.PAGE_HEADER": "Transaction History",
+  "T.ADD_TRANSACTION_BTN": "Add New Transaction",
 
+  "T.FILTER_ALL": "All",
+  "T.FILTER_INCOME": "Income",
+  "T.FILTER_EXPENSE": "Expense",
+
+  "T.PAGINATION_REPORT": "Showing {first} to {last} of {totalRecords} entries",
+  "T.GLOBAL_SEARCH_PLACEHOLDER": "Global Search",
+
+  "T.TABLE_DATE": "Date",
+  "T.TABLE_TYPE": "Type",
+  "T.TABLE_DESCRIPTION": "Description",
+  "T.TABLE_CATEGORY": "Category",
+  "T.TABLE_AMOUNT": "Amount",
+  "T.TABLE_RECURRING": "Recurring",
+  "T.TABLE_ACTIONS": "Actions",
+  "T.UNCATEGORIZED": "Uncategorized",
+  "T.NO_TRANSACTIONS": "No transactions found.",
+
+  "T.EDIT_MODAL_HEADER": "Edit Transaction",
+  "T.CREATE_MODAL_HEADER": "Create New Transaction",
+
+  "T.FIELD_TYPE": "Type",
+  "T.FIELD_AMOUNT": "Amount",
+  "T.FIELD_DATE": "Date",
+  "T.FIELD_CURRENCY": "Currency",
+  "T.FIELD_DESCRIPTION": "Description",
+  "T.FIELD_CATEGORY": "Category",
+  "T.FIELD_RECURRING": "Is Recurring?",
+
+  "T.SELECT_TYPE_PLACEHOLDER": "Select Type",
+  "T.SELECT_CURRENCY_PLACEHOLDER": "Select Currency",
+  "T.SELECT_CATEGORY_PLACEHOLDER": "Select Category",
+
+  "T.BTN_CANCEL": "Cancel",
+  "T.BTN_SAVE": "Save",
+  "T.BTN_UPDATE": "Update",
+
+  "T.DELETE_MODAL_HEADER": "Confirm Deletion",
+  "T.DELETE_CONFIRM_TEXT": "Are you sure you want to delete this transaction?",
+  "T.BTN_NO": "No",
+  "T.BTN_YES": "Yes",
+  "T.CAT_PAGE_HEADER": "Category Management",
+  "T.CAT_NEW_BTN": "New Category",
+
+  "T.CAT_SEARCH_PLACEHOLDER": "Search categories",
+  "T.CAT_TABLE_ICON": "Icon",
+  "T.CAT_TABLE_NAME": "Name",
+  "T.CAT_TABLE_TYPE": "Type",
+  "T.CAT_TABLE_ACTIONS": "Actions",
+  "T.CAT_NO_CATEGORIES": "No categories found for this user.",
+
+  "T.CAT_EDIT_MODAL_HEADER": "Edit Category",
+  "T.CAT_CREATE_MODAL_HEADER": "Create New Category",
+
+  "T.CAT_FIELD_NAME": "Name",
+  "T.CAT_FIELD_TYPE": "Type",
+  "T.CAT_FIELD_ICON": "Icon",
+  "T.CAT_ICON_EXAMPLE": "e.g., shopping-cart",
+  "T.CAT_ICON_PREVIEW": "Current Icon Preview",
+  "T.CAT_SELECT_TYPE_PLACEHOLDER": "Select Type",
+
+  "T.CAT_DELETE_CONFIRM_TEXT": "Are you sure you want to delete the category",
+  "T.IMPORT_CSV_BTN": "Import CSV"
+}

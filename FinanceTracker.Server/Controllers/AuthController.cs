@@ -34,61 +34,68 @@ namespace FinanceTracker.Server.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserCreateDto userDto)
         {
-
-            if (!IsValidEmail(userDto.Email))
+            try
             {
-                return BadRequest("Invalid email format.");
+
+                if (!IsValidEmail(userDto.Email))
+                {
+                    return BadRequest("Invalid email format.");
+                }
+
+                var existingUser = await _userRepository.GetUserByEmailAsync(userDto.Email);
+                if (existingUser != null)
+                {
+                    return Conflict("An account with this email already exists.");
+                }
+
+                var passwordValidationResult = IsPasswordStrong(userDto.Password);
+                if (!passwordValidationResult.IsStrong)
+                {
+                    return BadRequest(passwordValidationResult.ErrorMessage);
+                }
+
+                string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
+
+                var newUser = new User
+                {
+
+                    Name = userDto.Username,
+                    Email = userDto.Email,
+                    Password = hashedPassword,
+                    IsVerified = false
+                };
+
+                await _userRepository.AddUserAsync(newUser);
+
+                string verificationCode = new Random().Next(100000, 999999).ToString();
+
+                _verificationStore.AddCode(newUser.UserId, verificationCode);
+
+                var emailBody = $"Your Finance Tracker verification code is: <strong>{verificationCode}</strong>. Please enter this code in the app to activate your account.";
+
+                await _emailService.SendEmailAsync(
+                    newUser.Email,
+                    "Your Account Verification Code",
+                    emailBody
+                );
+
+                var responseData = new
+                {
+                    success = true,
+                    newUser.UserId,
+                    newUser.Name,
+                    newUser.Email,
+
+                    Message = "Registration successful. Please enter the 6-digit code sent to your email to verify your account."
+                };
+
+                // Change the return status to 202 Accepted.
+                return Accepted(responseData);
             }
-
-            var existingUser = await _userRepository.GetUserByEmailAsync(userDto.Email);
-            if (existingUser != null)
+            catch (Exception ex)
             {
-                return Conflict("An account with this email already exists.");
+                return StatusCode(500);
             }
-
-            var passwordValidationResult = IsPasswordStrong(userDto.Password);
-            if (!passwordValidationResult.IsStrong)
-            {
-                return BadRequest(passwordValidationResult.ErrorMessage);
-            }
-
-            string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
-
-            var newUser = new User
-            {
-
-                Name = userDto.Username,
-                Email = userDto.Email,
-                Password = hashedPassword,
-                IsVerified = false
-            };
-
-            await _userRepository.AddUserAsync(newUser);
-
-            string verificationCode = new Random().Next(100000, 999999).ToString();
-
-            _verificationStore.AddCode(newUser.UserId, verificationCode);
-
-            var emailBody = $"Your Finance Tracker verification code is: <strong>{verificationCode}</strong>. Please enter this code in the app to activate your account.";
-
-            await _emailService.SendEmailAsync(
-                newUser.Email,
-                "Your Account Verification Code",
-                emailBody
-            );
-
-            var responseData = new
-            {
-                success = true,
-                newUser.UserId,
-                newUser.Name,
-                newUser.Email,
-
-                Message = "Registration successful. Please enter the 6-digit code sent to your email to verify your account."
-            };
-
-            // Change the return status to 202 Accepted.
-            return Accepted(responseData);
         }
 
 
