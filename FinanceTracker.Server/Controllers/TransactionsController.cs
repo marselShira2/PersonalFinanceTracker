@@ -1,12 +1,16 @@
-﻿using FinanceTracker.Server.Data.Dto;
+﻿// FinanceTracker.Server.Controllers.TransactionsController
+
+using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using System.Security.Claims; // Make sure this is present
 
 namespace FinanceTracker.Server.Controllers
-{ 
+{
+    // Apply [Authorize] at the controller level to protect ALL methods by default
+    [Authorize]
     [Route("api/[controller]")] // Base Route: /api/Transactions
     [ApiController]
     public class TransactionsController : ControllerBase
@@ -22,48 +26,54 @@ namespace FinanceTracker.Server.Controllers
         private int GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (int.TryParse(userIdClaim, out int userId))
             {
                 return userId;
             }
-            throw new UnauthorizedAccessException("User ID not found in token claims.");
+            // Throw an exception if the ID is missing or not an integer
+            throw new UnauthorizedAccessException("User ID not found or invalid in token claims.");
         }
 
         // 🎯 ROUTE: /api/Transactions/create
-        [AllowAnonymous]
+        // REMOVED [AllowAnonymous] and fixed ID
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto)
         {
-
-            try { 
-            //anynomous per momentin
-            // int userId = GetUserId();
-            int userId = 6; 
-            if (dto.Amount <= 0)
+            try
             {
-                return BadRequest("Transaction amount must be positive.");
-            }
-            if (dto.Type.ToLower() != "income" && dto.Type.ToLower() != "expense")
-            {
-                return BadRequest("Transaction type must be 'Income' or 'Expense'.");
-            }
+                // **FIXED: Use GetUserId() to associate the transaction with the logged-in user**
+                int userId = GetUserId();
 
-            var transaction = new Transaction
-            {
-                UserId = userId,
-                Type = dto.Type,
-                Amount = dto.Amount,
-                Currency = dto.Currency,
-                Date = dto.Date,
-                CategoryId = dto.CategoryId,
-                Description = dto.Description,
-                IsRecurring = dto.IsRecurring
-            };
+                if (dto.Amount <= 0)
+                {
+                    return BadRequest("Transaction amount must be positive.");
+                }
+                if (dto.Type.ToLower() != "income" && dto.Type.ToLower() != "expense")
+                {
+                    return BadRequest("Transaction type must be 'Income' or 'Expense'.");
+                }
 
-            var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
-            return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
+                var transaction = new Transaction
+                {
+                    UserId = userId,
+                    Type = dto.Type,
+                    Amount = dto.Amount,
+                    Currency = dto.Currency,
+                    Date = dto.Date,
+                    CategoryId = dto.CategoryId,
+                    Description = dto.Description,
+                    IsRecurring = dto.IsRecurring
+                };
+
+                var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
+                return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }
-            catch(Exception ex)
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
+            catch (Exception)
             {
                 return StatusCode(500);
             }
@@ -74,17 +84,18 @@ namespace FinanceTracker.Server.Controllers
         public async Task<IActionResult> GetTransactions(
             [FromQuery] string? type,
             [FromQuery] bool? isRecurring)
-        {  
+        {
             int userId;
             try
             {
+                // CORRECT: Get UserId from the authorized token
                 userId = GetUserId();
             }
-            catch (InvalidOperationException)
-            { 
+            catch (UnauthorizedAccessException)
+            {
                 return Unauthorized(new { Message = "User authentication failed or ID missing." });
             }
-             
+
             var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, type, isRecurring);
 
             return Ok(transactions);
@@ -94,9 +105,8 @@ namespace FinanceTracker.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
-            // Note: This needs to be uncommented for production/auth
-            // int userId = GetUserId();
-            int userId = 17; // Using fixed ID for testing
+            // **FIXED: Use GetUserId()**
+            int userId = GetUserId();
             var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
 
             if (transaction == null)
@@ -108,20 +118,19 @@ namespace FinanceTracker.Server.Controllers
         }
 
         // 🎯 ROUTE: /api/Transactions/{id}
-        [AllowAnonymous]
+        // REMOVED [AllowAnonymous] and fixed ID
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateDto dto)
         {
-            //int userId = GetUserId();
-            int userId = 17;
+            // **FIXED: Use GetUserId()**
+            int userId = GetUserId();
             var transaction = await _transactionRepository.GetTransactionByIdAsync(id, userId);
 
             if (transaction == null)
             {
                 return NotFound("Transaction not found or unauthorized.");
             }
-
-
+            // ... (rest of the update logic)
             transaction.Type = dto.Type ?? transaction.Type;
             transaction.Amount = dto.Amount ?? transaction.Amount;
             transaction.Currency = dto.Currency ?? transaction.Currency;
@@ -141,12 +150,12 @@ namespace FinanceTracker.Server.Controllers
         }
 
         // 🎯 ROUTE: /api/Transactions/{id}
-        [AllowAnonymous]
+        // REMOVED [AllowAnonymous] and fixed ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {
-            //int userId = GetUserId();
-            int userId = 17;
+            // **FIXED: Use GetUserId()**
+            int userId = GetUserId();
 
             bool success = await _transactionRepository.DeleteTransactionAsync(id, userId);
 
@@ -157,9 +166,5 @@ namespace FinanceTracker.Server.Controllers
 
             return NoContent();
         }
-
-
-
- 
     }
 }

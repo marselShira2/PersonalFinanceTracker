@@ -54,6 +54,70 @@
   "CONFIRM_PASSWORD": "Konfirmo Fjalëkalimin",
   "BACK_TO_LOGIN": "Kthehu te login",
   "SEND_RESET_CODE": "Dërgo Kodin për Rivendosje",
-  "ENTER_EMAIL_RESET_CODE": "Shkruani email-in tuaj për të marrë një kod 6-shifror për rivendosjen"
-}
+  "ENTER_EMAIL_RESET_CODE": "Shkruani email-in tuaj për të marrë një kod 6-shifror për rivendosjen",
+  "T.PAGE_HEADER": "Historiku i Transaksioneve",
+  "T.ADD_TRANSACTION_BTN": "Shto Transaksion të Ri",
 
+  "T.FILTER_ALL": "Të Gjitha",
+  "T.FILTER_INCOME": "Të Ardhurat",
+  "T.FILTER_EXPENSE": "Shpenzimet",
+
+  "T.PAGINATION_REPORT": "Duke shfaqur {first} deri në {last} nga {totalRecords} hyrje",
+  "T.GLOBAL_SEARCH_PLACEHOLDER": "Kërkim Global",
+
+  "T.TABLE_DATE": "Data",
+  "T.TABLE_TYPE": "Lloji",
+  "T.TABLE_DESCRIPTION": "Përshkrimi",
+  "T.TABLE_CATEGORY": "Kategoria",
+  "T.TABLE_AMOUNT": "Shuma",
+  "T.TABLE_RECURRING": "E Përsëritur",
+  "T.TABLE_ACTIONS": "Veprimet",
+  "T.UNCATEGORIZED": "Pa Kategori",
+  "T.NO_TRANSACTIONS": "Nuk u gjetën transaksione.",
+
+  "T.EDIT_MODAL_HEADER": "Redakto Transaksionin",
+  "T.CREATE_MODAL_HEADER": "Krijo Transaksion të Ri",
+
+  "T.FIELD_TYPE": "Lloji",
+  "T.FIELD_AMOUNT": "Shuma",
+  "T.FIELD_DATE": "Data",
+  "T.FIELD_CURRENCY": "Valuta",
+  "T.FIELD_DESCRIPTION": "Përshkrimi",
+  "T.FIELD_CATEGORY": "Kategoria",
+  "T.FIELD_RECURRING": "Është e Përsëritur?",
+
+  "T.SELECT_TYPE_PLACEHOLDER": "Zgjidh Llojin",
+  "T.SELECT_CURRENCY_PLACEHOLDER": "Zgjidh Valutën",
+  "T.SELECT_CATEGORY_PLACEHOLDER": "Zgjidh Kategorinë",
+
+  "T.BTN_CANCEL": "Anullo",
+  "T.BTN_SAVE": "Ruaj",
+  "T.BTN_UPDATE": "Përditëso",
+
+  "T.DELETE_MODAL_HEADER": "Konfirmo Fshirjen",
+  "T.DELETE_CONFIRM_TEXT": "Jeni i sigurt që dëshironi ta fshini këtë transaksion?",
+  "T.BTN_NO": "Jo",
+  "T.BTN_YES": "Po",
+
+  "T.CAT_PAGE_HEADER": "Menaxhimi i Kategorive",
+  "T.CAT_NEW_BTN": "Kategori e Re",
+
+  "T.CAT_SEARCH_PLACEHOLDER": "Kërko kategori",
+  "T.CAT_TABLE_ICON": "Ikona",
+  "T.CAT_TABLE_NAME": "Emri",
+  "T.CAT_TABLE_TYPE": "Lloji",
+  "T.CAT_TABLE_ACTIONS": "Veprimet",
+  "T.CAT_NO_CATEGORIES": "Nuk u gjetën kategori për këtë përdorues.",
+
+  "T.CAT_EDIT_MODAL_HEADER": "Redakto Kategorinë",
+  "T.CAT_CREATE_MODAL_HEADER": "Krijo Kategori të Re",
+
+  "T.CAT_FIELD_NAME": "Emri",
+  "T.CAT_FIELD_TYPE": "Lloji",
+  "T.CAT_FIELD_ICON": "Ikona",
+  "T.CAT_ICON_EXAMPLE": "p.sh., shopping-cart",
+  "T.CAT_ICON_PREVIEW": "Parashikim i Ikonës Aktuale",
+  "T.CAT_SELECT_TYPE_PLACEHOLDER": "Zgjidh Llojin",
+  "T.CAT_DELETE_CONFIRM_TEXT": "Jeni i sigurt që dëshironi të fshini kategorinë",
+  "T.IMPORT_CSV_BTN": "Importo CSV" 
+}

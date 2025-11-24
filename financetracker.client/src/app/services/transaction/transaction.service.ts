@@ -1,17 +1,13 @@
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
-/**
- * Data Transfer Object for creating a new transaction.
- * Mirrors the C# TransactionCreateDto.
- */
+import { environment } from '../../../environments/environment';
+import { Category } from '../categories/category.service';
+ 
 export interface TransactionCreateDto {
   type: string;
   amount: number;
-  currency: string;
-  // NOTE: This will be a JS Date object in the component,
-  // but must be formatted to a YYYY-MM-DD string for the backend.
+  currency: string; 
   date: Date; // Keep as Date for component use
   categoryId?: number;
   description?: string;
@@ -39,10 +35,10 @@ export interface TransactionUpdateDto {
 export class TransactionService {
   // 🎯 FIX: Explicitly set the base URL to your ASP.NET Core backend server.
   // Using 7001 as the example port. **CHANGE THIS IF YOUR PORT IS DIFFERENT.**
-  private apiBaseUrl = 'https://localhost:7012';
-
+  //private apiurl = 'https://localhost:7012';
+  apiUrl: string = environment.apiUrl + "/Transactions";
   // Base path for the entire Transactions Controller
-  private transactionControllerUrl = `${this.apiBaseUrl}/api/Transactions`;
+  //private apiUrl = `${this.apiurl}/api/Transactions`;
 
   constructor(private http: HttpClient) { }
 
@@ -54,7 +50,7 @@ export class TransactionService {
     let params = new HttpParams();
 
     // Log the full controller URL for debugging
-    console.log("Fetching transactions from:", this.transactionControllerUrl);
+    console.log("Fetching transactions from:", this.apiUrl);
 
     if (type) {
       params = params.set('type', type);
@@ -63,7 +59,7 @@ export class TransactionService {
       params = params.set('isRecurring', isRecurring.toString());
     }
 
-    return this.http.get<Transaction[]>(this.transactionControllerUrl, { params: params });
+    return this.http.get<Transaction[]>(this.apiUrl, { params: params });
   }
 
   /**
@@ -71,7 +67,7 @@ export class TransactionService {
    * C# Route: GET /api/Transactions/{id}
    */
   getTransaction(id: number): Observable<Transaction> {
-    return this.http.get<Transaction>(`${this.transactionControllerUrl}/${id}`);
+    return this.http.get<Transaction>(`${this.apiUrl}/${id}`);
   }
 
   /**
@@ -81,7 +77,7 @@ export class TransactionService {
   createTransaction(dto: TransactionCreateDto): Observable<Transaction> {
     const formattedDto = this.formatDateDto(dto);
     // 🎯 Using the explicit /create route
-    const createUrl = `${this.transactionControllerUrl}/create`;
+    const createUrl = `${this.apiUrl}/create`;
     return this.http.post<Transaction>(createUrl, formattedDto);
   }
 
@@ -91,7 +87,7 @@ export class TransactionService {
    */
   updateTransaction(id: number, dto: TransactionUpdateDto): Observable<Transaction> {
     const formattedDto = this.formatDateDto(dto);
-    return this.http.put<Transaction>(`${this.transactionControllerUrl}/${id}`, formattedDto);
+    return this.http.put<Transaction>(`${this.apiUrl}/${id}`, formattedDto);
   }
 
   /**
@@ -99,7 +95,7 @@ export class TransactionService {
    * C# Route: DELETE /api/Transactions/{id}
    */
   deleteTransaction(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.transactionControllerUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   /**
@@ -123,10 +119,7 @@ export class TransactionService {
     return dto; // Return as is if date is already a string or null/undefined
   }
 }
-
-/**
- * Interface representing a full Transaction entity returned from the API.
- */
+ 
 export interface Transaction {
   transactionId: number;
   type: string;
@@ -136,4 +129,5 @@ export interface Transaction {
   isRecurring: boolean;
   categoryId?: number;
   description?: string;
+  category?: Category;
 }
