@@ -17,6 +17,7 @@ namespace FinanceTracker.Server.Interfaces
       //  Task<FinancialSummaryDto> GetFinancialSummaryAsync(int userId);
         Task<List<Transaction>> GetFilteredTransactionsAsync(int userId, string? type, bool? isRecurring);
         Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> transactions);
+        Task<int> GetCategoryIdByName(string categoryName);
     }
 
 }

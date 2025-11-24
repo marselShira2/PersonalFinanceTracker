@@ -95,6 +95,7 @@ export class TransactionService {
    * C# Route: DELETE /api/Transactions/{id}
    */
   deleteTransaction(id: number): Observable<void> {
+    debugger
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 

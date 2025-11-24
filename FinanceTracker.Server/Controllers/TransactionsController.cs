@@ -176,10 +176,16 @@ namespace FinanceTracker.Server.Controllers
             {
                 return BadRequest(new { message = "No file uploaded or file is empty." });
             }
-
-            // 🛡️ Security: In a real app, GET USER ID from authenticated context (ClaimsPrincipal)
-            // For demonstration, use a placeholder or known user ID.
-            int currentUserId = 1;
+            int currentUserId;
+            try
+            {
+                // CORRECT: Get UserId from the authorized token
+                currentUserId = GetUserId();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
 
             try
             {
@@ -205,7 +211,6 @@ namespace FinanceTracker.Server.Controllers
         // Helper method to parse the CSV content
         private async Task<List<CsvTransactionDto>> ParseCsvFile(IFormFile file, int userId)
         {
-            // 💡 IMPORTANT: The list now contains CsvTransactionDto objects
             var transactions = new List<CsvTransactionDto>();
             var culture = CultureInfo.InvariantCulture;
 
@@ -239,10 +244,11 @@ namespace FinanceTracker.Server.Controllers
                             continue; // Skip invalid line
                         }
 
-                        int? categoryId = int.TryParse(values[CATEGORY_ID_INDEX].Trim(), out var catId) ? catId : null;
+                        string categoryName = values[CATEGORY_ID_INDEX].Trim();
+                        int categoryId = await _transactionRepository.GetCategoryIdByName(categoryName);
+
                         bool isRecurring = bool.TryParse(values[RECURRING_INDEX].Trim(), out var recurring) ? recurring : false;
 
-                        // 💡 Creating the new CsvTransactionDto instance
                         transactions.Add(new CsvTransactionDto
                         {
                             UserId = userId,
@@ -255,7 +261,7 @@ namespace FinanceTracker.Server.Controllers
                             CategoryId = categoryId
                         });
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         // Log and skip bad line
                         continue;

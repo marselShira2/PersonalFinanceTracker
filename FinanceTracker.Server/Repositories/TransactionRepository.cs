@@ -3,6 +3,7 @@ using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace FinanceTracker.Server.Repositories
 {
@@ -25,7 +26,7 @@ namespace FinanceTracker.Server.Repositories
         public async Task<Transaction?> GetTransactionByIdAsync(int transactionId, int userId)
         {
             return await _context.Transactions
-                .Include(t => t.Category) 
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.TransactionId == transactionId && t.UserId == userId);
         }
 
@@ -81,27 +82,39 @@ namespace FinanceTracker.Server.Repositories
         }
 
 
+        public async Task<int> GetCategoryIdByName(string categoryName)
+        {
+            return _context.Categories.Where(w =>  w.Name == categoryName).Select(s => s.CategoryId).FirstOrDefault();
+        }
+
         public async Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> csvTransactions)
         {
-            // 1. Map DTOs to Entity Models
-            var newTransactions = csvTransactions.Select(dto => new Transaction
+            try
             {
-                UserId = dto.UserId,
-                Type = dto.Type,
-                Amount = dto.Amount,
-                Currency = dto.Currency,
-                // Convert DateTime (from CSV) back to DateOnly (for EF Core Model)
-                Date = DateOnly.FromDateTime(dto.Date),
-                CategoryId = dto.CategoryId,
-                Description = dto.Description,
-                IsRecurring = dto.IsRecurring
-            }).ToList();
+                // 1. Map DTOs to Entity Models
+                var newTransactions = csvTransactions.Select(dto => new Transaction
+                {
+                    UserId = dto.UserId,
+                    Type = dto.Type,
+                    Amount = dto.Amount,
+                    Currency = dto.Currency,
+                    // Convert DateTime (from CSV) back to DateOnly (for EF Core Model)
+                    Date = DateOnly.FromDateTime(dto.Date),
+                    CategoryId = dto.CategoryId,
+                    Description = dto.Description,
+                    IsRecurring = dto.IsRecurring
+                }).ToList();
 
-            // 2. Perform Batch Insertion
-            _context.Transactions.AddRange(newTransactions);
+                // 2. Perform Batch Insertion
+                _context.Transactions.AddRange(newTransactions);
 
-            // 3. Save Changes
-            await _context.SaveChangesAsync();
+                // 3. Save Changes
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

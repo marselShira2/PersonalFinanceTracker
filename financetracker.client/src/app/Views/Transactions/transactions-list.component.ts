@@ -26,7 +26,7 @@ export class TransactionsListComponent implements OnInit {
 
   // Modals/Dialogs State
   isDeleteModalOpen = false;
-  transactionToDeleteId: number | null = null;
+  transactionToDeleteId: any;
   isTransactionModalOpen = false;
   isEditMode = false;
 
@@ -189,7 +189,7 @@ export class TransactionsListComponent implements OnInit {
     }
   }
 
-  openDeleteModal(id: number): void {
+  openDeleteModal(id: any): void {
     this.transactionToDeleteId = id;
     this.isDeleteModalOpen = true;
   }
@@ -200,10 +200,11 @@ export class TransactionsListComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (this.transactionToDeleteId !== null) {
+    debugger
+    if (this.transactionToDeleteId !== null && this.transactionToDeleteId.transactionId !== null) {
       this.isLoading = true; // Spinner ON
 
-      this.transactionService.deleteTransaction(this.transactionToDeleteId)
+      this.transactionService.deleteTransaction(this.transactionToDeleteId.transactionId)
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
