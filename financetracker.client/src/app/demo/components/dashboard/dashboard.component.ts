@@ -14,73 +14,56 @@ import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Table } from 'primeng/table';
 import { environment } from '../../../../environments/environment';
-import { PrimeNGConfig } from 'primeng/api';  
+import { PrimeNGConfig } from 'primeng/api';
+import { DashboardService, DashboardSummary, DashboardResponse } from '../../../services/dashboard/dashboard.service';
+import { CategoryService, Category } from '../../../services/categories/category.service';
+import { TransactionService, Transaction } from '../../../services/transaction/transaction.service';
+
 @Component({
   templateUrl: './dashboard.component.html',
-   styleUrls: ['./dashboard.component.css'],
+  styleUrls: ['./dashboard.component.css'],
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('dt1') dt1!: Table;
 
   private apiUrl: string = environment.apiUrl;
-  getPdfContent(): HTMLElement | null {
-    return document.getElementById('pdf-content');
-  }
-
   router = inject(Router);
   paths: MenuItem[] | undefined;
   subscription!: Subscription;
-  selectedFiles2: TreeNode[] = [];
-  cols = [
-    { field: 'header', header: 'Emertimi' },
-  ];
-  //////
+  
   chartData: any;
   chartOptions: any;
   expenseChartData: any;
   doughnutOptions: any;
-  transactions: any[];
+  transactions: Transaction[] = [];
+  allTimeSummary: DashboardSummary | null = null;
+  currentPeriodData: DashboardResponse | null = null;
+  selectedPeriod: string = 'year';
+  selectedCategory: number | undefined;
+  categories: Category[] = [];
+  chartType: 'bar' | 'line' | 'pie' = 'bar';
+  periodOptions = [
+    { label: 'Current Week', value: 'week' },
+    { label: 'Current Month', value: 'month' },
+    { label: 'Q1 (Jan-Mar)', value: 'q1' },
+    { label: 'Q2 (Apr-Jun)', value: 'q2' },
+    { label: 'Q3 (Jul-Sep)', value: 'q3' },
+    { label: 'Q4 (Oct-Dec)', value: 'q4' },
+    { label: 'Current Year', value: 'year' }
+  ];
+  chartTypeOptions = [
+    { label: 'Bar Chart', value: 'bar' },
+    { label: 'Line Chart', value: 'line' },
+    { label: 'Pie Chart', value: 'pie' }
+  ];
 
-
-  ///////
-  files2: TreeNode[] = [];
   loading: boolean = false;
-  displaySelfDeclarationDialog: boolean = false;
-  userStatus: boolean = false;
   notifications: any[] = [];
-  role: string = "";
   welcomeMessage: string = "";
-  labels: any;
-  labelsUsersChart: any;
-  backgroundColor: any;
-  borderColor: any;
-  jsonData?: any;
-  items!: MenuItem[]; 
-
-  FullName: string | null | undefined = this.authService.getUserDetail()?.fullName;
-
+  items!: MenuItem[];
   responsiveOptions: any[] | undefined;
-
-
-  usersList: usersListDTO[] = [];
-  profileImage: any = null;
-
-   
-  users: UserDetailsDTO[] = [];
-  FirstName: string | null = '';
-  Address: string | null = '';
-  NID_NIPT: string | null = '';
-  PhoneNumber: string | null = '';
-  LastName: string | null = '';
-  Email!: string | null;
-  Birthdate!: string | null;
-  StartDate!: string | null;
-  currentDate: string = new Date().toLocaleDateString();
-
- 
   translations!: any;
-
 
   constructor(
     public layoutService: LayoutService,
@@ -91,39 +74,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
     private primengConfig: PrimeNGConfig,
+    private dashboardService: DashboardService,
+    private categoryService: CategoryService,
+    private transactionService: TransactionService
   ) {
-    this.chartData = {
-      labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
-      datasets: [
-        {
-          label: 'Income',
-          backgroundColor: '#4CAF50',
-          data: [3200, 3100, 3500, 3300, 3400, 3600]
-        },
-        {
-          label: 'Expenses',
-          backgroundColor: '#EF5350',
-          data: [2400, 2600, 2300, 2500, 2450, 2600]
-        }
-      ]
-    };
-
     this.chartOptions = {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { position: 'top' },
-        title: { display: true, text: 'Monthly Overview' }
+        title: { display: true, text: 'Income vs Expenses' }
       }
-    };
-
-    this.expenseChartData = {
-      labels: ['Housing', 'Food', 'Transport', 'Entertainment', 'Health'],
-      datasets: [
-        {
-          data: [35, 25, 15, 10, 15],
-          backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#EC407A']
-        }
-      ]
     };
 
     this.doughnutOptions = {
@@ -132,30 +93,153 @@ export class DashboardComponent implements OnInit, OnDestroy {
         legend: { position: 'bottom' }
       }
     };
+  }
 
-    this.transactions = [
-      { date: '2025-11-05', description: 'Salary', category: 'Income', type: 'Income', amount: '$2,000' },
-      { date: '2025-11-06', description: 'Groceries', category: 'Food', type: 'Expense', amount: '$150' },
-      { date: '2025-11-07', description: 'Internet Bill', category: 'Utilities', type: 'Expense', amount: '$40' },
-      { date: '2025-11-08', description: 'Investment', category: 'Stocks', type: 'Expense', amount: '$200' },
-      { date: '2025-11-09', description: 'Freelance', category: 'Income', type: 'Income', amount: '$500' }
+  ngOnInit() {
+    this.loadDashboardData();
+    this.loadCategories();
+    this.loadRecentTransactions();
+
+    this.items = [
+      { label: 'Add New', icon: 'pi pi-fw pi-plus' },
+      { label: 'Remove', icon: 'pi pi-fw pi-minus' }
     ];
-   
+
+    this.translateService.get(['WELCOME']).subscribe(translations => {
+      this.translations = translations;
+      this.paths = [{ icon: 'pi pi-home', route: '/dashboard' }];
+      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName;
+    });
+
+    this.translateCalendar();
+    this.translateService.onLangChange.subscribe(() => {
+      this.translateCalendar();
+      this.translateService.get(['WELCOME']).subscribe(translations => {
+        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName;
+      });
+    });
+
+    this.notificationService.notification$.subscribe((message: string) => {
+      this.handleNewNotification(message);
+    });
+
+    this.responsiveOptions = [
+      { breakpoint: '1199px', numVisible: 1, numScroll: 1 },
+      { breakpoint: '991px', numVisible: 2, numScroll: 1 },
+      { breakpoint: '767px', numVisible: 1, numScroll: 1 }
+    ];
+  }
+
+  loadDashboardData() {
+    this.loading = true;
+    this.dashboardService.getAllTimeSummary().subscribe({
+      next: (data) => {
+        this.allTimeSummary = data;
+        this.loadPeriodData();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load summary' });
+        this.loading = false;
+      }
+    });
+  }
+
+  loadPeriodData() {
+    this.dashboardService.getDashboardData(this.selectedPeriod, this.selectedCategory).subscribe({
+      next: (data) => {
+        this.currentPeriodData = data;
+        this.updateCharts();
+        this.loading = false;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load period data' });
+        this.loading = false;
+      }
+    });
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+      },
+      error: (err) => console.error('Failed to load categories', err)
+    });
+  }
+
+  loadRecentTransactions() {
+    this.transactionService.getTransactions().subscribe({
+      next: (data) => {
+        this.transactions = data.slice(0, 5);
+      },
+      error: (err) => console.error('Failed to load transactions', err)
+    });
+  }
+
+  updateCharts() {
+    if (!this.currentPeriodData) return;
+
+    const labels = this.currentPeriodData.periodData.map(p => p.period);
+    const incomeData = this.currentPeriodData.periodData.map(p => p.income);
+    const expenseData = this.currentPeriodData.periodData.map(p => p.expense);
+
+    if (this.chartType === 'pie') {
+      this.chartData = {
+        labels: ['Income', 'Expenses'],
+        datasets: [{
+          data: [this.currentPeriodData.summary.totalIncome, this.currentPeriodData.summary.totalExpense],
+          backgroundColor: ['#4CAF50', '#EF5350']
+        }]
+      };
+    } else {
+      this.chartData = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Income',
+            backgroundColor: '#4CAF50',
+            borderColor: '#4CAF50',
+            data: incomeData,
+            fill: this.chartType === 'line' ? false : true
+          },
+          {
+            label: 'Expenses',
+            backgroundColor: '#EF5350',
+            borderColor: '#EF5350',
+            data: expenseData,
+            fill: this.chartType === 'line' ? false : true
+          }
+        ]
+      };
+    }
+
+    const expenseCategories = this.currentPeriodData.categoryBreakdown.filter(c => c.type.toLowerCase() === 'expense');
+    this.expenseChartData = {
+      labels: expenseCategories.map(c => c.categoryName),
+      datasets: [{
+        data: expenseCategories.map(c => c.amount),
+        backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#EC407A', '#26C6DA', '#FFCA28']
+      }]
+    };
+  }
+
+  onPeriodChange() {
+    this.loadPeriodData();
+  }
+
+  onCategoryChange() {
+    this.loadPeriodData();
+  }
+
+  onChartTypeChange() {
+    this.updateCharts();
   }
 
   handleNewNotification(notification: any) {
-
     const currentLanguage = this.translateService.currentLang;
-    /*console.error('Inserted at handleNewNotification');*/
-    if (notification == "") {
+    if (notification == "" || !notification || !notification.message) {
       return;
     }
-    if (!notification || !notification.message) {
-      console.error('Received empty or invalid notification');
-      return;
-    }
-
-    // Create a new notification object with the received data
     const newNotification = {
       displayMessage: currentLanguage === 'en' ? notification.id.notificationEnglish : notification.id.notificationMessage,
       idskvNotification: notification.id,
@@ -163,97 +247,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       seen: false,
       priority: notification.priority
     };
-
-    // Add the notification to the list
     this.notifications.push(newNotification);
-    console.log('Updated notifications:', this.notifications);
-  }
-
-
-  ngOnInit() {
-    debugger
-    var test = this.authService.getUserDetail();
-    this.items = [
-      { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-      { label: 'Remove', icon: 'pi pi-fw pi-minus' }
-    ];
-    this.translateService.get(['EVALUATED', 'NO_ITEMS_FOUND', 'LNG_TOTAL', 'UNDER_EVALUATION', 'CRITICAL', 'IMPORTANT', 'HALFIMPLEMENTED','LNG_NOT_APPLICABLE',
-      'WELCOME', 'PO', 'JO', 'N/A', 'CORRECTIVE', 'LNG_RECOMPLETED', 'LNG_INCOMPLETE', 'LNG_COMPLETE', 'LNG_CONFIRMED', 'IMPLEMENTED','NOT_IMPLEMENTED',
-      'LNG_REJECTED', 'LNG_NOT_APPLIED', 'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER',
-      'DECEMBER', 'LNG_CRITICAL_PROJECTS_DEADLINE', 'LNG_CRITICAL_PROJECTS_PROCESS', 'LNG_IMPORTANT_PROJECTS_DEADLINE', 'LNG_IMPORTANT_PROJECTS_PROCESS',
-      'I', 'PERSON_CHARGE', 'LNG_CRITICAL_PROJECTS_FINISHED', 'LNG_IMPORTANT_PROJECTS_FINISHED' , 'Approved','Refused','N/A']).subscribe(translations => {
-      this.translations = translations;
-      this.paths = [
-        { icon: 'pi pi-home', route: '/dashboard' }
-      ]
-      this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
-      this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'],translations['LNG_NOT_APPLICABLE']];
-      this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName;
-    });
-    this.translateCalendar();
-    this.translateService.onLangChange.subscribe((event) => {
-      this.translateCalendar();
-      this.translateService.get(['EVALUATED', 'UNDER_EVALUATION', 'WELCOME', 'PO', 'Approved',
-        'Refused', 'LNG_CORRECTED', 'JO', 'N/A', 'CORRECTIVE', 'LNG_RECOMPLETED', 'LNG_INCOMPLETE',
-        'LNG_COMPLETE', 'LNG_CONFIRMED', 'LNG_REJECTED', 'LNG_NOT_APPLIED', 'JANUARY', 'FEBRUARY', 'HALFIMPLEMENTED','LNG_NOT_APPLICABLE',
-        'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER', 'IMPLEMENTED','NOT_IMPLEMENTED',
-        'LNG_CRITICAL_PROJECTS_DEADLINE', 'LNG_CRITICAL_PROJECTS_PROCESS', 'LNG_IMPORTANT_PROJECTS_DEADLINE',
-        'LNG_IMPORTANT_PROJECTS_PROCESS', 'LNG_CRITICAL_PROJECTS_FINISHED', 'LNG_IMPORTANT_PROJECTS_FINISHED']).subscribe(translations => {
-        this.paths = [
-          { icon: 'pi pi-home', route: '/dashboard' }
-        ]
-        this.labelsUsersChart = [translations['Approved'], translations['Refused'], translations['N/A']];
-        this.labels = [translations['IMPLEMENTED'], translations['NOT_IMPLEMENTED'], translations['HALFIMPLEMENTED'], translations['LNG_NOT_APPLICABLE']];
-        this.welcomeMessage = translations['WELCOME'] + ", " + this.authService.getUserDetail()?.fullName
-      });
-    });
-   
-
-
-     
-
-    this.notificationService.notification$.subscribe((message: string) => {
-      this.handleNewNotification(message);
-    });
- 
-    this.responsiveOptions = [
-      {
-        breakpoint: '1199px',
-        numVisible: 1,
-        numScroll: 1
-      },
-      {
-        breakpoint: '991px',
-        numVisible: 2,
-        numScroll: 1
-      },
-      {
-        breakpoint: '767px',
-        numVisible: 1,
-        numScroll: 1
-      }
-    ]; 
-
-  }
-
-  getSeverity(riskValue: number): 'success' | 'warning' | 'danger' | undefined {
-    if (riskValue <= 0.5) {
-      return 'success';  // Green
-    } else if (riskValue > 0.5 && riskValue <= 0.7) {
-      return 'warning';  // Yellow
-    } else {
-      return 'danger';   // Red
-    }
-  }
-
-  showValue(riskValue: number) {
-    return (riskValue * 100).toFixed(2) + '%';
-  }
-
- 
-
-  get jsonKeys() {
-    return this.jsonData ? Object.keys(this.jsonData) : [];
   }
 
   ngOnDestroy() {
@@ -261,22 +255,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
   }
-
- 
-
-  loadProfileImage(base64String: string): any {
-    if (base64String) {
-      const base64Image = `data:image/png;base64,${base64String}`;
-      return this.sanitizer.bypassSecurityTrustUrl(base64Image);
-    } else {
-      return this.setDefaultProfileImage();
-    }
-  }
-
-  setDefaultProfileImage(): any {
-    return 'assets/layout/images/default-user.png';
-  }
-
 
   translateCalendar() {
     this.translateService.get(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT',
@@ -298,8 +276,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
           clear: translations['CLEAR']
         });
       });
-  };
-
-
+  }
 }
-

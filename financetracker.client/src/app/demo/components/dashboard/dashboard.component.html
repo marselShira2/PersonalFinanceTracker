@@ -4,94 +4,138 @@
 
 <div style="text-align:center; margin:15px" class="mt-2 mb-2">
   <h4 class="page-header">{{ welcomeMessage }}</h4>
+</div>
 
-
-
-  <!-- Info message about static data -->
-  <p style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#555;">
-    <i class="pi pi-info-circle" style="font-size:1.2rem;"></i>
-    <span>{{ 'STATIC_DATA_NOTICE' | translate }}</span>
-  </p>
-</div> 
+<!-- Filters Section -->
+<div class="grid p-4 gap-3 mb-3">
+  <div class="col-12 md:col-4">
+    <label class="block mb-2 font-semibold">Time Period</label>
+    <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod" (onChange)="onPeriodChange()" 
+                optionLabel="label" optionValue="value" placeholder="Select Period" [style]="{'width':'100%'}"></p-dropdown>
+  </div>
+  
+  <div class="col-12 md:col-4">
+    <label class="block mb-2 font-semibold">Category Filter</label>
+    <p-dropdown [options]="categories" [(ngModel)]="selectedCategory" (onChange)="onCategoryChange()" 
+                optionLabel="name" optionValue="categoryId" placeholder="All Categories" 
+                [showClear]="true" [style]="{'width':'100%'}"></p-dropdown>
+  </div>
+  
+  <div class="col-12 md:col-4">
+    <label class="block mb-2 font-semibold">Chart Type</label>
+    <p-dropdown [options]="chartTypeOptions" [(ngModel)]="chartType" (onChange)="onChartTypeChange()" 
+                optionLabel="label" optionValue="value" placeholder="Select Chart" [style]="{'width':'100%'}"></p-dropdown>
+  </div>
+</div>
 
 <div class="grid p-4 gap-4">
-  <!-- Summary Cards -->
+  <!-- All-Time Summary Cards -->
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'TOTAL_BALANCE' | translate }}" class="shadow-2">
+    <p-card header="Total Balance (All Time)" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-wallet text-4xl text-blue-500"></i>
-        <h2>$12,430</h2>
-        <p>{{ 'CURRENT_BALANCE' | translate }}</p>
+        <h2>${{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
+        <p>Current Balance</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'MONTHLY_INCOME' | translate }}" class="shadow-2">
+    <p-card header="Total Income (All Time)" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
-        <h2>$3,200</h2>
-        <p>{{ 'NOVEMBER' | translate }}</p>
+        <h2>${{ (allTimeSummary?.totalIncome || 0) | number:'1.2-2' }}</h2>
+        <p>{{ allTimeSummary?.totalTransactions || 0 }} Transactions</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'MONTHLY_EXPENSES' | translate }}" class="shadow-2">
+    <p-card header="Total Expenses (All Time)" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
-        <h2>$2,450</h2>
-        <p>{{ 'NOVEMBER' | translate }}</p>
+        <h2>${{ (allTimeSummary?.totalExpense || 0) | number:'1.2-2' }}</h2>
+        <p>All Recorded Expenses</p>
       </div>
     </p-card>
   </div>
 
   <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'SAVINGS_GOAL' | translate }}" class="shadow-2">
+    <p-card header="Period Balance" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-chart-line text-4xl text-purple-500"></i>
-        <h2>76%</h2>
-        <p>{{ 'OF_GOAL' | translate:{goal: '$5,000'} }}</p>
+        <h2>${{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h2>
+        <p>Selected Period</p>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Period Summary Cards -->
+  <div class="col-12 md:col-6">
+    <p-card header="Period Income" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-plus-circle text-5xl text-green-600 mb-3"></i>
+        <h1 class="text-green-600">${{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">{{ currentPeriodData?.summary?.totalTransactions || 0 }} transactions in selected period</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-12 md:col-6">
+    <p-card header="Period Expenses" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-minus-circle text-5xl text-red-600 mb-3"></i>
+        <h1 class="text-red-600">${{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">Total spending in selected period</p>
       </div>
     </p-card>
   </div>
 
   <!-- Chart Section -->
   <div class="col-12 lg:col-8">
-    <p-card header="{{ 'INCOME_VS_EXPENSES' | translate }}" class="shadow-2">
-      <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+    <p-card header="Income vs Expenses" class="shadow-2">
+      <div style="height: 400px;">
+        <p-chart [type]="chartType" [data]="chartData" [options]="chartOptions" *ngIf="chartData"></p-chart>
+      </div>
     </p-card>
   </div>
 
   <!-- Expense Categories -->
   <div class="col-12 lg:col-4">
-    <p-card header="{{ 'EXPENSE_CATEGORIES' | translate }}" class="shadow-2">
-      <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions"></p-chart>
+    <p-card header="Expense Categories" class="shadow-2">
+      <div style="height: 400px; display: flex; align-items: center; justify-content: center;">
+        <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions" *ngIf="expenseChartData"></p-chart>
+      </div>
     </p-card>
   </div>
 
   <!-- Recent Transactions -->
   <div class="col-12">
-    <p-card header="{{ 'RECENT_TRANSACTIONS' | translate }}" class="shadow-2">
+    <p-card header="Recent Transactions" class="shadow-2">
       <p-table [value]="transactions" [paginator]="true" [rows]="5" responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>{{ 'DATE' | translate }}</th>
-            <th>{{ 'DESCRIPTION' | translate }}</th>
-            <th>{{ 'CATEGORY' | translate }}</th>
-            <th>{{ 'TYPE' | translate }}</th>
-            <th>{{ 'AMOUNT' | translate }}</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Amount</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-tx>
           <tr>
             <td>{{ tx.date }}</td>
-            <td>{{ tx.description }}</td>
-            <td>{{ tx.category }}</td>
+            <td>{{ tx.description || 'N/A' }}</td>
+            <td>{{ tx.category?.name || 'Uncategorized' }}</td>
             <td>
-              <p-tag [value]="tx.type" [severity]="tx.type === 'Income' ? 'success' : 'danger'"></p-tag>
+              <p-tag [value]="tx.type" [severity]="tx.type.toLowerCase() === 'income' ? 'success' : 'danger'"></p-tag>
             </td>
-            <td>{{ tx.amount }}</td>
+            <td>${{ (tx.amount || 0) | number:'1.2-2' }} {{ tx.currency }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">No transactions found</td>
           </tr>
         </ng-template>
       </p-table>
