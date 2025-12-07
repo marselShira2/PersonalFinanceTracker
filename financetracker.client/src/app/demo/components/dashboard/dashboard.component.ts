@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
-import { MenuItem, SelectItem } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { LayoutService } from '../../../layout/service/app.layout.service';
-import { TreeNode } from 'primeng/api';
+// import { TreeNode } from 'primeng/api'; // Not used, removed
 import { NotificationService } from '../../../services/notifications.service';
-import { UserDetailsDTO, usersListDTO } from '../../../Models/user-details-dto.model';
-import { usersprofileservice } from '../../../services/userprofile.services';
+// import { UserDetailsDTO, usersListDTO } from '../../../Models/user-details-dto.model'; // Not used, removed
+// import { usersprofileservice } from '../../../services/userprofile.services'; // Not used, removed
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ChangeDetectorRef } from '@angular/core';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core'; // LangChangeEvent removed as it's not used in subscribe
 import { DomSanitizer } from '@angular/platform-browser';
 import { Table } from 'primeng/table';
 import { environment } from '../../../../environments/environment';
@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   router = inject(Router);
   paths: MenuItem[] | undefined;
   subscription!: Subscription;
-  
+
   chartData: any;
   chartOptions: any;
   expenseChartData: any;
@@ -39,10 +39,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactions: Transaction[] = [];
   allTimeSummary: DashboardSummary | null = null;
   currentPeriodData: DashboardResponse | null = null;
-  selectedPeriod: string = 'year';
+  selectedPeriod: string = 'week';
+  // Assuming categoryId is a number. If it's a string (UUID), change this to `string | undefined`
   selectedCategory: number | undefined;
   categories: Category[] = [];
   chartType: 'bar' | 'line' | 'pie' = 'bar';
+
   periodOptions = [
     { label: 'Current Week', value: 'week' },
     { label: 'Current Month', value: 'month' },
@@ -71,7 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private translateService: TranslateService,
     private messageService: MessageService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef, // Change Detector Ref is injected here
     private sanitizer: DomSanitizer,
     private primengConfig: PrimeNGConfig,
     private dashboardService: DashboardService,
@@ -145,6 +147,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadPeriodData() {
+    // Ensure loading spinner is visible for the period data load as well
+    if (!this.loading) {
+      this.loading = true;
+    }
+
     this.dashboardService.getDashboardData(this.selectedPeriod, this.selectedCategory).subscribe({
       next: (data) => {
         this.currentPeriodData = data;
@@ -162,6 +169,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         this.categories = data;
+        // If the initial category is not set, or you want to auto-select the first one.
+        // If categories load later, this can help the dropdown initialize correctly.
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load categories', err)
     });
@@ -223,16 +233,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  onPeriodChange() {
+  // Removed testClick since it's not needed for the fix
+
+  onPeriodChange(event?: any) {
+    console.log('Period changed to:', this.selectedPeriod, event);
     this.loadPeriodData();
+    // FIX: Manually detect changes to update the view after selection and before data load finishes
+    this.cdr.detectChanges();
   }
 
-  onCategoryChange() {
+  onCategoryChange(event?: any) {
+    console.log('Category changed to:', this.selectedCategory, event);
     this.loadPeriodData();
+    // FIX: Manually detect changes to update the view after selection and before data load finishes
+    this.cdr.detectChanges();
   }
 
-  onChartTypeChange() {
+  onChartTypeChange(event?: any) {
+    console.log('Chart type changed to:', this.chartType, event);
     this.updateCharts();
+    // FIX: Manually detect changes to update the view after selection and before data load finishes
+    this.cdr.detectChanges();
   }
 
   handleNewNotification(notification: any) {

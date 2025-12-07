@@ -1,46 +1,68 @@
-<p-blockUI [blocked]="loading">
-  <p-progressSpinner *ngIf="loading" styleClass="custom-spinner"></p-progressSpinner>
-</p-blockUI>
-
 <div style="text-align:center; margin:15px" class="mt-2 mb-2">
   <h4 class="page-header">{{ welcomeMessage }}</h4>
 </div>
 
-<!-- Filters Section -->
+<p-blockUI [blocked]="loading" [baseZIndex]="1000">
+  <p-progressSpinner *ngIf="loading" styleClass="custom-spinner"></p-progressSpinner>
+</p-blockUI>
+
 <div class="grid p-4 gap-3 mb-3">
-  <div class="col-12 md:col-4">
+  <div class="col-12 md:col-3">
     <label class="block mb-2 font-semibold">Time Period</label>
-    <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod" (onChange)="onPeriodChange()" 
-                optionLabel="label" optionValue="value" placeholder="Select Period" [style]="{'width':'100%'}"></p-dropdown>
+    <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod"  
+                        optionLabel="label" optionValue="value" placeholder="Select Period"  
+                        (onChange)="onPeriodChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
   </div>
-  
-  <div class="col-12 md:col-4">
+
+  <div class="col-12 md:col-3">
     <label class="block mb-2 font-semibold">Category Filter</label>
-    <p-dropdown [options]="categories" [(ngModel)]="selectedCategory" (onChange)="onCategoryChange()" 
-                optionLabel="name" optionValue="categoryId" placeholder="All Categories" 
-                [showClear]="true" [style]="{'width':'100%'}"></p-dropdown>
+    <p-dropdown [options]="categories" [(ngModel)]="selectedCategory"  
+                        optionLabel="name" optionValue="categoryId" placeholder="All Categories"  
+                        [showClear]="true" (onChange)="onCategoryChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
   </div>
-  
-  <div class="col-12 md:col-4">
+
+  <div class="col-12 md:col-3">
     <label class="block mb-2 font-semibold">Chart Type</label>
-    <p-dropdown [options]="chartTypeOptions" [(ngModel)]="chartType" (onChange)="onChartTypeChange()" 
-                optionLabel="label" optionValue="value" placeholder="Select Chart" [style]="{'width':'100%'}"></p-dropdown>
+    <p-dropdown [options]="chartTypeOptions" [(ngModel)]="chartType"  
+                        optionLabel="label" optionValue="value" placeholder="Select Chart"  
+                        (onChange)="onChartTypeChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
   </div>
 </div>
 
 <div class="grid p-4 gap-4">
-  <!-- All-Time Summary Cards -->
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Total Balance (All Time)" class="shadow-2">
+  <!-- Period Summary Cards -->
+  <div class="col-3">
+    <p-card header="Period Income" class="shadow-2">
       <div class="text-center">
-        <i class="pi pi-wallet text-4xl text-blue-500"></i>
-        <h2>${{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
-        <p>Current Balance</p>
+        <i class="pi pi-plus-circle text-5xl text-green-600 mb-3"></i>
+        <h1 class="text-green-600">${{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">{{ currentPeriodData?.summary?.totalTransactions || 0 }} transactions</p>
       </div>
     </p-card>
   </div>
 
-  <div class="col-12 md:col-6 lg:col-3">
+  <div class="col-3">
+    <p-card header="Period Expenses" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-minus-circle text-5xl text-red-600 mb-3"></i>
+        <h1 class="text-red-600">${{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">Total spending</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-3">
+    <p-card header="Period Balance" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-chart-line text-5xl text-purple-500 mb-3"></i>
+        <h1 class="text-purple-600">${{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">Net balance</p>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- All-Time Summary Cards -->
+  <div class="col-3">
     <p-card header="Total Income (All Time)" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
@@ -50,48 +72,26 @@
     </p-card>
   </div>
 
-  <div class="col-12 md:col-6 lg:col-3">
+  <div class="col-3">
     <p-card header="Total Expenses (All Time)" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
         <h2>${{ (allTimeSummary?.totalExpense || 0) | number:'1.2-2' }}</h2>
-        <p>All Recorded Expenses</p>
+        <p>All expenses</p>
       </div>
     </p-card>
   </div>
 
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="Period Balance" class="shadow-2">
+  <div class="col-3">
+    <p-card header="Total Balance (All Time)" class="shadow-2">
       <div class="text-center">
-        <i class="pi pi-chart-line text-4xl text-purple-500"></i>
-        <h2>${{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h2>
-        <p>Selected Period</p>
+        <i class="pi pi-wallet text-4xl text-blue-500"></i>
+        <h2>${{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
+        <p>Current Balance</p>
       </div>
     </p-card>
   </div>
 
-  <!-- Period Summary Cards -->
-  <div class="col-12 md:col-6">
-    <p-card header="Period Income" class="shadow-2">
-      <div class="text-center">
-        <i class="pi pi-plus-circle text-5xl text-green-600 mb-3"></i>
-        <h1 class="text-green-600">${{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
-        <p class="text-lg">{{ currentPeriodData?.summary?.totalTransactions || 0 }} transactions in selected period</p>
-      </div>
-    </p-card>
-  </div>
-
-  <div class="col-12 md:col-6">
-    <p-card header="Period Expenses" class="shadow-2">
-      <div class="text-center">
-        <i class="pi pi-minus-circle text-5xl text-red-600 mb-3"></i>
-        <h1 class="text-red-600">${{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
-        <p class="text-lg">Total spending in selected period</p>
-      </div>
-    </p-card>
-  </div>
-
-  <!-- Chart Section -->
   <div class="col-12 lg:col-8">
     <p-card header="Income vs Expenses" class="shadow-2">
       <div style="height: 400px;">
@@ -100,8 +100,7 @@
     </p-card>
   </div>
 
-  <!-- Expense Categories -->
-  <div class="col-12 lg:col-4">
+  <div class="col-12 lg:col-8">
     <p-card header="Expense Categories" class="shadow-2">
       <div style="height: 400px; display: flex; align-items: center; justify-content: center;">
         <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions" *ngIf="expenseChartData"></p-chart>
@@ -109,7 +108,6 @@
     </p-card>
   </div>
 
-  <!-- Recent Transactions -->
   <div class="col-12">
     <p-card header="Recent Transactions" class="shadow-2">
       <p-table [value]="transactions" [paginator]="true" [rows]="5" responsiveLayout="scroll">
