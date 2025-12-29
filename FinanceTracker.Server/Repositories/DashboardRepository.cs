@@ -32,7 +32,7 @@ namespace FinanceTracker.Server.Repositories
             };
         }
 
-        public async Task<DashboardResponseDto> GetDashboardDataAsync(int userId, string period, int? categoryId = null)
+        public async Task<DashboardResponseDto> GetDashboardDataAsync(int userId, string period, int? categoryId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             var query = _context.Transactions
                 .Include(t => t.Category)
@@ -43,9 +43,19 @@ namespace FinanceTracker.Server.Repositories
                 query = query.Where(t => t.CategoryId == categoryId.Value);
             }
 
-            var (startDate, endDate) = GetDateRange(period);
+            DateOnly start, end;
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                start = DateOnly.FromDateTime(startDate.Value);
+                end = DateOnly.FromDateTime(endDate.Value);
+            }
+            else
+            {
+                (start, end) = GetDateRange(period);
+            }
+
             var transactions = await query
-                .Where(t => t.Date >= startDate && t.Date <= endDate)
+                .Where(t => t.Date >= start && t.Date <= end)
                 .ToListAsync();
 
             var summary = new DashboardSummaryDto
@@ -56,7 +66,7 @@ namespace FinanceTracker.Server.Repositories
             };
             summary.Balance = summary.TotalIncome - summary.TotalExpense;
 
-            var periodData = GetPeriodData(transactions, period);
+            var periodData = GetPeriodData(transactions, period, start, end);
             var categoryBreakdown = transactions
                 .GroupBy(t => new { t.Category?.Name, t.Type })
                 .Select(g => new CategoryBreakdownDto
@@ -93,8 +103,13 @@ namespace FinanceTracker.Server.Repositories
             };
         }
 
-        private List<PeriodDataDto> GetPeriodData(List<Models.Transaction> transactions, string period)
+        private List<PeriodDataDto> GetPeriodData(List<Models.Transaction> transactions, string period, DateOnly startDate, DateOnly endDate)
         {
+            if (period == "custom")
+            {
+                return GetCustomRangeData(transactions, startDate, endDate);
+            }
+            
             return period.ToLower() switch
             {
                 "week" => GetWeeklyData(transactions),
@@ -103,6 +118,24 @@ namespace FinanceTracker.Server.Repositories
                 "q1" or "q2" or "q3" or "q4" => GetQuarterlyData(transactions),
                 _ => GetYearlyData(transactions)
             };
+        }
+
+        private List<PeriodDataDto> GetCustomRangeData(List<Models.Transaction> transactions, DateOnly startDate, DateOnly endDate)
+        {
+            var daysDiff = endDate.DayNumber - startDate.DayNumber;
+            
+            if (daysDiff <= 7)
+            {
+                return GetWeeklyData(transactions);
+            }
+            else if (daysDiff <= 31)
+            {
+                return GetMonthlyData(transactions);
+            }
+            else
+            {
+                return GetYearlyData(transactions);
+            }
         }
 
         private List<PeriodDataDto> GetWeeklyData(List<Models.Transaction> transactions)

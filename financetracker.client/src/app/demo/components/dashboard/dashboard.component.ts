@@ -39,11 +39,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactions: Transaction[] = [];
   allTimeSummary: DashboardSummary | null = null;
   currentPeriodData: DashboardResponse | null = null;
-  selectedPeriod: string = 'week';
-  // Assuming categoryId is a number. If it's a string (UUID), change this to `string | undefined`
+  selectedPeriod: string = 'custom';
   selectedCategory: number | undefined;
   categories: Category[] = [];
   chartType: 'bar' | 'line' | 'pie' = 'bar';
+  customDateRange: Date[] = [];
+  showCustomDateRange: boolean = true;
+  showExtraFilters: boolean = false;
 
   periodOptions = [
     { label: 'Current Week', value: 'week' },
@@ -52,7 +54,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { label: 'Q2 (Apr-Jun)', value: 'q2' },
     { label: 'Q3 (Jul-Sep)', value: 'q3' },
     { label: 'Q4 (Oct-Dec)', value: 'q4' },
-    { label: 'Current Year', value: 'year' }
+    { label: 'Current Year', value: 'year' },
+    { label: 'Custom Range', value: 'custom' }
   ];
   chartTypeOptions = [
     { label: 'Bar Chart', value: 'bar' },
@@ -98,6 +101,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Set default date range to last week
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7);
+    this.customDateRange = [lastWeek, today];
+
     this.loadDashboardData();
     this.loadCategories();
     this.loadRecentTransactions();
@@ -147,18 +156,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadPeriodData() {
-    // Ensure loading spinner is visible for the period data load as well
     if (!this.loading) {
       this.loading = true;
     }
 
-    this.dashboardService.getDashboardData(this.selectedPeriod, this.selectedCategory).subscribe({
+    let params: any = {};
+    if (this.selectedCategory) {
+      params.categoryId = this.selectedCategory;
+    }
+    
+    if (this.customDateRange.length === 2 && this.customDateRange[0] && this.customDateRange[1]) {
+      params.startDate = this.customDateRange[0].toISOString().split('T')[0];
+      params.endDate = this.customDateRange[1].toISOString().split('T')[0];
+      params.period = 'custom';
+      console.log('Sending API request with params:', params);
+    } else {
+      console.log('Date range not complete');
+      this.loading = false;
+      return;
+    }
+
+    this.dashboardService.getDashboardDataWithParams(params).subscribe({
       next: (data) => {
+        console.log('Received dashboard data:', data);
         this.currentPeriodData = data;
         this.updateCharts();
         this.loading = false;
       },
       error: (err) => {
+        console.error('Dashboard data error:', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load period data' });
         this.loading = false;
       }
@@ -237,9 +263,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onPeriodChange(event?: any) {
     console.log('Period changed to:', this.selectedPeriod, event);
-    this.loadPeriodData();
-    // FIX: Manually detect changes to update the view after selection and before data load finishes
+    this.showCustomDateRange = this.selectedPeriod === 'custom';
+    if (this.selectedPeriod !== 'custom') {
+      this.customDateRange = [];
+      this.loadPeriodData();
+    }
     this.cdr.detectChanges();
+  }
+
+  onDateRangeChange() {
+    console.log('Date range changed:', this.customDateRange);
+    if (this.customDateRange && this.customDateRange.length === 2 && this.customDateRange[0] && this.customDateRange[1]) {
+      console.log('Loading data for date range');
+      this.loadPeriodData();
+    }
+  }
+
+  toggleExtraFilters() {
+    this.showExtraFilters = !this.showExtraFilters;
   }
 
   onCategoryChange(event?: any) {

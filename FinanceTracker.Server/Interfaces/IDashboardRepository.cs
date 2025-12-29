@@ -4,7 +4,7 @@ namespace FinanceTracker.Server.Interfaces
 {
     public interface IDashboardRepository
     {
-        Task<DashboardResponseDto> GetDashboardDataAsync(int userId, string period, int? categoryId = null);
+        Task<DashboardResponseDto> GetDashboardDataAsync(int userId, string period, int? categoryId = null, DateTime? startDate = null, DateTime? endDate = null);
         Task<DashboardSummaryDto> GetAllTimeSummaryAsync(int userId);
     }
 }

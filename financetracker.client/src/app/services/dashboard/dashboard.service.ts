@@ -47,4 +47,15 @@ export class DashboardService {
     }
     return this.http.get<DashboardResponse>(this.apiUrl, { params });
   }
+
+  getDashboardDataWithParams(parameters: any): Observable<DashboardResponse> {
+    let params = new HttpParams();
+    Object.keys(parameters).forEach(key => {
+      if (parameters[key] !== null && parameters[key] !== undefined) {
+        params = params.set(key, parameters[key].toString());
+      }
+    });
+    console.log('Making API call with URL params:', params.toString());
+    return this.http.get<DashboardResponse>(this.apiUrl, { params });
+  }
 }

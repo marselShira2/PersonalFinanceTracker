@@ -47,12 +47,12 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDashboardData([FromQuery] string period = "year", [FromQuery] int? categoryId = null)
+        public async Task<IActionResult> GetDashboardData([FromQuery] string period = "year", [FromQuery] int? categoryId = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
             try
             {
                 int userId = GetUserId();
-                var data = await _dashboardRepository.GetDashboardDataAsync(userId, period, categoryId);
+                var data = await _dashboardRepository.GetDashboardDataAsync(userId, period, categoryId, startDate, endDate);
                 return Ok(data);
             }
             catch (UnauthorizedAccessException)
