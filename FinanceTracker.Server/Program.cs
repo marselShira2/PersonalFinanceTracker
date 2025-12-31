@@ -2,11 +2,12 @@ using FinanceTracker.Server;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
+using System.Text.Json.Serialization;
 using FinanceTracker.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens; 
 using System.Text;
+using FinanceTracker.Server.Services;
 
 
 //using FinanceTracker.Server.Repositories;
@@ -26,6 +27,14 @@ builder.Services.AddScoped<FinanceTracker.Server.Interfaces.IEmailService, Finan
 builder.Services.AddSingleton<FinanceTracker.Server.Interfaces.IVerificationStore, FinanceTracker.Server.Services.VerificationStore>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IExpenseLimitRepository, ExpenseLimitRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+// Add this line where you register your other services (Repositories, etc.)
+builder.Services.AddHostedService<RecurringExpenseService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
+//builder.Services.AddHostedService<FinanceTracker.Server.Services.RecurringExpenseService>();
+//builder.Services.AddHostedService<NotificationWorker>();
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtKey = builder.Configuration["Jwt:Key"];
 
@@ -64,6 +73,13 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // This prevents the "Cycle detected" error that crashes your Add Transaction button
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 //builder.Services.ConfigureApplicationCookie(options =>
 
