@@ -81,11 +81,14 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { FileUploadModule } from 'primeng/fileupload'; 
 /// 
-import { CardModule } from 'primeng/card';  
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { MessageModule } from 'primeng/message';  
 
 //pages
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
+import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
 
 
 /////
@@ -97,6 +100,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     AppComponent,
     TransactionsListComponent,
     CategoryManagementComponent,
+    ExpenseLimitComponent,
     AppFooterComponent,
     DashboardComponent,
     NotfoundComponent,
@@ -106,7 +110,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
 
 
   imports: [AppRoutingModule, OrderListModule,  CarouselModule, ChartModule, AppLayoutModule, SkeletonModule, BadgeModule, MenuModule, TableModule, CheckboxModule, TreeTableModule, ConfirmPopupModule, ConfirmDialogModule, TabViewModule,
-    DialogModule, CommonModule, ButtonModule, InputTextModule, DropdownModule, InputTextareaModule, FormsModule, ReactiveFormsModule, ToastModule, RatingModule, CardModule, TagModule,
+    DialogModule, CommonModule, ButtonModule, InputTextModule, DropdownModule, InputTextareaModule, FormsModule, ReactiveFormsModule, ToastModule, RatingModule, CardModule, TagModule, InputNumberModule, MessageModule,
     IconFieldModule, DividerModule, InputIconModule,  HttpClientModule, ToggleButtonModule, InputSwitchModule, PasswordModule, MultiSelectModule, TimelineModule, FloatLabelModule, DialogModule, InputTextModule, InputOtpModule, 
     BreadcrumbModule, RadioButtonModule, CalendarModule, PickListModule, CdkDrag, CdkDropList, DragDropModule, TooltipModule, SliderModule, RippleModule,  OverlayPanelModule,  InputOtpModule, FileUploadModule,
     ProgressSpinnerModule, SliderModule, DynamicDialogModule, MessagesModule, BrowserModule, TabMenuModule, BrowserAnimationsModule, ChipModule, SpeedDialModule, BlockUIModule, ProgressBarModule, TranslateModule.forRoot({

@@ -11,6 +11,7 @@ import { DashboardComponent } from './demo/components/dashboard/dashboard.compon
 import { UserListComponent } from './Views/userList/userList.component';
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
+import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
 
 @NgModule({
   imports: [
@@ -21,6 +22,7 @@ import { CategoryManagementComponent } from './Views/Category/category-managemen
           { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
           { path: 'transactions', component: TransactionsListComponent, canActivate: [authGuard] },
           { path: 'category', component: CategoryManagementComponent, canActivate: [authGuard] },
+          { path: 'expense-limit', component: ExpenseLimitComponent, canActivate: [authGuard] },
           //{ path: 'loginCredential', component: Login1Component },
           { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
           { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule), canActivate: [authGuard] },

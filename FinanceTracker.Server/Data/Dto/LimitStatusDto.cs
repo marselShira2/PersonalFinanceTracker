@@ -7,5 +7,6 @@
         public decimal SpentAmount { get; set; }
         public decimal PercentageSpent { get; set; }
         public string WarningMessage { get; set; } // The new message field
+        public bool IsActive { get; set; }
     }
 }
