@@ -14,8 +14,9 @@ namespace FinanceTracker.Server.Data
         public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<ExpenseLimit> ExpenseLimits { get; set; }
 
-        
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

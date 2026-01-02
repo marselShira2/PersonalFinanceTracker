@@ -116,5 +116,26 @@
   "T.CAT_SELECT_TYPE_PLACEHOLDER": "Select Type",
 
   "T.CAT_DELETE_CONFIRM_TEXT": "Are you sure you want to delete the category",
-  "T.IMPORT_CSV_BTN": "Import CSV"
+  "T.IMPORT_CSV_BTN": "Import CSV",
+  "DATE_RANGE": "Date Range",
+  "SELECT_DATE_RANGE": "Select date range",
+  "EXTRA_FILTERS": "Extra Filters",
+  "CATEGORY_FILTER": "Category Filter",
+  "ALL_CATEGORIES": "All Categories",
+  "CHART_TYPE": "Chart Type",
+  "SELECT_CHART": "Select Chart",
+  "PERIOD_INCOME": "Period Income",
+  "PERIOD_EXPENSES": "Period Expenses",
+  "PERIOD_BALANCE": "Period Balance",
+  "TOTAL_INCOME_ALL_TIME": "Total Income (All Time)",
+  "TOTAL_EXPENSES_ALL_TIME": "Total Expenses (All Time)",
+  "TOTAL_BALANCE_ALL_TIME": "Total Balance (All Time)",
+  "TRANSACTIONS": "transactions",
+  "TOTAL_SPENDING": "Total spending",
+  "NET_BALANCE": "Net balance",
+  "ALL_EXPENSES": "All expenses",
+  "CURRENT_BALANCE": "Current Balance",
+  "INCOME_VS_EXPENSES": "Income vs Expenses",
+  "EXPENSE_CATEGORIES": "Expense Categories",
+  "RECENT_TRANSACTIONS": "Recent Transactions"
 }

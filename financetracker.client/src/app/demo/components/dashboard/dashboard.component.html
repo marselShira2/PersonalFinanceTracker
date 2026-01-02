@@ -1,97 +1,152 @@
-<p-blockUI [blocked]="loading">
+<div style="text-align:center; margin:15px" class="mt-2 mb-2">
+  <h4 class="page-header">{{ welcomeMessage }}</h4>
+</div>
+
+<p-blockUI [blocked]="loading" [baseZIndex]="1000">
   <p-progressSpinner *ngIf="loading" styleClass="custom-spinner"></p-progressSpinner>
 </p-blockUI>
 
-<div style="text-align:center; margin:15px" class="mt-2 mb-2">
-  <h4 class="page-header">{{ welcomeMessage }}</h4>
+<div class="p-4 mb-3">
+  <div class="flex gap-6 align-items-end">
+    <div style="width: 300px;">
+      <label class="block mb-2 font-semibold">{{ 'DATE_RANGE' | translate }}</label>
+      <p-calendar [(ngModel)]="customDateRange" selectionMode="range" 
+                  placeholder="{{ 'SELECT_DATE_RANGE' | translate }}" (onSelect)="onDateRangeChange()" 
+                  styleClass="w-full" appendTo="body" dateFormat="dd/mm/yy" 
+                  [style]="{'width': '100%'}"></p-calendar>
+    </div>
 
+    <div style="width: 200px;">
+      <p-button [label]="'EXTRA_FILTERS' | translate" icon="pi pi-filter" 
+                (onClick)="toggleExtraFilters()" 
+                [outlined]="true" styleClass="w-full"></p-button>
+    </div>
+  </div>
 
+  <div class="mt-3" *ngIf="showExtraFilters">
+    <div class="grid gap-3">
+      <div class="col-6">
+        <label class="block mb-2 font-semibold">{{ 'CATEGORY_FILTER' | translate }}</label>
+        <p-dropdown [options]="categories" [(ngModel)]="selectedCategory"  
+                            optionLabel="name" optionValue="categoryId" [placeholder]="'ALL_CATEGORIES' | translate"  
+                            [showClear]="true" (onChange)="onCategoryChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
+      </div>
 
-  <!-- Info message about static data -->
-  <p style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#555;">
-    <i class="pi pi-info-circle" style="font-size:1.2rem;"></i>
-    <span>{{ 'STATIC_DATA_NOTICE' | translate }}</span>
-  </p>
-</div> 
+      <div class="col-6">
+        <label class="block mb-2 font-semibold">{{ 'CHART_TYPE' | translate }}</label>
+        <p-dropdown [options]="chartTypeOptions" [(ngModel)]="chartType"  
+                            optionLabel="label" optionValue="value" [placeholder]="'SELECT_CHART' | translate"  
+                            (onChange)="onChartTypeChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="grid p-4 gap-4">
-  <!-- Summary Cards -->
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'TOTAL_BALANCE' | translate }}" class="shadow-2">
+  <!-- Period Summary Cards -->
+  <div class="col-3">
+    <p-card [header]="'PERIOD_INCOME' | translate" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-plus-circle text-5xl text-green-600 mb-3"></i>
+        <h1 class="text-green-600">${{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">{{ currentPeriodData?.summary?.totalTransactions || 0 }} {{ 'TRANSACTIONS' | translate }}</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-3">
+    <p-card [header]="'PERIOD_EXPENSES' | translate" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-minus-circle text-5xl text-red-600 mb-3"></i>
+        <h1 class="text-red-600">${{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">{{ 'TOTAL_SPENDING' | translate }}</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-3">
+    <p-card [header]="'PERIOD_BALANCE' | translate" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-chart-line text-5xl text-purple-500 mb-3"></i>
+        <h1 class="text-purple-600">${{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h1>
+        <p class="text-lg">{{ 'NET_BALANCE' | translate }}</p>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- All-Time Summary Cards -->
+  <div class="col-3">
+    <p-card [header]="'TOTAL_INCOME_ALL_TIME' | translate" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
+        <h2>${{ (allTimeSummary?.totalIncome || 0) | number:'1.2-2' }}</h2>
+        <p>{{ allTimeSummary?.totalTransactions || 0 }} {{ 'TRANSACTIONS' | translate }}</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-3">
+    <p-card [header]="'TOTAL_EXPENSES_ALL_TIME' | translate" class="shadow-2">
+      <div class="text-center">
+        <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
+        <h2>${{ (allTimeSummary?.totalExpense || 0) | number:'1.2-2' }}</h2>
+        <p>{{ 'ALL_EXPENSES' | translate }}</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-3">
+    <p-card [header]="'TOTAL_BALANCE_ALL_TIME' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-wallet text-4xl text-blue-500"></i>
-        <h2>$12,430</h2>
+        <h2>${{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
         <p>{{ 'CURRENT_BALANCE' | translate }}</p>
       </div>
     </p-card>
   </div>
 
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'MONTHLY_INCOME' | translate }}" class="shadow-2">
-      <div class="text-center">
-        <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
-        <h2>$3,200</h2>
-        <p>{{ 'NOVEMBER' | translate }}</p>
-      </div>
-    </p-card>
-  </div>
-
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'MONTHLY_EXPENSES' | translate }}" class="shadow-2">
-      <div class="text-center">
-        <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
-        <h2>$2,450</h2>
-        <p>{{ 'NOVEMBER' | translate }}</p>
-      </div>
-    </p-card>
-  </div>
-
-  <div class="col-12 md:col-6 lg:col-3">
-    <p-card header="{{ 'SAVINGS_GOAL' | translate }}" class="shadow-2">
-      <div class="text-center">
-        <i class="pi pi-chart-line text-4xl text-purple-500"></i>
-        <h2>76%</h2>
-        <p>{{ 'OF_GOAL' | translate:{goal: '$5,000'} }}</p>
-      </div>
-    </p-card>
-  </div>
-
-  <!-- Chart Section -->
   <div class="col-12 lg:col-8">
-    <p-card header="{{ 'INCOME_VS_EXPENSES' | translate }}" class="shadow-2">
-      <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+    <p-card [header]="'INCOME_VS_EXPENSES' | translate" class="shadow-2">
+      <div style="height: 400px;">
+        <p-chart [type]="chartType" [data]="chartData" [options]="chartOptions" *ngIf="chartData"></p-chart>
+      </div>
     </p-card>
   </div>
 
-  <!-- Expense Categories -->
-  <div class="col-12 lg:col-4">
-    <p-card header="{{ 'EXPENSE_CATEGORIES' | translate }}" class="shadow-2">
-      <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions"></p-chart>
+  <div class="col-12 lg:col-8">
+    <p-card [header]="'EXPENSE_CATEGORIES' | translate" class="shadow-2">
+      <div style="height: 400px; display: flex; align-items: center; justify-content: center;">
+        <p-chart type="doughnut" [data]="expenseChartData" [options]="doughnutOptions" *ngIf="expenseChartData"></p-chart>
+      </div>
     </p-card>
   </div>
 
-  <!-- Recent Transactions -->
   <div class="col-12">
-    <p-card header="{{ 'RECENT_TRANSACTIONS' | translate }}" class="shadow-2">
+    <p-card [header]="'RECENT_TRANSACTIONS' | translate" class="shadow-2">
       <p-table [value]="transactions" [paginator]="true" [rows]="5" responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>{{ 'DATE' | translate }}</th>
-            <th>{{ 'DESCRIPTION' | translate }}</th>
-            <th>{{ 'CATEGORY' | translate }}</th>
-            <th>{{ 'TYPE' | translate }}</th>
-            <th>{{ 'AMOUNT' | translate }}</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Amount</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-tx>
           <tr>
             <td>{{ tx.date }}</td>
-            <td>{{ tx.description }}</td>
-            <td>{{ tx.category }}</td>
+            <td>{{ tx.description || 'N/A' }}</td>
+            <td>{{ tx.category?.name || 'Uncategorized' }}</td>
             <td>
-              <p-tag [value]="tx.type" [severity]="tx.type === 'Income' ? 'success' : 'danger'"></p-tag>
+              <p-tag [value]="tx.type" [severity]="tx.type.toLowerCase() === 'income' ? 'success' : 'danger'"></p-tag>
             </td>
-            <td>{{ tx.amount }}</td>
+            <td>${{ (tx.amount || 0) | number:'1.2-2' }} {{ tx.currency }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">No transactions found</td>
           </tr>
         </ng-template>
       </p-table>
