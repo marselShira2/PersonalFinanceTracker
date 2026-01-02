@@ -68,6 +68,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ChartModule } from 'primeng/chart';
 import { CarouselModule } from 'primeng/carousel';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { RouterModule } from '@angular/router';
 import { InputOtpModule } from 'primeng/inputotp';
  
 import { AppFooterComponent } from './layout/app.footer.component';
@@ -77,7 +78,7 @@ import { OrderListModule } from 'primeng/orderlist';
 import { PasswordModule } from 'primeng/password';
 import { DatePipe } from '@angular/common';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { FileUploadModule } from 'primeng/fileupload'; 
 /// 
@@ -89,6 +90,7 @@ import { MessageModule } from 'primeng/message';
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
 import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
+import { NotificationsPageComponent } from './Views/notifications/notifications-page.component';
 
 
 /////
@@ -101,6 +103,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     TransactionsListComponent,
     CategoryManagementComponent,
     ExpenseLimitComponent,
+    NotificationsPageComponent,
     AppFooterComponent,
     DashboardComponent,
     NotfoundComponent,
@@ -113,7 +116,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     DialogModule, CommonModule, ButtonModule, InputTextModule, DropdownModule, InputTextareaModule, FormsModule, ReactiveFormsModule, ToastModule, RatingModule, CardModule, TagModule, InputNumberModule, MessageModule,
     IconFieldModule, DividerModule, InputIconModule,  HttpClientModule, ToggleButtonModule, InputSwitchModule, PasswordModule, MultiSelectModule, TimelineModule, FloatLabelModule, DialogModule, InputTextModule, InputOtpModule, 
     BreadcrumbModule, RadioButtonModule, CalendarModule, PickListModule, CdkDrag, CdkDropList, DragDropModule, TooltipModule, SliderModule, RippleModule,  OverlayPanelModule,  InputOtpModule, FileUploadModule,
-    ProgressSpinnerModule, SliderModule, DynamicDialogModule, MessagesModule, BrowserModule, TabMenuModule, BrowserAnimationsModule, ChipModule, SpeedDialModule, BlockUIModule, ProgressBarModule, TranslateModule.forRoot({
+    ProgressSpinnerModule, SliderModule, DynamicDialogModule, MessagesModule, BrowserModule, TabMenuModule, BrowserAnimationsModule, ChipModule, SpeedDialModule, BlockUIModule, ProgressBarModule, RouterModule, TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
@@ -127,7 +130,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     PhotoService, ProductService, MessageService, ConfirmationService, CookieService, DatePipe
   ],
   bootstrap: [AppComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 
 })
 export class AppModule { }

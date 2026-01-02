@@ -166,5 +166,21 @@
   "EL.ERROR_SET": "Dështoi vendosja e limitit të shpenzimeve",
   "EL.ERROR_TOGGLE": "Dështoi ndryshimi i limitit të shpenzimeve",
   "EL.ERROR_LOAD": "Dështoi ngarkimi i statusit të limitit të shpenzimeve",
-  "EL.ERROR_USER_INFO": "Nuk mund të merren informacionet e përdoruesit. Ju lutemi hyni përsëri." 
+  "EL.ERROR_USER_INFO": "Nuk mund të merren informacionet e përdoruesit. Ju lutemi hyni përsëri.",
+
+  "NOTIFICATION": "Njoftim",
+  "NEW": "Të Reja",
+  "OLD": "Të Vjetra",
+  "NOTIFICATIONS": "Njoftimet",
+  "MARK_ALL_READ": "Shëno Të Gjitha si të Lexuara",
+  "DELETE_ALL_READ": "Fshi Të Gjitha të Lexuarat",
+  "TOTAL": "Totali",
+  "UNREAD": "Të Palexuara",
+  "MARK_AS_READ": "Shëno si të Lexuar",
+  "DELETE": "Fshi",
+  "NO_NOTIFICATIONS": "Nuk ka Njoftime",
+  "NO_NOTIFICATIONS_MESSAGE": "Nuk keni ende asnjë njoftim.",
+  "LOADING": "Duke ngarkuar...",
+  "LOAD_MORE": "Ngarko Më Shumë",
+  "SHOW_MORE": "Shfaq Më Shumë"
 }

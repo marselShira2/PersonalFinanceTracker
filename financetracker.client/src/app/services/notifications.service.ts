@@ -54,15 +54,75 @@ export class NotificationService {
     });
   }
 
-  async getNotifications(): Promise<NotificationsDTO[]> {
+  async getNotificationsPaginated(page: number = 1, pageSize: number = 5): Promise<any> {
     try {
-      const notifications = await lastValueFrom(
-        this.http.get<NotificationsDTO[]>(`${this.apiUrl}/Notifications/getallnotificationlist`)
+      const response = await lastValueFrom(
+        this.http.get<any>(`${this.apiUrl}/Notification?page=${page}&pageSize=${pageSize}`)
       );
-      return notifications;
+      return response;
     } catch (error) {
-      console.error('Error fetching notifications:', error);
-      throw error; // Re-throw the error for further handling
+      console.error('Error fetching paginated notifications:', error);
+      throw error;
+    }
+  }
+
+  async markAsRead(notificationId: number): Promise<any> {
+    try {
+      const response = await lastValueFrom(
+        this.http.put(`${this.apiUrl}/Notification/mark-read/${notificationId}`, {})
+      );
+      return response;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  }
+
+  async markAllAsRead(): Promise<any> {
+    try {
+      const response = await lastValueFrom(
+        this.http.put(`${this.apiUrl}/Notification/mark-all-read`, {})
+      );
+      return response;
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
+  }
+
+  async deleteNotification(notificationId: number): Promise<any> {
+    try {
+      const response = await lastValueFrom(
+        this.http.delete(`${this.apiUrl}/Notification/${notificationId}`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      throw error;
+    }
+  }
+
+  async deleteAllRead(): Promise<any> {
+    try {
+      const response = await lastValueFrom(
+        this.http.delete(`${this.apiUrl}/Notification/delete-all-read`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error deleting read notifications:', error);
+      throw error;
+    }
+  }
+
+  async createNotification(title: string, message: string, type: string = 'general'): Promise<any> {
+    try {
+      const response = await lastValueFrom(
+        this.http.post(`${this.apiUrl}/Notification`, { title, message, type })
+      );
+      return response;
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      throw error;
     }
   }
 
@@ -89,13 +149,4 @@ export class NotificationService {
   }
 
    
-  //deleteNotification(notificationId: number): Observable<any> {
-  //  return this.http.get(`${this.apiUrl}/Notifications/deleteNotification/${notificationId}`);
-  //}
-
-  deleteNotification(notificationId: string): Observable<any> {
-    //
-    return this.http.delete(`${this.apiUrl}/Notifications/deleteNotification/${notificationId}`);
-  }
-
 }

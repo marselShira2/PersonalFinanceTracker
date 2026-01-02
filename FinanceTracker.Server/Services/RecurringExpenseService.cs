@@ -39,6 +39,7 @@ namespace FinanceTracker.Server.Services
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<FinanceTracker.Server.Services.INotificationService>();
 
                 int todayDay = DateTime.Now.Day;
                 int currentMonth = DateTime.Now.Month;
@@ -71,25 +72,16 @@ namespace FinanceTracker.Server.Services
                     // 4. Only notify if it is NOT paid yet
                     if (!isPaidThisMonth)
                     {
-                        string title = "Bill Reminder";
-                        string message = $"📅 Reminder: Your recurring bill '{bill.Description}' ({bill.Amount} {bill.Currency}) is usually due today.";
-
-                        // Save Notification
-                        context.Notifications.Add(new Notification
-                        {
-                            UserId = bill.UserId,
-                            Title = title,
-                            Message = message,
-                            Type = "Reminder",
-                            CreatedAt = DateTime.Now,
-                            IsRead = false
-                        });
+                        // Create system notification using NotificationService
+                        await notificationService.CreateBillReminderAsync(bill.UserId, bill.Description, bill.Amount, bill.Currency);
 
                         // Send Email
                         if (bill.User != null && !string.IsNullOrEmpty(bill.User.Email))
                         {
                             try
                             {
+                                string title = "Bill Reminder";
+                                string message = $"📅 Reminder: Your recurring bill '{bill.Description}' ({bill.Amount} {bill.Currency}) is usually due today.";
                                 await emailService.SendEmailAsync(bill.User.Email, title, message);
                             }
                             catch (Exception ex)
@@ -99,7 +91,7 @@ namespace FinanceTracker.Server.Services
                         }
                     }
                 }
-                await context.SaveChangesAsync();
+                // No need to call SaveChangesAsync here since NotificationService handles it
             }
         }
     }

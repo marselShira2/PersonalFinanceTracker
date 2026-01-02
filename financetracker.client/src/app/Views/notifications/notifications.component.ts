@@ -51,14 +51,15 @@ export class NotificationsComponent implements OnInit {
 
   async loadNotifications(): Promise<void> {
     try {
-      const data = await this.notificationService.getNotifications(); // Use the async getNotifications method
+      const data = await this.notificationService.getNotificationsPaginated(1, 5);
       const currentLanguage = this.translate.currentLang;
 
-      this.notifications = data.map(notification => ({
+      this.notifications = data.notifications.map((notification: any) => ({
         ...notification,
-        seen: notification.opened,
-        time: notification.timeOfSending,
-        displayMessage: currentLanguage === 'en' ? notification.englishMessage : notification.message,
+        seen: notification.isRead,
+        time: notification.createdAt,
+        displayMessage: notification.message,
+        idskvNotification: notification.notificationId
       }));
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -235,16 +236,23 @@ export class NotificationsComponent implements OnInit {
     }
   }
    
-  deleteNotification(notificationId: string, event: Event): void {
+  async deleteNotification(notificationId: string, event: Event): Promise<void> {
     event.stopPropagation();
     this.notifications = this.notifications.filter(notification => notification.idskvNotification !== notificationId);
 
-    this.notificationService.deleteNotification(notificationId).subscribe(
-      () => console.log(`Notification ${notificationId} deleted`),
-      (error) => console.error(`Error deleting notification ${notificationId}`, error)
-    );
+    try {
+      await this.notificationService.deleteNotification(parseInt(notificationId));
+      console.log(`Notification ${notificationId} deleted`);
+    } catch (error: any) {
+      console.error(`Error deleting notification ${notificationId}`, error);
+    }
   }
    
+  navigateToNotificationsPage(): void {
+    this.router.navigate(['/notifications-page']);
+    this.notificationsDropdownVisible = false;
+  }
+
   getTimeAgo(date: string | Date): string {
     const now = new Date();
     const notificationDate = new Date(date);

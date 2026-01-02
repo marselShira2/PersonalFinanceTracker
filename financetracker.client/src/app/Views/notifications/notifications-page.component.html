@@ -1,0 +1,87 @@
+<div class="notifications-page">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ 'NOTIFICATIONS' | translate }}</h2>
+      <div class="header-actions">
+        <button 
+          class="btn btn-outline" 
+          [disabled]="unreadCount === 0"
+          (click)="markAllAsRead()">
+          <i class="pi pi-check"></i> {{ 'MARK_ALL_READ' | translate }}
+        </button>
+        <button 
+          class="btn btn-outline btn-danger" 
+          [disabled]="readCount === 0"
+          (click)="deleteAllRead()">
+          <i class="pi pi-trash"></i> {{ 'DELETE_ALL_READ' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="notification-stats">
+      <div class="stat-item">
+        <span class="stat-label">{{ 'TOTAL' | translate }}:</span>
+        <span class="stat-value">{{ totalCount }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">{{ 'UNREAD' | translate }}:</span>
+        <span class="stat-value unread">{{ unreadCount }}</span>
+      </div>
+    </div>
+
+    <div class="notifications-list" *ngIf="notifications.length > 0">
+      <div 
+        *ngFor="let notification of notifications" 
+        class="notification-item"
+        [ngClass]="{'unread': !notification.isRead, 'read': notification.isRead}">
+        
+        <div class="notification-content">
+          <div class="notification-header">
+            <h4>{{ notification.title }}</h4>
+            <div class="notification-actions">
+              <button 
+                *ngIf="!notification.isRead"
+                class="btn-icon" 
+                (click)="markAsRead(notification.notificationId)"
+                [title]="'MARK_AS_READ' | translate">
+                <i class="pi pi-check"></i>
+              </button>
+              <button 
+                class="btn-icon btn-danger" 
+                (click)="deleteNotification(notification.notificationId)"
+                [title]="'DELETE' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <p class="notification-message">{{ notification.message }}</p>
+          
+          <div class="notification-meta">
+            <span class="notification-type">{{ getTypeLabel(notification.type) }}</span>
+            <span class="notification-date">{{ formatDate(notification.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="notifications.length === 0 && !loading">
+      <i class="pi pi-bell" style="font-size: 3rem; color: #ccc;"></i>
+      <h3>{{ 'NO_NOTIFICATIONS' | translate }}</h3>
+      <p>{{ 'NO_NOTIFICATIONS_MESSAGE' | translate }}</p>
+    </div>
+
+    <div class="pagination-container" *ngIf="hasMore">
+      <button 
+        class="btn btn-outline"
+        [disabled]="loading"
+        (click)="loadMore()">
+        <i class="pi pi-chevron-down"></i> 
+        <span *ngIf="loading">{{ 'LOADING' | translate }}</span>
+        <span *ngIf="!loading">{{ 'LOAD_MORE' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

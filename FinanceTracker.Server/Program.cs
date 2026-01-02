@@ -32,6 +32,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Add this line where you register your other services (Repositories, etc.)
 builder.Services.AddHostedService<RecurringExpenseService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<FinanceTracker.Server.Services.INotificationService, FinanceTracker.Server.Services.NotificationService>();
 
 //builder.Services.AddHostedService<FinanceTracker.Server.Services.RecurringExpenseService>();
 //builder.Services.AddHostedService<NotificationWorker>();

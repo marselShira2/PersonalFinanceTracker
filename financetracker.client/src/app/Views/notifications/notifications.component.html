@@ -56,5 +56,10 @@
           </div>
         </div>
       </div>
+      <div class="show-more-container" *ngIf="notifications.length >= 5">
+        <button class="show-more-btn" (click)="navigateToNotificationsPage()">
+          {{ 'SHOW_MORE' | translate }}
+        </button>
+      </div>
     </div>
   </div>

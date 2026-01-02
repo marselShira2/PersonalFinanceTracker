@@ -21,14 +21,16 @@ namespace FinanceTracker.Server.Controllers
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly IVerificationStore _verificationStore;
+        private readonly FinanceTracker.Server.Services.INotificationService _notificationService;
 
-        public AuthController(IUserRepository userRepository, IPasswordHasher passwordHasher, IEmailService emailService, IConfiguration configuration, IVerificationStore verificationStore)
+        public AuthController(IUserRepository userRepository, IPasswordHasher passwordHasher, IEmailService emailService, IConfiguration configuration, IVerificationStore verificationStore, FinanceTracker.Server.Services.INotificationService notificationService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _emailService = emailService;
             _configuration = configuration;
             _verificationStore = verificationStore;
+            _notificationService = notificationService;
         }
 
         [HttpPost("register")]
@@ -118,7 +120,9 @@ namespace FinanceTracker.Server.Controllers
 
             user.IsVerified = true;
             await _userRepository.SaveChangesAsync();
-            // _verificationStore.SetUserVerified(user.UserId); 
+            
+            // Create welcome notification
+            await _notificationService.CreateWelcomeNotificationAsync(user.UserId, user.Name);
 
             return Ok(new { Message = "Account successfully verified. You can now log in." });
         }

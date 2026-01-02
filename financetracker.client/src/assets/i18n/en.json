@@ -163,5 +163,21 @@
   "EL.ERROR_SET": "Failed to set expense limit",
   "EL.ERROR_TOGGLE": "Failed to toggle expense limit",
   "EL.ERROR_LOAD": "Failed to load expense limit status",
-  "EL.ERROR_USER_INFO": "Unable to get user information. Please login again."
+  "EL.ERROR_USER_INFO": "Unable to get user information. Please login again.",
+
+  "NOTIFICATION": "Notification",
+  "NEW": "New",
+  "OLD": "Old",
+  "NOTIFICATIONS": "Notifications",
+  "MARK_ALL_READ": "Mark All Read",
+  "DELETE_ALL_READ": "Delete All Read",
+  "TOTAL": "Total",
+  "UNREAD": "Unread",
+  "MARK_AS_READ": "Mark as Read",
+  "DELETE": "Delete",
+  "NO_NOTIFICATIONS": "No Notifications",
+  "NO_NOTIFICATIONS_MESSAGE": "You don't have any notifications yet.",
+  "LOADING": "Loading...",
+  "LOAD_MORE": "Load More",
+  "SHOW_MORE": "Show More"
 }
