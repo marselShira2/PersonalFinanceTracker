@@ -39,15 +39,29 @@ namespace FinanceTracker.Server.Repositories
             }
             else
             {
-                // Update existing logic
+                // Update existing logic - preserve current balance
+                decimal currentSpent = limit.LimitAmount - limit.Balance;
                 limit.LimitAmount = amount;
-                limit.Balance = amount; // Resetting the goal resets the balance
+                limit.Balance = amount - currentSpent; // Preserve spending progress
                 limit.StartDate = DateOnly.FromDateTime(DateTime.Now);
                 limit.IsActive = true;
                 _context.ExpenseLimits.Update(limit);
             }
 
             await _context.SaveChangesAsync();
+            return limit;
+        }
+
+        public async Task<ExpenseLimit?> ToggleLimitAsync(int userId, bool isActive)
+        {
+            var limit = await _context.ExpenseLimits.FirstOrDefaultAsync(x => x.UserId == userId);
+            
+            if (limit == null) return null;
+            
+            limit.IsActive = isActive;
+            _context.ExpenseLimits.Update(limit);
+            await _context.SaveChangesAsync();
+            
             return limit;
         }
     }

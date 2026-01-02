@@ -1,0 +1,117 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card">
+      <h5>{{ 'EL.PAGE_HEADER' | translate }}</h5>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex justify-content-center">
+        <p-progressSpinner></p-progressSpinner>
+      </div>
+
+      <!-- Expense Limit Status Display -->
+      <div *ngIf="!loading && hasLimit && limitStatus" class="mb-4">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="card bg-blue-50">
+              <div class="flex justify-content-between align-items-center mb-2">
+                <h6>{{ 'EL.CURRENT_STATUS' | translate }}</h6>
+                <p-inputSwitch 
+                  [(ngModel)]="limitStatus.isActive" 
+                  (onChange)="onToggleLimit($event.checked)"
+                  [disabled]="loading">
+                </p-inputSwitch>
+              </div>
+              <div class="text-2xl font-bold text-blue-600 mb-2">
+                ${{ limitStatus.spentAmount | number:'1.2-2' }} / ${{ limitStatus.limitAmount | number:'1.2-2' }}
+              </div>
+              <p-progressBar [value]="limitStatus.percentageSpent"
+                             [severity]="getProgressBarClass()"
+                             [showValue]="true">
+              </p-progressBar>
+              <div class="mt-2 text-sm">
+                <strong>{{ 'EL.REMAINING' | translate }}:</strong> ${{ limitStatus.balance | number:'1.2-2' }}
+              </div>
+              <div class="mt-1 text-xs" [ngClass]="{
+                'text-green-600': limitStatus.isActive,
+                'text-gray-500': !limitStatus.isActive
+              }">
+                {{ limitStatus.isActive ? ('EL.TRACKING_ACTIVE' | translate) : ('EL.TRACKING_DISABLED' | translate) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <div class="card" [ngClass]="{
+                 'bg-green-50' : limitStatus.percentageSpent < 50,
+              'bg-yellow-50': limitStatus.percentageSpent >= 50 && limitStatus.percentageSpent < 90,
+              'bg-red-50': limitStatus.percentageSpent >= 90
+            }">
+              <h6>{{ 'EL.ALERT_STATUS' | translate }}</h6>
+              <div class="text-lg font-semibold" [ngClass]="{
+                'text-green-600': limitStatus.percentageSpent < 50,
+                'text-yellow-600': limitStatus.percentageSpent >= 50 && limitStatus.percentageSpent < 90,
+                'text-red-600': limitStatus.percentageSpent >= 90
+              }">
+                {{ limitStatus.warningMessage }}
+              </div>
+              <div class="mt-2 text-sm">
+                <strong>{{ limitStatus.percentageSpent }}%</strong> {{ 'EL.OF_LIMIT_USED' | translate }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Limit Set Message -->
+      <div *ngIf="!loading && !hasLimit" class="mb-4">
+        <p-message severity="info" [text]="'EL.NO_LIMIT_SET' | translate"></p-message>
+      </div>
+
+      <!-- Set/Update Limit Form -->
+      <div class="card">
+        <h6>{{ hasLimit ? ('EL.UPDATE_LIMIT_FORM_HEADER' | translate) : ('EL.SET_LIMIT_FORM_HEADER' | translate) }}</h6>
+        <form [formGroup]="limitForm" (ngSubmit)="onSubmit()">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label for="amount" class="block text-900 font-medium mb-2">{{ 'EL.AMOUNT_LABEL' | translate }} *</label>
+              <p-inputNumber id="amount"
+                             formControlName="amount"
+                             mode="currency"
+                             currency="USD"
+                             locale="en-US"
+                             [min]="0.01"
+                             [max]="999999.99"
+                             [placeholder]="'EL.AMOUNT_PLACEHOLDER' | translate"
+                             styleClass="w-full"
+                             [class.ng-invalid]="amountControl?.invalid && amountControl?.touched">
+              </p-inputNumber>
+
+              <!-- Validation Messages -->
+              <div *ngIf="amountControl?.invalid && amountControl?.touched" class="mt-1">
+                <small *ngIf="amountControl?.errors?.['required']" class="p-error block">
+                  {{ 'EL.AMOUNT_REQUIRED' | translate }}
+                </small>
+                <small *ngIf="amountControl?.errors?.['min']" class="p-error block">
+                  {{ 'EL.AMOUNT_MIN' | translate }}
+                </small>
+                <small *ngIf="amountControl?.errors?.['max']" class="p-error block">
+                  {{ 'EL.AMOUNT_MAX' | translate }}
+                </small>
+              </div>
+            </div>
+
+            <div class="col-12 md:col-6 flex align-items-end">
+              <p-button type="submit"
+                        [label]="hasLimit ? ('EL.UPDATE_LIMIT_BTN' | translate) : ('EL.SET_LIMIT_BTN' | translate)"
+                        icon="pi pi-check"
+                        [disabled]="limitForm.invalid || loading || !userId"
+                        [loading]="loading"
+                        styleClass="w-full md:w-auto">
+              </p-button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

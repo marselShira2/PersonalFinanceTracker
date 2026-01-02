@@ -68,6 +68,12 @@ export class AppMenuComponent implements OnInit {
             label: 'Categories',
             icon: 'pi pi-fw pi-folder-open', // New, distinct icon
             routerLink: ['/category']        // Matches router path
+          },
+          // 💳 Expense Limit Page Item
+          {
+            label: 'Expense Limit',
+            icon: 'pi pi-fw pi-chart-pie',
+            routerLink: ['/expense-limit']
           }
         ]
       },

@@ -1,0 +1,58 @@
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  &.bg-blue-50 {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+  }
+  
+  &.bg-green-50 {
+    background-color: #f0fdf4;
+    border-left: 4px solid #22c55e;
+  }
+  
+  &.bg-yellow-50 {
+    background-color: #fefce8;
+    border-left: 4px solid #eab308;
+  }
+  
+  &.bg-red-50 {
+    background-color: #fef2f2;
+    border-left: 4px solid #ef4444;
+  }
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.text-yellow-600 {
+  color: #ca8a04;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+:host ::ng-deep {
+  .p-progressbar {
+    height: 1.5rem;
+    
+    &.p-progressbar-success .p-progressbar-value {
+      background-color: #22c55e;
+    }
+    
+    &.p-progressbar-warning .p-progressbar-value {
+      background-color: #eab308;
+    }
+    
+    &.p-progressbar-danger .p-progressbar-value {
+      background-color: #ef4444;
+    }
+  }
+}
