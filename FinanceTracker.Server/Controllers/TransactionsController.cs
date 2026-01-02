@@ -16,10 +16,12 @@ namespace FinanceTracker.Server.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionRepository _transactionRepository;
+        private readonly FinanceTracker.Server.Services.INotificationService _notificationService;
 
-        public TransactionsController(ITransactionRepository transactionRepository)
+        public TransactionsController(ITransactionRepository transactionRepository, FinanceTracker.Server.Services.INotificationService notificationService)
         {
             _transactionRepository = transactionRepository;
+            _notificationService = notificationService;
         }
 
         private int GetUserId()
@@ -62,6 +64,19 @@ namespace FinanceTracker.Server.Controllers
                 };
 
                 var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
+                
+                // Check for large expense alert (over $500)
+                if (dto.Type.ToLower() == "expense" && dto.Amount >= 500)
+                {
+                    await _notificationService.CreateLargeExpenseAlertAsync(userId, dto.Amount, dto.Description ?? "Large expense");
+                }
+                
+                // Check savings goal progress for income transactions
+                if (dto.Type.ToLower() == "income")
+                {
+                    await CheckSavingsGoalProgress(userId);
+                }
+                
                 return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }
             catch (UnauthorizedAccessException)
@@ -248,6 +263,46 @@ namespace FinanceTracker.Server.Controllers
                 }
             }
             return transactions;
+        }
+
+        private async Task CheckSavingsGoalProgress(int userId)
+        {
+            try
+            {
+                // Get user's total balance (income - expenses)
+                var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, null, null);
+                var totalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => t.Amount);
+                var totalExpenses = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => t.Amount);
+                var currentBalance = totalIncome - totalExpenses;
+                
+                // Assume a savings goal of $10,000 (this could be made configurable per user)
+                decimal savingsGoal = 10000m;
+                decimal percentage = (currentBalance / savingsGoal) * 100;
+                
+                // Notify at 25%, 50%, 75%, and 100%
+                if (percentage >= 100 && currentBalance >= savingsGoal)
+                {
+                    await _notificationService.CreateSavingsGoalAchievedAsync(userId, savingsGoal);
+                }
+                else if (percentage >= 75 && percentage < 100)
+                {
+                    // Check if we haven't already sent this milestone notification
+                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 75);
+                }
+                else if (percentage >= 50 && percentage < 75)
+                {
+                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 50);
+                }
+                else if (percentage >= 25 && percentage < 50)
+                {
+                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 25);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the transaction
+                Console.WriteLine($"Error checking savings goal progress: {ex.Message}");
+            }
         }
 
     }

@@ -39,18 +39,19 @@
                 <small>{{ getTimeAgo(notification.time) }}</small>
               </div>
             </div>
-            <div *ngIf="notification.priority !== 'High' && notification.priority !== 'Critical'" style="display: flex; align-items: center;">
+            <div *ngIf="notification.priority !== 'High' && notification.priority !== 'Critical'" style="display: flex; align-items: center; width: 100%;">
               <div>
                 <i class="pi pi-history" style="margin-right: 10px; font-size: 1.5rem;"></i>
               </div>
-              <div>
+              <div style="flex: 1;">
                 <p>
                   <span >{{ notification.displayMessage }}</span>
                 </p>
                 <small>{{ getTimeAgo(notification.time) }}</small>
               </div>
-              <div *ngIf="activeTab === 'old'" class="button-container">
-                <button class="close-button" (click)="deleteNotification(notification.idskvNotification, $event)">×</button>
+              <div class="button-container" style="margin-left: auto;">
+                <button *ngIf="!notification.isRead" class="close-button" (click)="markAsRead(notification.idskvNotification, $event)" title="Mark as Read">✓</button>
+                <button *ngIf="notification.isRead" class="close-button" (click)="deleteNotification(notification.idskvNotification, $event)" title="Delete">×</button>
               </div>
             </div>
           </div>

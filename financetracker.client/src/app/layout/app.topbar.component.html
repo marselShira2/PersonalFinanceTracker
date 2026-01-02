@@ -8,7 +8,7 @@
   <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
 
     <!-- Notifications Component -->
-    <div class="bell-container" >
+    <div class="bell-container" style="display:flex; align-items:center" >
       <app-notifications (closeOtherDropdowns)="closeAllDropdowns()"></app-notifications>
       <div class="notifications-dropdown" *ngIf="notificationsDropdownVisible">
       </div>

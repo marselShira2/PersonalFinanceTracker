@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { TransactionService } from '../../services/transaction/transaction.service';
 
 @Component({
   selector: 'app-notifications',
@@ -23,8 +24,9 @@ export class NotificationsComponent implements OnInit {
   activeTab: 'new' | 'old' = 'new';
   notifications: any[] = [];
   languageChangeSubscription?: Subscription;
+  transactionSubscription?: Subscription;
   userId: string | undefined | null;
-  constructor(private router: Router, private notificationService: NotificationService, private authService: AuthService, private translate: TranslateService, private cdr: ChangeDetectorRef) { }
+  constructor(private router: Router, private notificationService: NotificationService, private authService: AuthService, private translate: TranslateService, private cdr: ChangeDetectorRef, private transactionService: TransactionService) { }
 
 
   ngOnInit(): void {
@@ -34,6 +36,13 @@ export class NotificationsComponent implements OnInit {
     // Subscribe to language change events
     this.languageChangeSubscription = this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.loadNotifications();
+    });
+
+    // Subscribe to transaction creation events for real-time notification updates
+    this.transactionSubscription = this.transactionService.transactionCreated$.subscribe(() => {
+      setTimeout(() => {
+        this.loadNotifications();
+      }, 1000); // Small delay to ensure notification is created
     });
 
     this.notificationService.notification$.subscribe((notification: any) => {
@@ -47,6 +56,9 @@ export class NotificationsComponent implements OnInit {
     if (this.languageChangeSubscription) {
       this.languageChangeSubscription.unsubscribe();
     }
+    if (this.transactionSubscription) {
+      this.transactionSubscription.unsubscribe();
+    }
   }
 
   async loadNotifications(): Promise<void> {
@@ -54,13 +66,17 @@ export class NotificationsComponent implements OnInit {
       const data = await this.notificationService.getNotificationsPaginated(1, 5);
       const currentLanguage = this.translate.currentLang;
 
-      this.notifications = data.notifications.map((notification: any) => ({
-        ...notification,
-        seen: notification.isRead,
-        time: notification.createdAt,
-        displayMessage: notification.message,
-        idskvNotification: notification.notificationId
-      }));
+      this.notifications = data.notifications.map((notification: any) => {
+        const { title, message } = this.parseMultilingualText(notification.title, notification.message, currentLanguage);
+        return {
+          ...notification,
+          seen: notification.isRead,
+          time: notification.createdAt,
+          displayMessage: message,
+          displayTitle: title,
+          idskvNotification: notification.notificationId
+        };
+      });
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -100,18 +116,13 @@ export class NotificationsComponent implements OnInit {
 
 
   toggleNotificationsDropdown(event: Event) {
-    //
     event.stopPropagation();
     this.notificationsDropdownVisible = !this.notificationsDropdownVisible;
 
     if (this.notificationsDropdownVisible) {
-      //
-      this.closeOtherDropdowns.emit(); // Emit event to close other dropdowns in the parent
+      this.closeOtherDropdowns.emit();
     }
-
-    if (!this.notificationsDropdownVisible) {
-      this.markNotificationsAsSeen();
-    }
+    // Remove the auto-mark as seen when closing dropdown
   }
   markNotificationsAsSeen() {
     const unseenNotifications = this.notifications
@@ -146,7 +157,7 @@ export class NotificationsComponent implements OnInit {
   }
 
   get unseenNotificationCount() {
-    return this.notifications.filter(notification => !notification.seen).length;
+    return this.notifications.filter(notification => !notification.seen && !notification.isRead).length;
   }
 
   setActiveTab(tab: 'new' | 'old', event: Event) {
@@ -156,8 +167,8 @@ export class NotificationsComponent implements OnInit {
 
   getFilteredNotifications() {
     const filtered = this.activeTab === 'new'
-      ? this.notifications.filter(notification => !notification.seen)
-      : this.notifications.filter(notification => notification.seen);
+      ? this.notifications.filter(notification => !notification.isRead)
+      : this.notifications.filter(notification => notification.isRead);
 
     console.log(this.notifications);
     return this.sortNotificationsByTime(filtered);
@@ -185,17 +196,17 @@ export class NotificationsComponent implements OnInit {
     // Check if the click is outside the notifications dropdown and bell icon
     if (this.notificationsDropdownVisible && !dropdown?.contains(target) && !bellContainer?.contains(target)) {
       this.notificationsDropdownVisible = false;
-      this.markNotificationsAsSeen();
+      // Remove auto-mark as seen when clicking outside
     }
   }
 
 
   get newNotificationsCount() {
-    return this.notifications.filter(notification => !notification.seen).length;
+    return this.notifications.filter(notification => !notification.isRead).length;
   }
 
   get oldNotificationsCount() {
-    return this.notifications.filter(notification => notification.seen).length;
+    return this.notifications.filter(notification => notification.isRead).length;
   }
 
 
@@ -233,6 +244,20 @@ export class NotificationsComponent implements OnInit {
         () => console.log('Notification marked as opened'),
         (error) => console.error('Error marking notification as opened', error)
       );
+    }
+  }
+
+  async markAsRead(notificationId: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.notificationService.markAsRead(parseInt(notificationId));
+      // Update local state
+      const index = this.notifications.findIndex(n => n.idskvNotification === notificationId);
+      if (index !== -1) {
+        this.notifications[index].isRead = true;
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
     }
   }
    
@@ -284,5 +309,25 @@ export class NotificationsComponent implements OnInit {
     }
 
     return `${Math.floor(seconds)} sekonda më parë`;
+  }
+
+  parseMultilingualText(title: string, message: string, language: string): { title: string, message: string } {
+    const parseText = (text: string) => {
+      if (text.includes('||')) {
+        const parts = text.split('||');
+        return language === 'en' ? parts[0] : parts[1] || parts[0];
+      }
+      return text;
+    };
+
+    return {
+      title: parseText(title),
+      message: parseText(message)
+    };
+  }
+
+  // Add method to refresh notifications after transaction creation
+  refreshNotifications(): void {
+    this.loadNotifications();
   }
 }

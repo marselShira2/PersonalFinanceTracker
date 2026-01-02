@@ -91,6 +91,28 @@ namespace FinanceTracker.Server.Services
                         }
                     }
                 }
+
+                // 5. Check for advance reminders (7 days before due date)
+                int advanceDay = DateTime.Now.AddDays(7).Day;
+                var advanceReminders = allRecurring
+                    .GroupBy(t => new { t.UserId, t.Description })
+                    .Select(g => g.OrderByDescending(t => t.Date).First())
+                    .Where(bill => bill.Date.Day == advanceDay)
+                    .ToList();
+
+                foreach (var bill in advanceReminders)
+                {
+                    bool isPaidThisMonth = await context.Transactions.AnyAsync(t =>
+                        t.UserId == bill.UserId &&
+                        t.Description == bill.Description &&
+                        t.Date.Month == currentMonth &&
+                        t.Date.Year == currentYear);
+
+                    if (!isPaidThisMonth)
+                    {
+                        await notificationService.CreateBillAdvanceReminderAsync(bill.UserId, bill.Description, bill.Amount, bill.Currency, 7);
+                    }
+                }
                 // No need to call SaveChangesAsync here since NotificationService handles it
             }
         }

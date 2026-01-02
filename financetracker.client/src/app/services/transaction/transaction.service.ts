@@ -1,8 +1,9 @@
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Category } from '../categories/category.service';
+import { tap } from 'rxjs/operators';
  
 export interface TransactionCreateDto {
   type: string;
@@ -33,12 +34,11 @@ export interface TransactionUpdateDto {
   providedIn: 'root'
 })
 export class TransactionService {
-  // 🎯 FIX: Explicitly set the base URL to your ASP.NET Core backend server.
-  // Using 7001 as the example port. **CHANGE THIS IF YOUR PORT IS DIFFERENT.**
-  //private apiurl = 'https://localhost:7012';
   apiUrl: string = environment.apiUrl + "/Transactions";
-  // Base path for the entire Transactions Controller
-  //private apiUrl = `${this.apiurl}/api/Transactions`;
+  
+  // Subject to notify when transactions are created (for notification refresh)
+  private transactionCreated = new Subject<void>();
+  public transactionCreated$ = this.transactionCreated.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -76,9 +76,13 @@ export class TransactionService {
    */
   createTransaction(dto: TransactionCreateDto): Observable<Transaction> {
     const formattedDto = this.formatDateDto(dto);
-    // 🎯 Using the explicit /create route
     const createUrl = `${this.apiUrl}/create`;
-    return this.http.post<Transaction>(createUrl, formattedDto);
+    return this.http.post<Transaction>(createUrl, formattedDto).pipe(
+      tap(() => {
+        // Notify that a transaction was created (for notification refresh)
+        this.transactionCreated.next();
+      })
+    );
   }
 
   /**
