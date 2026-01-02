@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationService } from '../../services/notifications.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 interface NotificationItem {
   notificationId: number;
@@ -36,7 +37,8 @@ export class NotificationsPageComponent implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -110,8 +112,8 @@ export class NotificationsPageComponent implements OnInit {
 
   async markAllAsRead(): Promise<void> {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to mark all notifications as read?',
-      header: 'Confirm Action',
+      message: this.translate.instant('CONFIRM_MARK_ALL_READ'),
+      header: this.translate.instant('CONFIRM'),
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         try {
@@ -123,15 +125,15 @@ export class NotificationsPageComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'All notifications marked as read'
+            summary: this.translate.instant('SUCCESS'),
+            detail: this.translate.instant('ALL_MARKED_READ')
           });
         } catch (error) {
           console.error('Error marking all notifications as read:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to mark all notifications as read'
+            summary: this.translate.instant('ERROR'),
+            detail: this.translate.instant('ERROR_MARK_ALL_READ')
           });
         }
       }
@@ -140,8 +142,8 @@ export class NotificationsPageComponent implements OnInit {
 
   async deleteNotification(notificationId: number): Promise<void> {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete this notification?',
-      header: 'Confirm Delete',
+      message: this.translate.instant('CONFIRM_DELETE_NOTIFICATION'),
+      header: this.translate.instant('CONFIRM'),
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         try {
@@ -161,15 +163,15 @@ export class NotificationsPageComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Notification deleted'
+            summary: this.translate.instant('SUCCESS'),
+            detail: this.translate.instant('NOTIFICATION_DELETED')
           });
         } catch (error) {
           console.error('Error deleting notification:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete notification'
+            summary: this.translate.instant('ERROR'),
+            detail: this.translate.instant('ERROR_DELETE_NOTIFICATION')
           });
         }
       }
@@ -178,8 +180,8 @@ export class NotificationsPageComponent implements OnInit {
 
   async deleteAllRead(): Promise<void> {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete all read notifications?',
-      header: 'Confirm Delete',
+      message: this.translate.instant('CONFIRM_DELETE_ALL_READ'),
+      header: this.translate.instant('CONFIRM'),
       icon: 'pi pi-exclamation-triangle',
       accept: async () => {
         try {
@@ -191,15 +193,15 @@ export class NotificationsPageComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `${result.deletedCount} read notifications deleted`
+            summary: this.translate.instant('SUCCESS'),
+            detail: this.translate.instant('ALL_READ_DELETED')
           });
         } catch (error) {
           console.error('Error deleting read notifications:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete read notifications'
+            summary: this.translate.instant('ERROR'),
+            detail: this.translate.instant('ERROR_DELETE_ALL_READ')
           });
         }
       }

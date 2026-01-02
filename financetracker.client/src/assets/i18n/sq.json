@@ -182,5 +182,19 @@
   "NO_NOTIFICATIONS_MESSAGE": "Nuk keni ende asnjë njoftim.",
   "LOADING": "Duke ngarkuar...",
   "LOAD_MORE": "Ngarko Më Shumë",
-  "SHOW_MORE": "Shfaq Më Shumë"
+  "SHOW_MORE": "Shfaq Më Shumë",
+  "CONFIRM_DELETE_NOTIFICATION": "Jeni i sigurt që dëshironi të fshini këtë njoftim?",
+  "CONFIRM_DELETE_ALL_READ": "Jeni i sigurt që dëshironi të fshini të gjitha njoftimet e lexuara?",
+  "CONFIRM_MARK_ALL_READ": "Jeni i sigurt që dëshironi të shënoni të gjitha njoftimet si të lexuara?",
+  "NOTIFICATION_DELETED": "Njoftimi u fshi me sukses",
+  "ALL_READ_DELETED": "Të gjitha njoftimet e lexuara u fshinë me sukses",
+  "ALL_MARKED_READ": "Të gjitha njoftimet u shënuan si të lexuara",
+  "ERROR_DELETE_NOTIFICATION": "Gabim në fshirjen e njoftimit",
+  "ERROR_DELETE_ALL_READ": "Gabim në fshirjen e njoftimeve të lexuara",
+  "ERROR_MARK_ALL_READ": "Gabim në shënimin e njoftimeve si të lexuara",
+  "CONFIRM": "Konfirmo",
+  "CANCEL": "Anulo",
+  "YES": "Po",
+  "NO": "Jo",
+  "SUCCESS": "Sukses"
 }

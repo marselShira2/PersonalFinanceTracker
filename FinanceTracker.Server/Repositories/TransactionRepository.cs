@@ -99,8 +99,8 @@ namespace FinanceTracker.Server.Repositories
             // Check Recurring Confirmation (only if not Critical)
             if (transaction.IsRecurring == true && type != "Critical")
             {
-                title = "Recurring Expense";
-                message = $"🔄 Recurring transaction of {transaction.Amount} {transaction.Currency} recorded.";
+                title = "Pagese e perseritshme";
+                message = $"🔄 Pagesa e perseritshme e {transaction.Amount} {transaction.Currency} u rregjistrua.";
                 type = "Info";
                 shouldNotify = true;
             }

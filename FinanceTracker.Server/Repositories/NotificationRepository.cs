@@ -17,19 +17,26 @@ namespace FinanceTracker.Server.Repositories
 
         public async Task<Notification> CreateNotificationAsync(int userId, NotificationCreateDto dto)
         {
-            var notification = new Notification
+            try
             {
-                UserId = userId,
-                Title = dto.Title,
-                Message = dto.Message,
-                Type = dto.Type,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
+                var notification = new Notification
+                {
+                    UserId = userId,
+                    Title = dto.Title,
+                    Message = dto.Message,
+                    Type = dto.Type,
+                    IsRead = false,
+                    CreatedAt = DateTime.Now
+                };
 
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-            return notification;
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+                return notification;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error creating notification: {ex.Message}");
+            }
         }
 
         public async Task<NotificationListResponseDto> GetNotificationsAsync(int userId, int page = 1, int pageSize = 5)
@@ -75,7 +82,7 @@ namespace FinanceTracker.Server.Repositories
         {
             var notification = await _context.Notifications
                 .FirstOrDefaultAsync(n => n.NotificationId == notificationId && n.UserId == userId);
-            
+
             if (notification != null)
             {
                 notification.IsRead = true;
@@ -101,7 +108,7 @@ namespace FinanceTracker.Server.Repositories
         {
             var notification = await _context.Notifications
                 .FirstOrDefaultAsync(n => n.NotificationId == notificationId && n.UserId == userId);
-            
+
             if (notification != null)
             {
                 _context.Notifications.Remove(notification);

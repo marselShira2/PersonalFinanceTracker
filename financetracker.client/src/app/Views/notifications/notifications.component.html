@@ -28,18 +28,37 @@
                 <small>{{ getTimeAgo(notification.time) }}</small>
               </div>
             </div>
-            <div *ngIf="notification.priority === 'High' && (notification.type === 'User_Register' || notification.type === 'Operator_Register')" style="display: flex; align-items: center;">
+            <div *ngIf="notification.priority === 'High'" style="display: flex; align-items: center; width: 100%;">
               <div>
-                <i class="pi pi-user" style="color: blue; margin-right: 10px; font-size: 1.5rem;"></i>
+                <i class="pi pi-clock" style="color: orange; margin-right: 10px; font-size: 1.5rem;"></i>
               </div>
-              <div>
-                <p style="color:blue">
+              <div style="flex: 1;">
+                <p style="color: orange;">
                   <span >{{ notification.displayMessage }}</span>
                 </p>
                 <small>{{ getTimeAgo(notification.time) }}</small>
               </div>
+              <div class="button-container" style="margin-left: auto;">
+                <button *ngIf="!notification.isRead" class="close-button" (click)="markAsRead(notification.idskvNotification, $event)" title="Mark as Read">✓</button>
+                <button *ngIf="notification.isRead" class="close-button" (click)="deleteNotification(notification.idskvNotification, $event)" title="Delete">×</button>
+              </div>
             </div>
-            <div *ngIf="notification.priority !== 'High' && notification.priority !== 'Critical'" style="display: flex; align-items: center; width: 100%;">
+            <div *ngIf="notification.priority === 'Medium'" style="display: flex; align-items: center; width: 100%;">
+              <div>
+                <i class="pi pi-info-circle" style="color: blue; margin-right: 10px; font-size: 1.5rem;"></i>
+              </div>
+              <div style="flex: 1;">
+                <p style="color: blue;">
+                  <span >{{ notification.displayMessage }}</span>
+                </p>
+                <small>{{ getTimeAgo(notification.time) }}</small>
+              </div>
+              <div class="button-container" style="margin-left: auto;">
+                <button *ngIf="!notification.isRead" class="close-button" (click)="markAsRead(notification.idskvNotification, $event)" title="Mark as Read">✓</button>
+                <button *ngIf="notification.isRead" class="close-button" (click)="deleteNotification(notification.idskvNotification, $event)" title="Delete">×</button>
+              </div>
+            </div>
+            <div *ngIf="notification.priority !== 'High' && notification.priority !== 'Critical' && notification.priority !== 'Medium'" style="display: flex; align-items: center; width: 100%;">
               <div>
                 <i class="pi pi-history" style="margin-right: 10px; font-size: 1.5rem;"></i>
               </div>

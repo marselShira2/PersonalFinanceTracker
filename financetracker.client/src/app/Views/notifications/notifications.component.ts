@@ -45,6 +45,11 @@ export class NotificationsComponent implements OnInit {
       }, 1000); // Small delay to ensure notification is created
     });
 
+    // Auto-refresh notifications every 15 seconds to catch background notifications
+    setInterval(() => {
+      this.loadNotifications();
+    }, 15000);
+
     this.notificationService.notification$.subscribe((notification: any) => {
       this.handleNewNotification(notification);
     });
@@ -70,11 +75,12 @@ export class NotificationsComponent implements OnInit {
         const { title, message } = this.parseMultilingualText(notification.title, notification.message, currentLanguage);
         return {
           ...notification,
-          seen: notification.isRead,
+          seen: notification.isRead, // Use backend isRead status
           time: notification.createdAt,
           displayMessage: message,
           displayTitle: title,
-          idskvNotification: notification.notificationId
+          idskvNotification: notification.notificationId,
+          priority: this.getNotificationPriority(notification.type) // Add priority based on type
         };
       });
     } catch (error) {
@@ -157,7 +163,7 @@ export class NotificationsComponent implements OnInit {
   }
 
   get unseenNotificationCount() {
-    return this.notifications.filter(notification => !notification.seen && !notification.isRead).length;
+    return this.notifications.filter(notification => !notification.isRead).length;
   }
 
   setActiveTab(tab: 'new' | 'old', event: Event) {
@@ -170,8 +176,17 @@ export class NotificationsComponent implements OnInit {
       ? this.notifications.filter(notification => !notification.isRead)
       : this.notifications.filter(notification => notification.isRead);
 
-    console.log(this.notifications);
-    return this.sortNotificationsByTime(filtered);
+    // Sort by: 1) Unread first, 2) Creation date (newest first)
+    return filtered.sort((a, b) => {
+      // First sort by read status (unread first)
+      if (a.isRead !== b.isRead) {
+        return a.isRead ? 1 : -1;
+      }
+      // Then sort by creation date (newest first)
+      const dateA = new Date(a.time).getTime();
+      const dateB = new Date(b.time).getTime();
+      return dateB - dateA;
+    });
   }
 
 
@@ -329,5 +344,20 @@ export class NotificationsComponent implements OnInit {
   // Add method to refresh notifications after transaction creation
   refreshNotifications(): void {
     this.loadNotifications();
+  }
+
+  getNotificationPriority(type: string): string {
+    // Assign priority to ensure advance notifications appear properly
+    switch (type) {
+      case 'bill_advance':
+      case 'bill_reminder':
+        return 'High';
+      case 'large_expense':
+      case 'savings_progress':
+      case 'savings_achieved':
+        return 'Medium';
+      default:
+        return 'Normal';
+    }
   }
 }

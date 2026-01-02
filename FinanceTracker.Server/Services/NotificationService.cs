@@ -72,10 +72,13 @@ namespace FinanceTracker.Server.Services
 
         public async Task CreateBillReminderAsync(int userId, string billDescription, decimal amount, string currency)
         {
+            var englishMessage = $"📅 Reminder: Your recurring bill '{billDescription}' ({amount} {currency}) is usually due today.";
+            var albanianMessage = $"📅 Rikujtese: Pagesa juaj e përsëritur '{billDescription}' ({amount} {currency}) duhet paguar sot.";
+            
             var dto = new NotificationCreateDto
             {
-                Title = "Bill Reminder",
-                Message = $"📅 Reminder: Your recurring bill '{billDescription}' ({amount} {currency}) is usually due today.",
+                Title = "Bill Reminder||Rikujtese për Pagesën",
+                Message = $"{englishMessage}||{albanianMessage}",
                 Type = "bill_reminder"
             };
             await _notificationRepo.CreateNotificationAsync(userId, dto);
@@ -83,11 +86,14 @@ namespace FinanceTracker.Server.Services
 
         public async Task CreateBillAdvanceReminderAsync(int userId, string billDescription, decimal amount, string currency, int daysUntilDue)
         {
+            var englishMessage = $"⏰ Your recurring bill '{billDescription}' ({amount} {currency}) is due in {daysUntilDue} days.";
+            var albanianMessage = $"⏰ Rikujtese: Pagesa juaj e përsëritur '{billDescription}' ({amount} {currency}) duhet paguar pas {daysUntilDue} ditësh.";
+            
             var dto = new NotificationCreateDto
             {
-                Title = "Upcoming Bill Reminder",
-                Message = $"⏰ Your recurring bill '{billDescription}' ({amount} {currency}) is due in {daysUntilDue} days.",
-                Type = "bill_advance_reminder"
+                Title = "Upcoming Bill Reminder||Rikujtese për Pagesën e Ardhshme",
+                Message = $"{englishMessage}||{albanianMessage}",
+                Type = "bill_advance"
             };
             await _notificationRepo.CreateNotificationAsync(userId, dto);
         }

@@ -28,8 +28,8 @@ namespace FinanceTracker.Server.Services
                     Console.WriteLine($"[Error] Background Worker failed: {ex.Message}");
                 }
 
-                // Check again in 24 hours
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                // Check again every 10 seconds
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
 
@@ -62,17 +62,17 @@ namespace FinanceTracker.Server.Services
 
                 foreach (var bill in uniqueBills)
                 {
-                    // 3. Check if the user has ALREADY paid this bill in the CURRENT month/year
-                    bool isPaidThisMonth = await context.Transactions.AnyAsync(t =>
-                        t.UserId == bill.UserId &&
-                        t.Description == bill.Description &&
-                        t.Date.Month == currentMonth &&
-                        t.Date.Year == currentYear);
+                    // Check if we already sent a same-day notification for this bill this month
+                    bool alreadyNotifiedToday = await context.Notifications.AnyAsync(n =>
+                        n.UserId == bill.UserId &&
+                        n.Type == "bill_reminder" &&
+                        n.Message.Contains(bill.Description) &&
+                        n.CreatedAt.HasValue &&
+                        n.CreatedAt.Value.Month == currentMonth &&
+                        n.CreatedAt.Value.Year == currentYear);
 
-                    // 4. Only notify if it is NOT paid yet
-                    if (!isPaidThisMonth)
+                    if (!alreadyNotifiedToday)
                     {
-                        // Create system notification using NotificationService
                         await notificationService.CreateBillReminderAsync(bill.UserId, bill.Description, bill.Amount, bill.Currency);
 
                         // Send Email
@@ -94,21 +94,32 @@ namespace FinanceTracker.Server.Services
 
                 // 5. Check for advance reminders (7 days before due date)
                 int advanceDay = DateTime.Now.AddDays(7).Day;
-                var advanceReminders = allRecurring
+                
+                // Query separately for advance reminders
+                var allRecurringForAdvance = await context.Transactions
+                    .Include(t => t.User)
+                    .Where(t => t.IsRecurring == true
+                             && t.Type == "Expense"
+                             && t.Date.Day == advanceDay)
+                    .ToListAsync();
+
+                var advanceReminders = allRecurringForAdvance
                     .GroupBy(t => new { t.UserId, t.Description })
                     .Select(g => g.OrderByDescending(t => t.Date).First())
-                    .Where(bill => bill.Date.Day == advanceDay)
                     .ToList();
 
                 foreach (var bill in advanceReminders)
                 {
-                    bool isPaidThisMonth = await context.Transactions.AnyAsync(t =>
-                        t.UserId == bill.UserId &&
-                        t.Description == bill.Description &&
-                        t.Date.Month == currentMonth &&
-                        t.Date.Year == currentYear);
+                    // This will now run for every single item in your original list
+                    bool alreadyNotifiedAdvance = await context.Notifications.AnyAsync(n =>
+                        n.UserId == bill.UserId &&
+                        n.Type == "bill_advance" &&
+                        n.Message.Contains(bill.Description) &&
+                        n.CreatedAt.HasValue &&
+                        n.CreatedAt.Value.Month == currentMonth &&
+                        n.CreatedAt.Value.Year == currentYear);
 
-                    if (!isPaidThisMonth)
+                    if (!alreadyNotifiedAdvance)
                     {
                         await notificationService.CreateBillAdvanceReminderAsync(bill.UserId, bill.Description, bill.Amount, bill.Currency, 7);
                     }
