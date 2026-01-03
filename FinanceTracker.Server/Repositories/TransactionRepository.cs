@@ -61,36 +61,36 @@ namespace FinanceTracker.Server.Repositories
 
                 if (percentage >= 100)
                 {
-                    title = "Budget Exceeded";
-                    message = $"🚨 ALERT: You have exceeded your budget! Used: {percentage:0}%";
+                    title = "Buxheti u Tejkalua";
+                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin tuaj! Përdorur: {percentage:0}%";
                     type = "Critical";
                     shouldNotify = true;
                 }
                 else if (percentage >= 95)
                 {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
+                    title = "Paralajmërim Buxheti";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 90)
                 {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
+                    title = "Paralajmërim Buxheti";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 70)
                 {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
+                    title = "Paralajmërim Buxheti";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 50 && percentage < 55)
                 {
-                    title = "👀 Budget Update";
-                    message = $"Heads up: You have used {percentage:0}% of your budget.";
+                    title = "👀 Përditësim i Buxhetit";
+                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit tuaj.";
                     type = "Info";
                     shouldNotify = true;
                 }
