@@ -24,6 +24,8 @@ namespace FinanceTracker.Server.Data.Dto
         public string? Description { get; set; }
 
         public bool IsRecurring { get; set; } = false;
+
+        public string? PhotoUrl { get; set; } = null!;
     }
 
     public class TransactionUpdateDto
@@ -45,6 +47,9 @@ namespace FinanceTracker.Server.Data.Dto
         public string? Description { get; set; }
 
         public bool? IsRecurring { get; set; }
+
+        public string? PhotoUrl { get; set; } = null!;
+
     }
 
     public class CsvTransactionDto
@@ -74,5 +79,8 @@ namespace FinanceTracker.Server.Data.Dto
         public string? Description { get; set; }
 
         public bool IsRecurring { get; set; } = false;
+
+        public string? PhotoUrl { get; set; } = null!;
+
     }
 }

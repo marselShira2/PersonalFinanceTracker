@@ -69,6 +69,7 @@
   "T.TABLE_AMOUNT": "Amount",
   "T.TABLE_RECURRING": "Recurring",
   "T.TABLE_ACTIONS": "Actions",
+  "T.TABLE_PHOTO": "Photo",
   "T.UNCATEGORIZED": "Uncategorized",
   "T.NO_TRANSACTIONS": "No transactions found.",
 
@@ -82,6 +83,7 @@
   "T.FIELD_DESCRIPTION": "Description",
   "T.FIELD_CATEGORY": "Category",
   "T.FIELD_RECURRING": "Is Recurring?",
+  "T.FIELD_PHOTO": "Photo",
 
   "T.SELECT_TYPE_PLACEHOLDER": "Select Type",
   "T.SELECT_CURRENCY_PLACEHOLDER": "Select Currency",

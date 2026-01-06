@@ -13,6 +13,7 @@ export interface TransactionCreateDto {
   categoryId?: number;
   description?: string;
   isRecurring: boolean;
+  photoUrl?: string;
 }
 
 /**
@@ -28,6 +29,7 @@ export interface TransactionUpdateDto {
   categoryId?: number;
   description?: string;
   isRecurring?: boolean;
+  photoUrl?: string;
 }
 
 @Injectable({
@@ -99,7 +101,6 @@ export class TransactionService {
    * C# Route: DELETE /api/Transactions/{id}
    */
   deleteTransaction(id: number): Observable<void> {
-    debugger
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
@@ -125,6 +126,13 @@ export class TransactionService {
   }
 
 
+  uploadPhoto(file: File): Observable<{ photoUrl: string }> {
+    const formData: FormData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<{ photoUrl: string }>(`${this.apiUrl}/upload-photo`, formData);
+  }
+
   uploadCsv(file: File): Observable<any> {
     const formData: FormData = new FormData();
     // 'file' here must match the parameter name used in your ASP.NET Core controller action (e.g., IFormFile file)
@@ -148,4 +156,5 @@ export interface Transaction {
   categoryId?: number;
   description?: string;
   category?: Category;
+  photoUrl?: string;
 }

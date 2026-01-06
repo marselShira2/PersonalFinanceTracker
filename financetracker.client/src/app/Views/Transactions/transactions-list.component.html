@@ -73,6 +73,7 @@
         <th pSortableColumn="categoryId">{{ 'T.TABLE_CATEGORY' | translate }}</th>
         <th pSortableColumn="amount">{{ 'T.TABLE_AMOUNT' | translate }} <p-sortIcon field="amount"></p-sortIcon></th>
         <th style="width: 8rem;">{{ 'T.TABLE_RECURRING' | translate }}</th>
+        <th style="width: 8rem;">{{ 'T.TABLE_PHOTO' | translate }}</th>
         <th style="width: 10rem;">{{ 'T.TABLE_ACTIONS' | translate }}</th>
       </tr>
     </ng-template>
@@ -99,6 +100,10 @@
           <i class="pi"
              [ngClass]="{'pi-check-circle text-success': transaction.isRecurring, 'pi-times-circle text-danger': !transaction.isRecurring}"></i>
         </td>
+        <td class="text-center">
+          <img *ngIf="transaction.photoUrl" [src]="transaction.photoUrl" alt="Receipt" style="max-width: 50px; max-height: 50px; cursor: pointer;" (click)="openPhotoModal(transaction.photoUrl)" />
+          <span *ngIf="!transaction.photoUrl">-</span>
+        </td>
         <td>
           <button pButton pRipple icon="pi pi-pencil"
                   class="p-button-rounded p-button-success mr-2"
@@ -112,7 +117,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="no-data">{{ 'T.NO_TRANSACTIONS' | translate }}</td>
+        <td colspan="8" class="no-data">{{ 'T.NO_TRANSACTIONS' | translate }}</td>
       </tr>
     </ng-template>
 
@@ -168,6 +173,17 @@
                   [(ngModel)]="selectedTransaction.description" rows="3"></textarea>
       </div>
 
+      <div class="field col-12">
+        <label for="photo">{{ 'T.FIELD_PHOTO' | translate }}</label>
+        <div *ngIf="selectedTransaction.photoUrl" class="mb-2">
+          <img [src]="selectedTransaction.photoUrl" alt="Current Photo" style="max-width: 100px; max-height: 100px; margin-right: 10px;" />
+          <button pButton type="button" label="Remove Photo" icon="pi pi-trash" (click)="removePhoto()" class="p-button-danger p-button-sm"></button>
+        </div>
+        <input type="file" id="photo" name="photo" accept="image/*"
+               (change)="onPhotoSelect($event)" #photoInput>
+        <small *ngIf="selectedFile">Selected: {{ selectedFile.name }}</small>
+      </div>
+
       <div class="field col-12 md:col-6">
         <label for="category">{{ 'T.FIELD_CATEGORY' | translate }}</label>
         <p-dropdown id="category" name="categoryId"
@@ -211,5 +227,17 @@
   <ng-template pTemplate="footer">
     <button pButton pRipple icon="pi pi-times" class="p-button-text" (click)="closeDeleteModal()" label="{{ 'T.BTN_NO' | translate }}"></button>
     <button pButton pRipple icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()" label="{{ 'T.BTN_YES' | translate }}"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="isPhotoModalOpen"
+          [modal]="true"
+          [closable]="false"
+          [style]="{width: 'auto', maxWidth: '90vw', maxHeight: '90vh'}">
+  <img *ngIf="selectedPhotoUrl" [src]="selectedPhotoUrl" alt="Receipt" style="max-width: 100%; max-height: 100%;" />
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Close" icon="pi pi-times"
+            (click)="isPhotoModalOpen = false"
+            class="p-button-text"></button>
   </ng-template>
 </p-dialog>
