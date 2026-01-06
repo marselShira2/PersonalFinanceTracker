@@ -12,7 +12,7 @@ public class FirebaseStorageUploader
     public FirebaseStorageUploader()
     {
         Console.WriteLine("Initializing FirebaseStorageUploader...");
-        var serviceAccountJsonPath = Path.Combine(Directory.GetCurrentDirectory(), "isefinancetracker-0fe2b2063244.json");
+        var serviceAccountJsonPath = Path.Combine(Directory.GetCurrentDirectory(), "isefinancetracker.json");
         var credential = GoogleCredential.FromFile(serviceAccountJsonPath);
         _storage = StorageClient.Create(credential);
 
