@@ -1,6 +1,7 @@
 using FinanceTracker.Server;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Repositories;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using FinanceTracker.Server.Data;
@@ -8,12 +9,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens; 
 using System.Text;
 using FinanceTracker.Server.Services;
+using OfficeOpenXml;
 
 
 //using FinanceTracker.Server.Repositories;
 //using FinanceTracker.Server.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure EPPlus
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 // Add services
 builder.Services.AddControllers();

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
+using OfficeOpenXml;
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -248,6 +249,58 @@ namespace FinanceTracker.Server.Controllers
                 }
             }
             return transactions;
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportToExcel(
+            [FromQuery] string? type,
+            [FromQuery] bool? isRecurring)
+        {
+            int userId;
+            try
+            {
+                userId = GetUserId();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
+
+            var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, type, isRecurring);
+
+            using var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Transactions");
+
+            // Headers
+            worksheet.Cells[1, 1].Value = "Date";
+            worksheet.Cells[1, 2].Value = "Type";
+            worksheet.Cells[1, 3].Value = "Amount";
+            worksheet.Cells[1, 4].Value = "Currency";
+            worksheet.Cells[1, 5].Value = "Description";
+            worksheet.Cells[1, 6].Value = "Category";
+            worksheet.Cells[1, 7].Value = "Recurring";
+
+            // Data
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                var transaction = transactions[i];
+                worksheet.Cells[i + 2, 1].Value = transaction.Date.ToString("yyyy-MM-dd");
+                worksheet.Cells[i + 2, 2].Value = transaction.Type;
+                worksheet.Cells[i + 2, 3].Value = transaction.Amount;
+                worksheet.Cells[i + 2, 4].Value = transaction.Currency;
+                worksheet.Cells[i + 2, 5].Value = transaction.Description;
+                worksheet.Cells[i + 2, 6].Value = transaction.Category?.Name ?? "Uncategorized";
+                worksheet.Cells[i + 2, 7].Value = transaction.IsRecurring ? "Yes" : "No";
+            }
+
+            worksheet.Cells.AutoFitColumns();
+
+            var stream = new MemoryStream();
+            package.SaveAs(stream);
+            stream.Position = 0;
+
+            var fileName = $"transactions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
     }
