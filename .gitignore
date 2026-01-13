@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /FinanceTracker.Server/Interfaces/INotificationRepository.cs
 /FinanceTracker.Server/Services/NotificationWorker.cs
+/FinanceTracker.Server/Controllers/TransactionsController.cs
