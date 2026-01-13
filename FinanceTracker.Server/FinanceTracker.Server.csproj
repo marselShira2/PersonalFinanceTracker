@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.13.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
 	

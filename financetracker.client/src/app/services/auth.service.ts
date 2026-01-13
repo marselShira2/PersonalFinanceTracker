@@ -230,7 +230,6 @@ export class AuthService {
   }
 
   getUserDetail = () => {
-    debugger
     const token = this.getToken();
     if (!token) return null;
 

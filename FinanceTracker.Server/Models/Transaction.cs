@@ -39,6 +39,9 @@ public partial class Transaction
     [Column("is_recurring")]
     public bool IsRecurring { get; set; } = false; // Added
 
+    [Column("photo_url")]
+    public string? PhotoUrl { get; set; }
+
     [ForeignKey("CategoryId")]
     [InverseProperty("Transactions")]
     public virtual Category? Category { get; set; }

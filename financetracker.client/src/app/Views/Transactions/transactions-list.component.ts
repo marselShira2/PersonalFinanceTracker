@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Table } from 'primeng/table';
@@ -14,6 +14,7 @@ import { Category, CategoryService } from '../../services/categories/category.se
 export class TransactionsListComponent implements OnInit {
 
   @ViewChild('dt') dt: Table | undefined;
+  @ViewChild('photoInput') photoInput: ElementRef | undefined;
 
   // Data
   transactions: Transaction[] = [];
@@ -29,11 +30,15 @@ export class TransactionsListComponent implements OnInit {
   transactionToDeleteId: any;
   isTransactionModalOpen = false;
   isEditMode = false;
+  isPhotoModalOpen = false;
+  selectedPhotoUrl: string | null = null;
 
   selectedTransaction: Transaction | TransactionCreateDto;
 
   currencies = ['USD', 'EUR', 'GBP'];
   categories: Category[] = [];
+
+  selectedFile: File | null = null;
 
   constructor(
     private transactionService: TransactionService,
@@ -58,7 +63,8 @@ export class TransactionsListComponent implements OnInit {
       // Default to first category if available, else 0
       categoryId: this.categories.length > 0 ? this.categories[0].categoryId : 0,
       description: '',
-      isRecurring: false
+      isRecurring: false,
+      photoUrl: ''
     };
   }
 
@@ -121,6 +127,10 @@ export class TransactionsListComponent implements OnInit {
     this.isEditMode = false;
     this.selectedTransaction = this.resetTransactionForm();
     this.isTransactionModalOpen = true;
+    this.selectedFile = null;
+    if (this.photoInput) {
+      this.photoInput.nativeElement.value = '';
+    }
   }
 
   // --- CRITICAL FIX FOR EDITING ---
@@ -141,6 +151,10 @@ export class TransactionsListComponent implements OnInit {
         } as Transaction;
 
         this.isTransactionModalOpen = true;
+        this.selectedFile = null;
+        if (this.photoInput) {
+          this.photoInput.nativeElement.value = '';
+        }
       }
     } catch (err) {
       console.error('Error loading transaction for editing.', err);
@@ -151,10 +165,26 @@ export class TransactionsListComponent implements OnInit {
   closeTransactionModal(): void {
     this.isTransactionModalOpen = false;
     this.selectedTransaction = this.resetTransactionForm();
+    this.selectedFile = null;
+    if (this.photoInput) {
+      this.photoInput.nativeElement.value = '';
+    }
+  }
+
+  openPhotoModal(photoUrl: string): void {
+    this.selectedPhotoUrl = photoUrl;
+    this.isPhotoModalOpen = true;
+  }
+
+  removePhoto(): void {
+    (this.selectedTransaction as any).photoUrl = null;
+    this.selectedFile = null;
+    if (this.photoInput) {
+      this.photoInput.nativeElement.value = '';
+    }
   }
 
   saveTransaction(form: NgForm): void {
-    debugger
     if (form.invalid) {
       console.error('Please fill out all required fields correctly.');
       return;
@@ -168,6 +198,7 @@ export class TransactionsListComponent implements OnInit {
       this.isLoading = false; // Spinner OFF
       this.closeTransactionModal();
       this.loadTransactions();
+      this.selectedFile = null; // Reset file
     };
 
     const handleError = (err: any) => {
@@ -175,18 +206,23 @@ export class TransactionsListComponent implements OnInit {
       console.error('Error saving transaction', err);
     };
 
-    if (this.isEditMode) {
-      const updateDto: TransactionUpdateDto = dto as TransactionUpdateDto;
-      const id = (dto as Transaction).transactionId;
+    const proceedToSave = () => {
+      if (this.isEditMode) {
+        const updateDto: TransactionUpdateDto = dto as TransactionUpdateDto;
+        const id = (dto as Transaction).transactionId;
 
-      this.transactionService.updateTransaction(id, updateDto)
-        .subscribe({ next: handleComplete, error: handleError });
-    } else {
-      const createDto: TransactionCreateDto = dto as TransactionCreateDto;
+        this.transactionService.updateTransaction(id, updateDto)
+          .subscribe({ next: handleComplete, error: handleError });
+      } else {
+        const createDto: TransactionCreateDto = dto as TransactionCreateDto;
 
-      this.transactionService.createTransaction(createDto)
-        .subscribe({ next: handleComplete, error: handleError });
-    }
+        this.transactionService.createTransaction(createDto)
+          .subscribe({ next: handleComplete, error: handleError });
+      }
+    };
+
+    // Photo is uploaded immediately on select; just proceed to save.
+    proceedToSave();
   }
 
   openDeleteModal(id: any): void {
@@ -201,10 +237,10 @@ export class TransactionsListComponent implements OnInit {
 
   confirmDelete(): void {
     debugger
-    if (this.transactionToDeleteId !== null && this.transactionToDeleteId.transactionId !== null) {
+    if (this.transactionToDeleteId !== null) {
       this.isLoading = true; // Spinner ON
-
-      this.transactionService.deleteTransaction(this.transactionToDeleteId.transactionId)
+debugger
+      this.transactionService.deleteTransaction(this.transactionToDeleteId)
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
@@ -214,6 +250,35 @@ export class TransactionsListComponent implements OnInit {
           error: (err) => {
             console.error('Error deleting transaction.', err);
             this.closeDeleteModal();
+          }
+        });
+    }
+  }
+
+  onPhotoSelect(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+
+      this.isLoading = true;
+      this.transactionService.uploadPhoto(file)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe({
+          next: (response) => {
+            (this.selectedTransaction as any).photoUrl = response.photoUrl;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Photo Uploaded',
+              detail: 'Photo uploaded successfully.'
+            });
+          },
+          error: (err) => {
+            console.error('Photo upload failed', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Photo Upload Failed',
+              detail: 'Failed to upload photo.'
+            });
           }
         });
     }

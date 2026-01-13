@@ -33,6 +33,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHostedService<RecurringExpenseService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<FinanceTracker.Server.Services.INotificationService, FinanceTracker.Server.Services.NotificationService>();
+builder.Services.AddScoped<FirebaseStorageUploader>();
 
 //builder.Services.AddHostedService<FinanceTracker.Server.Services.RecurringExpenseService>();
 //builder.Services.AddHostedService<NotificationWorker>();
@@ -62,12 +63,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy("SpecificOrigin", builder =>
     {
         builder.WithOrigins(
+                "http://localhost:4200",
                 "https://localhost:4200",
                 "https://127.0.0.1:5001",
                 "https://127.0.0.1:42312",
-                "https://localhost:4200",
                 "https://localhost:5001",
-                "https://127.0.0.1:4200"
+                "https://127.0.0.1:4200",
+                "http://127.0.0.1:4200"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

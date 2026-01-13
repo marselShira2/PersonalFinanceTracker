@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -17,11 +18,13 @@ namespace FinanceTracker.Server.Controllers
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly FinanceTracker.Server.Services.INotificationService _notificationService;
+        private readonly FirebaseStorageUploader _storageUploader;
 
-        public TransactionsController(ITransactionRepository transactionRepository, FinanceTracker.Server.Services.INotificationService notificationService)
+        public TransactionsController(ITransactionRepository transactionRepository, FinanceTracker.Server.Services.INotificationService notificationService, FirebaseStorageUploader storageUploader)
         {
             _transactionRepository = transactionRepository;
             _notificationService = notificationService;
+            _storageUploader = storageUploader;
         }
 
         private int GetUserId()
@@ -51,6 +54,8 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest("Transaction type must be 'Income' or 'Expense'.");
                 }
 
+                
+
                 var transaction = new Transaction
                 {
                     UserId = userId,
@@ -60,7 +65,8 @@ namespace FinanceTracker.Server.Controllers
                     Date = dto.Date,
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
-                    IsRecurring = dto.IsRecurring
+                    IsRecurring = dto.IsRecurring,
+                    PhotoUrl = dto.PhotoUrl
                 };
 
                 var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
@@ -86,6 +92,31 @@ namespace FinanceTracker.Server.Controllers
             catch (Exception)
             {
                 return StatusCode(500);
+            }
+        }
+
+        [HttpPost("upload-photo")]
+        
+        public async Task<IActionResult> UploadPhoto(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            try
+            {
+                // Generate a unique object name, e.g., using timestamp and user id
+                int userId = GetUserId();
+                string objectName = $"{userId}/transactions/{DateTime.UtcNow:yyyyMMddHHmmss}_{file.FileName}";
+
+                string photoUrl = await _storageUploader.UploadAsync(file, objectName);
+
+                return Ok(new { PhotoUrl = photoUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Upload failed.", Error = ex.Message });
             }
         }
 
@@ -141,6 +172,7 @@ namespace FinanceTracker.Server.Controllers
             transaction.CategoryId = dto.CategoryId ?? transaction.CategoryId;
             transaction.Description = dto.Description ?? transaction.Description;
             transaction.IsRecurring = dto.IsRecurring ?? transaction.IsRecurring;
+            transaction.PhotoUrl = dto.PhotoUrl;
 
             if (transaction.Amount <= 0 || string.IsNullOrEmpty(transaction.Currency) || string.IsNullOrEmpty(transaction.Type))
             {
@@ -255,7 +287,7 @@ namespace FinanceTracker.Server.Controllers
                             CategoryId = categoryId
                         });
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         // Log and skip bad line
                         continue;

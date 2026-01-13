@@ -4,6 +4,7 @@ using FinanceTracker.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260104221621_UpdateModels")]
+    partial class UpdateModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,10 +302,6 @@ namespace FinanceTracker.Server.Migrations
                     b.Property<bool>("IsRecurring")
                         .HasColumnType("bit")
                         .HasColumnName("is_recurring");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("photo_url");
 
                     b.Property<string>("Type")
                         .IsRequired()
