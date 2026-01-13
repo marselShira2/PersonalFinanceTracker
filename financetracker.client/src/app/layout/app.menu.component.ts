@@ -63,6 +63,12 @@ export class AppMenuComponent implements OnInit {
             icon: 'pi pi-fw pi-list',
             routerLink: ['/transactions'] // Matches router path
           },
+          // 📅 Transaction Calendar
+          {
+            label: 'Calendar View',
+            icon: 'pi pi-fw pi-calendar',
+            routerLink: ['/transaction-calendar']
+          },
           // 📁 Categories Page Item (Updated Icon)
           {
             label: 'Categories',

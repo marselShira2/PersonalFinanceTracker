@@ -10,6 +10,7 @@ import { RegisterComponent } from './demo/components/auth/register/register.comp
 import { DashboardComponent } from './demo/components/dashboard/dashboard.component'; 
 import { UserListComponent } from './Views/userList/userList.component';
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
+import { TransactionCalendarComponent } from './Views/transaction-calendar/transaction-calendar.component';
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
 import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
 import { NotificationsPageComponent } from './Views/notifications/notifications-page.component';
@@ -22,6 +23,7 @@ import { NotificationsPageComponent } from './Views/notifications/notifications-
         children: [
           { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
           { path: 'transactions', component: TransactionsListComponent, canActivate: [authGuard] },
+          { path: 'transaction-calendar', component: TransactionCalendarComponent, canActivate: [authGuard] },
           { path: 'category', component: CategoryManagementComponent, canActivate: [authGuard] },
           { path: 'expense-limit', component: ExpenseLimitComponent, canActivate: [authGuard] },
           { path: 'notifications-page', component: NotificationsPageComponent, canActivate: [authGuard] },

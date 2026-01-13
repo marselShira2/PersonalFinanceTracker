@@ -35,7 +35,7 @@ export class TransactionsListComponent implements OnInit {
 
   selectedTransaction: Transaction | TransactionCreateDto;
 
-  currencies = ['USD', 'EUR', 'GBP'];
+  currencies = ['ALL', 'USD', 'EUR', 'GBP'];
   categories: Category[] = [];
 
   selectedFile: File | null = null;

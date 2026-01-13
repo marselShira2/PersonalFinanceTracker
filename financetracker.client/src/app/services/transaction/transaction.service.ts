@@ -65,6 +65,23 @@ export class TransactionService {
   }
 
   /**
+   * Fetches transactions for calendar view with date range filtering.
+   * C# Route: GET /api/Transactions/calendar
+   */
+  getTransactionsForCalendar(startDate?: Date, endDate?: Date): Observable<Transaction[]> {
+    let params = new HttpParams();
+
+    if (startDate) {
+      params = params.set('startDate', startDate.toISOString());
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate.toISOString());
+    }
+
+    return this.http.get<Transaction[]>(`${this.apiUrl}/calendar`, { params: params });
+  }
+
+  /**
    * Fetches a single transaction by ID.
    * C# Route: GET /api/Transactions/{id}
    */

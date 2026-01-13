@@ -42,7 +42,7 @@ namespace FinanceTracker.Server.Controllers
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto)
         {
             try
-            {
+            { 
                 int userId = GetUserId();
 
                 if (dto.Amount <= 0)
@@ -136,6 +136,26 @@ namespace FinanceTracker.Server.Controllers
             }
 
             var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, type, isRecurring);
+
+            return Ok(transactions);
+        }
+
+        [HttpGet("calendar")]
+        public async Task<IActionResult> GetTransactionsForCalendar(
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate)
+        {
+            int userId;
+            try
+            {
+                userId = GetUserId();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
+
+            var transactions = await _transactionRepository.GetTransactionsByDateRangeAsync(userId, startDate, endDate);
 
             return Ok(transactions);
         }

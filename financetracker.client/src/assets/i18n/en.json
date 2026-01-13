@@ -119,6 +119,9 @@
 
   "T.CAT_DELETE_CONFIRM_TEXT": "Are you sure you want to delete the category",
   "T.IMPORT_CSV_BTN": "Import CSV",
+  "T.CALENDAR_VIEW": "Calendar View",
+  "T.CALENDAR_TITLE": "Transaction Calendar",
+  "T.CALENDAR_DETAILS": "Transaction Details",
   "DATE_RANGE": "Date Range",
   "SELECT_DATE_RANGE": "Select date range",
   "EXTRA_FILTERS": "Extra Filters",

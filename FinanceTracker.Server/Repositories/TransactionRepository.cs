@@ -187,6 +187,28 @@ namespace FinanceTracker.Server.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Transaction>> GetTransactionsByDateRangeAsync(int userId, DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.Transactions.Where(t => t.UserId == userId);
+
+            if (startDate.HasValue)
+            {
+                var startDateOnly = DateOnly.FromDateTime(startDate.Value);
+                query = query.Where(t => t.Date >= startDateOnly);
+            }
+
+            if (endDate.HasValue)
+            {
+                var endDateOnly = DateOnly.FromDateTime(endDate.Value);
+                query = query.Where(t => t.Date <= endDateOnly);
+            }
+
+            return await query
+                .Include(t => t.Category)
+                .OrderBy(t => t.Date)
+                .ToListAsync();
+        }
+
         public async Task<bool> UpdateTransactionAsync(Transaction transaction)
         {
             _context.Transactions.Update(transaction);

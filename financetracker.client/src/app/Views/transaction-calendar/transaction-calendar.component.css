@@ -1,0 +1,60 @@
+.transaction-details .field {
+  margin-bottom: 1rem;
+}
+
+.transaction-details label {
+  display: inline-block;
+  min-width: 100px;
+}
+
+:host ::ng-deep .fc {
+  font-family: inherit;
+}
+
+:host ::ng-deep .fc-event {
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+:host ::ng-deep .fc-event-title {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+:host ::ng-deep .fc-event-category {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+:host ::ng-deep .fc-daygrid-event {
+  margin: 1px 0;
+  white-space: normal;
+}
+
+:host ::ng-deep .fc-event-main-frame {
+  padding: 2px;
+}
+
+:host ::ng-deep .fc-daygrid-event-harness {
+  margin-bottom: 2px;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.card-body {
+  padding: 1rem;
+}

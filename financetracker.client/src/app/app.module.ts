@@ -88,9 +88,11 @@ import { MessageModule } from 'primeng/message';
 
 //pages
 import { TransactionsListComponent } from './Views/Transactions/transactions-list.component';
+import { TransactionCalendarComponent } from './Views/transaction-calendar/transaction-calendar.component';
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
 import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
 import { NotificationsPageComponent } from './Views/notifications/notifications-page.component';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 
 /////
@@ -101,6 +103,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   declarations: [
     AppComponent,
     TransactionsListComponent,
+    TransactionCalendarComponent,
     CategoryManagementComponent,
     ExpenseLimitComponent,
     NotificationsPageComponent,
@@ -112,7 +115,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   ],
 
 
-  imports: [AppRoutingModule, OrderListModule,  CarouselModule, ChartModule, AppLayoutModule, SkeletonModule, BadgeModule, MenuModule, TableModule, CheckboxModule, TreeTableModule, ConfirmPopupModule, ConfirmDialogModule, TabViewModule,
+  imports: [AppRoutingModule, OrderListModule, FullCalendarModule, CarouselModule, ChartModule, AppLayoutModule, SkeletonModule, BadgeModule, MenuModule, TableModule, CheckboxModule, TreeTableModule, ConfirmPopupModule, ConfirmDialogModule, TabViewModule,
     DialogModule, CommonModule, ButtonModule, InputTextModule, DropdownModule, InputTextareaModule, FormsModule, ReactiveFormsModule, ToastModule, RatingModule, CardModule, TagModule, InputNumberModule, MessageModule,
     IconFieldModule, DividerModule, InputIconModule,  HttpClientModule, ToggleButtonModule, InputSwitchModule, PasswordModule, MultiSelectModule, TimelineModule, FloatLabelModule, DialogModule, InputTextModule, InputOtpModule, 
     BreadcrumbModule, RadioButtonModule, CalendarModule, PickListModule, CdkDrag, CdkDropList, DragDropModule, TooltipModule, SliderModule, RippleModule,  OverlayPanelModule,  InputOtpModule, FileUploadModule,

@@ -1,0 +1,54 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">{{ 'T.CALENDAR_TITLE' | translate }}</h5>
+  </div>
+  <div class="card-body">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</div>
+
+<p-dialog 
+  [(visible)]="showTransactionDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [style]="{width: '450px'}"
+  [header]="'T.CALENDAR_DETAILS' | translate"
+  (onHide)="closeDialog()">
+  
+  <div *ngIf="selectedTransaction" class="transaction-details">
+    <div class="field">
+      <label class="font-semibold">{{ 'T.TABLE_TYPE' | translate }}:</label>
+      <p-tag 
+        [value]="selectedTransaction.type" 
+        [severity]="selectedTransaction.type === 'expense' ? 'danger' : 'success'">
+      </p-tag>
+    </div>
+    
+    <div class="field">
+      <label class="font-semibold">{{ 'T.TABLE_AMOUNT' | translate }}:</label>
+      <span class="ml-2" [class]="selectedTransaction.type === 'expense' ? 'text-red-500' : 'text-green-500'">
+        {{selectedTransaction.type === 'expense' ? '-' : '+'}}{{selectedTransaction.amount}} {{selectedTransaction.currency}}
+      </span>
+    </div>
+    
+    <div class="field">
+      <label class="font-semibold">{{ 'T.TABLE_DATE' | translate }}:</label>
+      <span class="ml-2">{{selectedTransaction.date | date:'mediumDate'}}</span>
+    </div>
+    
+    <div class="field" *ngIf="selectedTransaction.category">
+      <label class="font-semibold">{{ 'T.TABLE_CATEGORY' | translate }}:</label>
+      <span class="ml-2">{{selectedTransaction.category.name}}</span>
+    </div>
+    
+    <div class="field" *ngIf="selectedTransaction.description">
+      <label class="font-semibold">{{ 'T.TABLE_DESCRIPTION' | translate }}:</label>
+      <p class="mt-1">{{selectedTransaction.description}}</p>
+    </div>
+    
+    <div class="field" *ngIf="selectedTransaction.isRecurring">
+      <label class="font-semibold">{{ 'T.TABLE_RECURRING' | translate }}:</label>
+      <i class="pi pi-check-circle text-green-500 ml-2"></i>
+    </div>
+  </div>
+</p-dialog>

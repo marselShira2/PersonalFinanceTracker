@@ -15,6 +15,7 @@ namespace FinanceTracker.Server.Interfaces
         Task<bool> DeleteTransactionAsync(int transactionId, int userId);
 
         Task<List<Transaction>> GetFilteredTransactionsAsync(int userId, string? type, bool? isRecurring);
+        Task<List<Transaction>> GetTransactionsByDateRangeAsync(int userId, DateTime? startDate, DateTime? endDate);
         Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> transactions);
         Task<int> GetCategoryIdByName(string categoryName);
     }
