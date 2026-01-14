@@ -319,4 +319,36 @@ debugger
         });
     }
   }
+
+  exportToExcel(): void {
+    this.isLoading = true;
+    
+    this.transactionService.exportToExcel(this.currentFilterType)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const filterSuffix = this.currentFilterType ? `_${this.currentFilterType.toLowerCase()}` : '';
+          link.download = `transactions${filterSuffix}_${new Date().toISOString().split('T')[0]}.xlsx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Export Successful',
+            detail: 'Transactions exported to Excel successfully.'
+          });
+        },
+        error: (err) => {
+          console.error('Excel export failed:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Export Failed',
+            detail: 'An error occurred during Excel export.'
+          });
+        }
+      });
+  }
 }

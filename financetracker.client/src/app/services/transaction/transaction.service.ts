@@ -141,8 +141,19 @@ export class TransactionService {
     // Assuming the transactions controller URL is 'api/transactions'
     // and the import endpoint is 'api/transactions/import'
     return this.http.post(`${this.apiUrl}/import`, formData);
+  }
 
-
+  exportToExcel(type?: string, isRecurring?: boolean): Observable<Blob> {
+    let params = new HttpParams();
+    
+    if (type) {
+      params = params.set('type', type);
+    }
+    if (isRecurring !== undefined && isRecurring !== null) {
+      params = params.set('isRecurring', isRecurring.toString());
+    }
+    
+    return this.http.get(`${this.apiUrl}/export`, { params: params, responseType: 'blob' });
   }
 }
  

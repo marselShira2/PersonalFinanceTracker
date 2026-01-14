@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -295,46 +294,6 @@ namespace FinanceTracker.Server.Controllers
                 }
             }
             return transactions;
-        }
-
-        private async Task CheckSavingsGoalProgress(int userId)
-        {
-            try
-            {
-                // Get user's total balance (income - expenses)
-                var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, null, null);
-                var totalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => t.Amount);
-                var totalExpenses = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => t.Amount);
-                var currentBalance = totalIncome - totalExpenses;
-                
-                // Assume a savings goal of $10,000 (this could be made configurable per user)
-                decimal savingsGoal = 10000m;
-                decimal percentage = (currentBalance / savingsGoal) * 100;
-                
-                // Notify at 25%, 50%, 75%, and 100%
-                if (percentage >= 100 && currentBalance >= savingsGoal)
-                {
-                    await _notificationService.CreateSavingsGoalAchievedAsync(userId, savingsGoal);
-                }
-                else if (percentage >= 75 && percentage < 100)
-                {
-                    // Check if we haven't already sent this milestone notification
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 75);
-                }
-                else if (percentage >= 50 && percentage < 75)
-                {
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 50);
-                }
-                else if (percentage >= 25 && percentage < 50)
-                {
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 25);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error but don't fail the transaction
-                Console.WriteLine($"Error checking savings goal progress: {ex.Message}");
-            }
         }
 
     }
