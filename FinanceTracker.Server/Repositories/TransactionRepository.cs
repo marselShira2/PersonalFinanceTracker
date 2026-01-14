@@ -92,6 +92,11 @@ namespace FinanceTracker.Server.Repositories
             return transaction;
         }
 
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
         public async Task<Transaction?> GetTransactionByIdAsync(int transactionId, int userId)
         {
             return await _context.Transactions

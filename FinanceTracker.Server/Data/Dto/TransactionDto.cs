@@ -13,10 +13,6 @@ namespace FinanceTracker.Server.Data.Dto
         public decimal Amount { get; set; }
 
         [Required]
-        [StringLength(5)]
-        public string Currency { get; set; } = null!;
-
-        [Required]
         public DateOnly Date { get; set; }
 
         public int? CategoryId { get; set; }

@@ -2,13 +2,9 @@
 {
     public interface IVerificationStore
     {
-        void AddCode(int userId, string code);
-
-        // Check if the provided code is valid for any user
-        (bool IsValid, int UserId) ValidateCode(string code);
-
+        void AddCode(string email, string code, string username, string hashedPassword, string currency);
+        (bool IsValid, string Email, string Username, string HashedPassword, string Currency) ValidateCode(string code);
         bool IsUserVerified(int userId);
-
         void SetUserVerified(int userId);
     }
 }

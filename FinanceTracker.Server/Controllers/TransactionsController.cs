@@ -53,14 +53,18 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest("Transaction type must be 'Income' or 'Expense'.");
                 }
 
-                
+                var user = await _transactionRepository.GetUserByIdAsync(userId);
+                if (user == null)
+                {
+                    return Unauthorized("User not found.");
+                }
 
                 var transaction = new Transaction
                 {
                     UserId = userId,
                     Type = dto.Type,
                     Amount = dto.Amount,
-                    Currency = dto.Currency,
+                    Currency = user.DefaultCurrency,
                     Date = dto.Date,
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
@@ -71,9 +75,6 @@ namespace FinanceTracker.Server.Controllers
                 };
 
                 var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
-                
-                
-            
                 
                 return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }

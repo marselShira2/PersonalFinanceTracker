@@ -164,15 +164,6 @@
                     required></p-calendar>
       </div>
 
-      <div class="field col-12 md:col-6">
-        <label for="currency">{{ 'T.FIELD_CURRENCY' | translate }}*</label>
-        <p-dropdown id="currency" name="currency"
-                    [(ngModel)]="selectedTransaction.currency"
-                    [options]="currencies"
-                    placeholder="{{ 'T.SELECT_CURRENCY_PLACEHOLDER' | translate }}"
-                    required></p-dropdown>
-      </div>
-
       <div class="field col-12">
         <label for="description">{{ 'T.FIELD_DESCRIPTION' | translate }}</label>
         <textarea id="description" pInputTextarea name="description"

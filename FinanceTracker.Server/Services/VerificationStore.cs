@@ -1,25 +1,39 @@
 ﻿using FinanceTracker.Server.Interfaces;
 using System.Collections.Concurrent;
+
 namespace FinanceTracker.Server.Services
 {
     public class VerificationStore : IVerificationStore
     {
-        private readonly ConcurrentDictionary<string, int> _codes = new ConcurrentDictionary<string, int>();
-        private readonly ConcurrentDictionary<int, bool> _verifiedUsers = new ConcurrentDictionary<int, bool>();
-
-        public void AddCode(int userId, string code)
+        private class PendingRegistration
         {
-            _codes.TryAdd(code, userId);
-            _verifiedUsers.TryAdd(userId, false); // Initialize as unverified
+            public string Email { get; set; } = null!;
+            public string Username { get; set; } = null!;
+            public string HashedPassword { get; set; } = null!;
+            public string Currency { get; set; } = null!;
         }
 
-        public (bool IsValid, int UserId) ValidateCode(string code)
+        private readonly ConcurrentDictionary<string, PendingRegistration> _codes = new();
+        private readonly ConcurrentDictionary<int, bool> _verifiedUsers = new();
+
+        public void AddCode(string email, string code, string username, string hashedPassword, string currency)
         {
-            if (_codes.TryRemove(code, out int userId))
+            _codes[code] = new PendingRegistration
             {
-                return (true, userId);
+                Email = email,
+                Username = username,
+                HashedPassword = hashedPassword,
+                Currency = currency
+            };
+        }
+
+        public (bool IsValid, string Email, string Username, string HashedPassword, string Currency) ValidateCode(string code)
+        {
+            if (_codes.TryRemove(code, out var registration))
+            {
+                return (true, registration.Email, registration.Username, registration.HashedPassword, registration.Currency);
             }
-            return (false, 0);
+            return (false, string.Empty, string.Empty, string.Empty, string.Empty);
         }
 
         public bool IsUserVerified(int userId)
@@ -29,8 +43,7 @@ namespace FinanceTracker.Server.Services
 
         public void SetUserVerified(int userId)
         {
-            // Set the user's status to true
-            _verifiedUsers.TryUpdate(userId, true, false);
+            _verifiedUsers[userId] = true;
         }
     }
 }

@@ -43,6 +43,10 @@ public partial class User
     [Column("reset_token_expiry", TypeName = "datetime")]
     public DateTime? ResetTokenExpiry { get; set; } 
 
+    [Column("default_currency")]
+    [StringLength(3)]
+    public string DefaultCurrency { get; set; } = null!;
+
     [InverseProperty("User")]
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
 

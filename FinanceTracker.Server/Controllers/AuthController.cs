@@ -38,7 +38,6 @@ namespace FinanceTracker.Server.Controllers
         {
             try
             {
-
                 if (!IsValidEmail(userDto.Email))
                 {
                     return BadRequest("Invalid email format.");
@@ -56,43 +55,34 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest(passwordValidationResult.ErrorMessage);
                 }
 
-                string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
-
-                var newUser = new User
+                if (string.IsNullOrEmpty(userDto.DefaultCurrency))
                 {
+                    return BadRequest("Default currency is required.");
+                }
 
-                    Name = userDto.Username,
-                    Email = userDto.Email,
-                    Password = hashedPassword,
-                    IsVerified = false
-                };
-
-                await _userRepository.AddUserAsync(newUser);
-
+                string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
                 string verificationCode = new Random().Next(100000, 999999).ToString();
+                
+                Console.WriteLine($"[Registration] Generated code {verificationCode} for {userDto.Email}");
 
-                _verificationStore.AddCode(newUser.UserId, verificationCode);
+                _verificationStore.AddCode(userDto.Email, verificationCode, userDto.Username, hashedPassword, userDto.DefaultCurrency);
 
                 var emailBody = $"Your Finance Tracker verification code is: <strong>{verificationCode}</strong>. Please enter this code in the app to activate your account.";
 
+                Console.WriteLine($"[Registration] Attempting to send email to {userDto.Email}");
                 await _emailService.SendEmailAsync(
-                    newUser.Email,
+                    userDto.Email,
                     "Your Account Verification Code",
                     emailBody
                 );
+                Console.WriteLine($"[Registration] Email send completed for {userDto.Email}");
 
-                var responseData = new
+                return Accepted(new
                 {
                     success = true,
-                    newUser.UserId,
-                    newUser.Name,
-                    newUser.Email,
-
+                    Email = userDto.Email,
                     Message = "Registration successful. Please enter the 6-digit code sent to your email to verify your account."
-                };
-
-                // Change the return status to 202 Accepted.
-                return Accepted(responseData);
+                });
             }
             catch (Exception ex)
             {
@@ -104,25 +94,29 @@ namespace FinanceTracker.Server.Controllers
         [HttpPost("verify-code")]
         public async Task<IActionResult> VerifyCode([FromBody] UserVerifyCodeDto dto)
         {
-            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
-
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
-
             var validationResult = _verificationStore.ValidateCode(dto.Code);
 
-            if (!validationResult.IsValid || validationResult.UserId != user.UserId)
+            if (!validationResult.IsValid)
             {
                 return BadRequest("Invalid or expired verification code.");
             }
 
-            user.IsVerified = true;
-            await _userRepository.SaveChangesAsync();
-            
-            // Create welcome notification
-            await _notificationService.CreateWelcomeNotificationAsync(user.UserId, user.Name);
+            var existingUser = await _userRepository.GetUserByEmailAsync(validationResult.Email);
+            if (existingUser != null)
+            {
+                return Conflict("An account with this email already exists.");
+            }
+
+            var newUser = new User
+            {
+                Name = validationResult.Username,
+                Email = validationResult.Email,
+                Password = validationResult.HashedPassword,
+                IsVerified = true,
+                DefaultCurrency = validationResult.Currency
+            };
+
+            await _userRepository.AddUserAsync(newUser);
 
             return Ok(new { Message = "Account successfully verified. You can now log in." });
         }
@@ -130,25 +124,7 @@ namespace FinanceTracker.Server.Controllers
         [HttpPost("resend-code")]
         public async Task<IActionResult> ResendCode([FromBody] UserVerifyCodeDto dto)
         {
-            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
-            if (user == null)
-                return NotFound("User not found.");
-
-            if (user.IsVerified)
-                return BadRequest("User is already verified.");
-
-            string newCode = new Random().Next(100000, 999999).ToString();
-            _verificationStore.AddCode(user.UserId, newCode);
-
-            var emailBody = $"Your new Finance Tracker verification code is: <strong>{newCode}</strong>. Please enter this code to activate your account.";
-
-            await _emailService.SendEmailAsync(
-                user.Email,
-                "Your New Verification Code",
-                emailBody
-            );
-
-            return Ok(new { Message = "A new verification code has been sent to your email." });
+            return BadRequest("Resend code is not supported. Please register again.");
         }
 
 
