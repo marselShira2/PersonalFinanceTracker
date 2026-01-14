@@ -1,0 +1,41 @@
+### Test Expense Limit API
+
+### 1. Set Monthly Limit for Category (Current Month)
+POST https://localhost:7062/api/ExpenseLimit
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "categoryId": 1,
+  "amount": 500.00
+}
+
+### 2. Set Monthly Limit for Specific Month
+POST https://localhost:7062/api/ExpenseLimit
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "categoryId": 2,
+  "amount": 300.00,
+  "month": 1,
+  "year": 2026
+}
+
+### 3. Get Limit Status for Category (Current Month)
+GET https://localhost:7062/api/ExpenseLimit/1/category/1
+
+### 4. Get Limit Status for Specific Month
+GET https://localhost:7062/api/ExpenseLimit/1/category/2?month=1&year=2026
+
+### 5. Get All Limits for User (Current Month)
+GET https://localhost:7062/api/ExpenseLimit/1
+
+### 6. Get All Limits for Specific Month
+GET https://localhost:7062/api/ExpenseLimit/1?month=1&year=2026
+
+### 7. Delete Limit
+DELETE https://localhost:7062/api/ExpenseLimit/1/category/1
+
+### 8. Delete Limit for Specific Month
+DELETE https://localhost:7062/api/ExpenseLimit/1/category/2?month=1&year=2026

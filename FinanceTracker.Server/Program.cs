@@ -11,10 +11,6 @@ using System.Text;
 using FinanceTracker.Server.Services;
 using OfficeOpenXml;
 
-
-//using FinanceTracker.Server.Repositories;
-//using FinanceTracker.Server.Interfaces;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure EPPlus
@@ -33,8 +29,6 @@ builder.Services.AddSingleton<FinanceTracker.Server.Interfaces.IVerificationStor
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IExpenseLimitRepository, ExpenseLimitRepository>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-// Add this line where you register your other services (Repositories, etc.)
 builder.Services.AddHostedService<RecurringExpenseService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<FinanceTracker.Server.Services.INotificationService, FinanceTracker.Server.Services.NotificationService>();

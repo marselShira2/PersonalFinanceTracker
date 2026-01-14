@@ -2,11 +2,13 @@
 {
     public class LimitStatusDto
     {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
         public decimal LimitAmount { get; set; }
-        public decimal Balance { get; set; }
         public decimal SpentAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
         public decimal PercentageSpent { get; set; }
-        public string WarningMessage { get; set; } // The new message field
-        public bool IsActive { get; set; }
+        public int Month { get; set; }
+        public int Year { get; set; }
     }
 }

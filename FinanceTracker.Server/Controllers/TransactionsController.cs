@@ -70,17 +70,8 @@ namespace FinanceTracker.Server.Controllers
 
                 var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
                 
-                // Check for large expense alert (over $500)
-                if (dto.Type.ToLower() == "expense" && dto.Amount >= 500)
-                {
-                    await _notificationService.CreateLargeExpenseAlertAsync(userId, dto.Amount, dto.Description ?? "Large expense");
-                }
                 
-                // Check savings goal progress for income transactions
-                if (dto.Type.ToLower() == "income")
-                {
-                    await CheckSavingsGoalProgress(userId);
-                }
+            
                 
                 return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }

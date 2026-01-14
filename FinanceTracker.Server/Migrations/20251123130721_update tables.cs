@@ -10,12 +10,7 @@ namespace FinanceTracker.Server.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "is_recurring",
-                table: "transactions",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            // Column already exists in database, skip
         }
 
         /// <inheritdoc />

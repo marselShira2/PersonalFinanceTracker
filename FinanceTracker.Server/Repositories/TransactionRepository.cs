@@ -19,91 +19,33 @@ namespace FinanceTracker.Server.Repositories
 
         private async Task ProcessExpenseLogicAsync(Transaction transaction)
         {
-            // 1. Get the Budget Limit for this user
-            var expenseLimit = await _context.ExpenseLimits
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(e => e.UserId == transaction.UserId && e.IsActive);
+            // Get User Email
+            var user = await _context.Users.FindAsync(transaction.UserId);
+            string? userEmail = user?.Email;
 
-            // 2. Subtract the amount from the budget (if a budget exists)
-            if (expenseLimit != null)
-            {
-                expenseLimit.Balance -= transaction.Amount;
-                _context.ExpenseLimits.Update(expenseLimit);
-            }
+            // Check for Alerts
+            await CheckAndNotifyAsync(transaction, userEmail);
 
-            // 3. Get User Email safely
-            string? userEmail = expenseLimit?.User?.Email;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                var user = await _context.Users.FindAsync(transaction.UserId);
-                userEmail = user?.Email;
-            }
-
-            // 4. Check for Alerts
-            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail);
-
-            // 5. Save the Budget updates and Notifications
+            // Save Notifications
             await _context.SaveChangesAsync();
         }
 
-        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail)
+        private async Task CheckAndNotifyAsync(Transaction transaction, string? userEmail)
         {
             string title = "";
             string message = "";
             string type = "Info";
             bool shouldNotify = false;
 
-            // Check Budget Percentage
-            if (limit != null && limit.LimitAmount > 0)
-            {
-                decimal spent = limit.LimitAmount - limit.Balance;
-                decimal percentage = (limit.LimitAmount > 0) ? (spent / limit.LimitAmount) * 100 : 0;
-
-                if (percentage >= 100)
-                {
-                    title = "Budget Exceeded";
-                    message = $"🚨 ALERT: You have exceeded your budget! Used: {percentage:0}%";
-                    type = "Critical";
-                    shouldNotify = true;
-                }
-                else if (percentage >= 95)
-                {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
-                    type = "Warning";
-                    shouldNotify = true;
-                }
-                else if (percentage >= 90)
-                {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
-                    type = "Warning";
-                    shouldNotify = true;
-                }
-                else if (percentage >= 70)
-                {
-                    title = "Budget Warning";
-                    message = $"⚠️ DANGER: You have used {percentage:0}% of your budget!";
-                    type = "Warning";
-                    shouldNotify = true;
-                }
-                else if (percentage >= 50 && percentage < 55)
-                {
-                    title = "👀 Budget Update";
-                    message = $"Heads up: You have used {percentage:0}% of your budget.";
-                    type = "Info";
-                    shouldNotify = true;
-                }
-            }
-
-            // Check Recurring Confirmation (only if not Critical)
-            if (transaction.IsRecurring == true && type != "Critical")
+            // Check Recurring Confirmation
+            if (transaction.IsRecurring == true)
             {
                 title = "Pagese e perseritshme";
                 message = $"🔄 Pagesa e perseritshme e {transaction.Amount} {transaction.Currency} u rregjistrua.";
                 type = "Info";
                 shouldNotify = true;
             }
+
             // Save Notification & Send Email
             if (shouldNotify)
             {
@@ -127,7 +69,6 @@ namespace FinanceTracker.Server.Repositories
                     }
                     catch (Exception ex)
                     {
-                        // 👇 Now you will see the error in your debugger console
                         Console.WriteLine($"[Error] Email failed to send: {ex.Message}");
                     }
                 }

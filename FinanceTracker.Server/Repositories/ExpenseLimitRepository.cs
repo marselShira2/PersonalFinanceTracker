@@ -14,37 +14,26 @@ namespace FinanceTracker.Server.Repositories
             _context = context;
         }
 
-        public async Task<ExpenseLimit?> GetLimitAsync(int userId)
+        public async Task<ExpenseLimit> SetLimitAsync(int userId, int categoryId, decimal amount, int month, int year)
         {
-            return await _context.ExpenseLimits
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-        }
-
-        public async Task<ExpenseLimit> SetLimitAsync(int userId, decimal amount)
-        {
-            var limit = await _context.ExpenseLimits.FirstOrDefaultAsync(x => x.UserId == userId);
+            var limit = await _context.ExpenseLimits
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
 
             if (limit == null)
             {
-                // Create new limit logic
                 limit = new ExpenseLimit
                 {
                     UserId = userId,
+                    CategoryId = categoryId,
                     LimitAmount = amount,
-                    Balance = amount, // Start with full balance
-                    StartDate = DateOnly.FromDateTime(DateTime.Now),
-                    IsActive = true
+                    Month = month,
+                    Year = year
                 };
                 _context.ExpenseLimits.Add(limit);
             }
             else
             {
-                // Update existing logic - preserve current balance
-                decimal currentSpent = limit.LimitAmount - limit.Balance;
                 limit.LimitAmount = amount;
-                limit.Balance = amount - currentSpent; // Preserve spending progress
-                limit.StartDate = DateOnly.FromDateTime(DateTime.Now);
-                limit.IsActive = true;
                 _context.ExpenseLimits.Update(limit);
             }
 
@@ -52,17 +41,41 @@ namespace FinanceTracker.Server.Repositories
             return limit;
         }
 
-        public async Task<ExpenseLimit?> ToggleLimitAsync(int userId, bool isActive)
+        public async Task<ExpenseLimit?> GetLimitAsync(int userId, int categoryId, int month, int year)
         {
-            var limit = await _context.ExpenseLimits.FirstOrDefaultAsync(x => x.UserId == userId);
-            
-            if (limit == null) return null;
-            
-            limit.IsActive = isActive;
-            _context.ExpenseLimits.Update(limit);
+            return await _context.ExpenseLimits
+                .Include(x => x.Category)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
+        }
+
+        public async Task<List<ExpenseLimit>> GetAllLimitsAsync(int userId, int month, int year)
+        {
+            return await _context.ExpenseLimits
+                .Include(x => x.Category)
+                .Where(x => x.UserId == userId && x.Month == month && x.Year == year)
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeleteLimitAsync(int userId, int categoryId, int month, int year)
+        {
+            var limit = await _context.ExpenseLimits
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
+
+            if (limit == null) return false;
+
+            _context.ExpenseLimits.Remove(limit);
             await _context.SaveChangesAsync();
-            
-            return limit;
+            return true;
+        }
+
+        public async Task<decimal> GetCategorySpentAsync(int userId, int categoryId, int month, int year)
+        {
+            var startDate = new DateOnly(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            return await _context.Transactions
+                .Where(x => x.UserId == userId && x.CategoryId == categoryId && x.Type == "expense" && x.Date >= startDate && x.Date <= endDate)
+                .SumAsync(x => (decimal?)x.Amount) ?? 0;
         }
     }
 }
