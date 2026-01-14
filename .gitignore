@@ -361,6 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/FinanceTracker.Server/Interfaces/INotificationRepository.cs
-/FinanceTracker.Server/Services/NotificationWorker.cs
-/FinanceTracker.Server/Controllers/TransactionsController.cs
+/FinanceTracker.Server/isefinancetracker.json
