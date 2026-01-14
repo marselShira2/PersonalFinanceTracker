@@ -156,6 +156,15 @@
       </div>
 
       <div class="field col-12 md:col-6">
+        <label for="currency">{{ 'T.FIELD_CURRENCY' | translate }}*</label>
+        <p-dropdown id="currency" name="currency"
+                    [(ngModel)]="selectedTransaction.currency"
+                    [options]="currencies"
+                    placeholder="Select Currency"
+                    required></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6">
         <label for="date">{{ 'T.FIELD_DATE' | translate }}*</label>
         <p-calendar id="date" name="date"
                     [(ngModel)]="selectedTransaction.date"

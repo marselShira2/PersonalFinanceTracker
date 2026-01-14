@@ -8,6 +8,7 @@ import { tap } from 'rxjs/operators';
 export interface TransactionCreateDto {
   type: string;
   amount: number;
+  currency: string;
   date: Date; // Keep as Date for component use
   categoryId?: number;
   description?: string;
