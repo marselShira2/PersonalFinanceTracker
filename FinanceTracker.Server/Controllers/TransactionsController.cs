@@ -65,6 +65,8 @@ namespace FinanceTracker.Server.Controllers
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
                     IsRecurring = dto.IsRecurring,
+                    RecurringFrequency = dto.RecurringFrequency,
+                    NextOccurrenceDate = dto.IsRecurring ? (dto.NextOccurrenceDate ?? CalculateNextOccurrence(dto.Date, dto.RecurringFrequency)) : null,
                     PhotoUrl = dto.PhotoUrl
                 };
 
@@ -162,6 +164,8 @@ namespace FinanceTracker.Server.Controllers
             transaction.CategoryId = dto.CategoryId ?? transaction.CategoryId;
             transaction.Description = dto.Description ?? transaction.Description;
             transaction.IsRecurring = dto.IsRecurring ?? transaction.IsRecurring;
+            transaction.RecurringFrequency = dto.RecurringFrequency ?? transaction.RecurringFrequency;
+            transaction.NextOccurrenceDate = dto.NextOccurrenceDate ?? transaction.NextOccurrenceDate;
             transaction.PhotoUrl = dto.PhotoUrl;
 
             if (transaction.Amount <= 0 || string.IsNullOrEmpty(transaction.Currency) || string.IsNullOrEmpty(transaction.Type))
@@ -285,6 +289,18 @@ namespace FinanceTracker.Server.Controllers
                 }
             }
             return transactions;
+        }
+
+        private DateOnly CalculateNextOccurrence(DateOnly current, string? frequency)
+        {
+            return frequency?.ToLower() switch
+            {
+                "daily" => current.AddDays(1),
+                "weekly" => current.AddDays(7),
+                "monthly" => current.AddMonths(1),
+                "yearly" => current.AddYears(1),
+                _ => current.AddMonths(1)
+            };
         }
 
     }

@@ -167,11 +167,12 @@ namespace FinanceTracker.Server.Repositories
                     Type = dto.Type,
                     Amount = dto.Amount,
                     Currency = dto.Currency,
-                    // Convert DateTime (from CSV) back to DateOnly (for EF Core Model)
                     Date = DateOnly.FromDateTime(dto.Date),
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
-                    IsRecurring = dto.IsRecurring
+                    IsRecurring = dto.IsRecurring,
+                    RecurringFrequency = dto.RecurringFrequency,
+                    NextOccurrenceDate = dto.IsRecurring ? (dto.NextOccurrenceDate ?? CalculateNextOccurrence(DateOnly.FromDateTime(dto.Date), dto.RecurringFrequency)) : null
                 }).ToList();
 
             // 2. Perform Batch Insertion
@@ -195,6 +196,18 @@ namespace FinanceTracker.Server.Repositories
             {
 
             }
+        }
+
+        private DateOnly CalculateNextOccurrence(DateOnly current, string? frequency)
+        {
+            return frequency?.ToLower() switch
+            {
+                "daily" => current.AddDays(1),
+                "weekly" => current.AddDays(7),
+                "monthly" => current.AddMonths(1),
+                "yearly" => current.AddYears(1),
+                _ => current.AddMonths(1)
+            };
         }
     }
 }

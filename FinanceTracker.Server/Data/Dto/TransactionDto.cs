@@ -25,6 +25,11 @@ namespace FinanceTracker.Server.Data.Dto
 
         public bool IsRecurring { get; set; } = false;
 
+        [StringLength(20)]
+        public string? RecurringFrequency { get; set; }
+
+        public DateOnly? NextOccurrenceDate { get; set; }
+
         public string? PhotoUrl { get; set; } = null!;
     }
 
@@ -47,6 +52,11 @@ namespace FinanceTracker.Server.Data.Dto
         public string? Description { get; set; }
 
         public bool? IsRecurring { get; set; }
+
+        [StringLength(20)]
+        public string? RecurringFrequency { get; set; }
+
+        public DateOnly? NextOccurrenceDate { get; set; }
 
         public string? PhotoUrl { get; set; } = null!;
 
@@ -79,6 +89,11 @@ namespace FinanceTracker.Server.Data.Dto
         public string? Description { get; set; }
 
         public bool IsRecurring { get; set; } = false;
+
+        [StringLength(20)]
+        public string? RecurringFrequency { get; set; }
+
+        public DateOnly? NextOccurrenceDate { get; set; }
 
         public string? PhotoUrl { get; set; } = null!;
 
