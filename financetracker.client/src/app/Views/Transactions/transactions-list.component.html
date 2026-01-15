@@ -101,7 +101,14 @@
             {{ 'T.UNCATEGORIZED' | translate }}
           </span>
         </td>
-        <td>{{ transaction.amount | currency: transaction.currency : 'symbol' }}</td>
+        <td>
+          <div class="amount-display">
+            <span class="converted-amount">{{ transaction | currencyDisplay }}</span>
+            <small *ngIf="transaction.amountConverted && transaction.currency !== getCurrentCurrency()" class="original-amount">
+              ({{ transaction | currencyDisplay:true }})
+            </small>
+          </div>
+        </td>
         <td class="text-center">
           <i class="pi"
              [ngClass]="{'pi-check-circle text-success': transaction.isRecurring, 'pi-times-circle text-danger': !transaction.isRecurring}"></i>

@@ -19,6 +19,7 @@ namespace FinanceTracker.Server.Interfaces
         Task<List<Transaction>> GetTransactionsByDateRangeAsync(int userId, DateTime? startDate, DateTime? endDate);
         Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> transactions);
         Task<int> GetCategoryIdByName(string categoryName);
+        Task RecalculateTransactionCurrenciesAsync(int userId, string newDefaultCurrency);
     }
 
 }

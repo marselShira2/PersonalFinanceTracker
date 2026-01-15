@@ -49,6 +49,12 @@ public partial class Transaction
     [Column("photo_url")]
     public string? PhotoUrl { get; set; }
 
+    [Column("amount_converted", TypeName = "decimal(12, 2)")]
+    public decimal? AmountConverted { get; set; }
+
+    [Column("conversion_rate", TypeName = "decimal(10, 6)")]
+    public decimal? ConversionRate { get; set; }
+
     [ForeignKey("CategoryId")]
     [InverseProperty("Transactions")]
     public virtual Category? Category { get; set; }

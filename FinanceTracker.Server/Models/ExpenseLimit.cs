@@ -21,6 +21,13 @@ namespace FinanceTracker.Server.Models
 
         [Column("limit_amount", TypeName = "decimal(18,2)")]
         public decimal LimitAmount { get; set; }
+        [Column("balance", TypeName = "decimal(18,2)")] // Maps C# "Balance" to SQL "balance"
+        public decimal Balance { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+        [Column("start_date")]
+        public DateOnly StartDate { get; set; }
 
         [Column("month")]
         public int Month { get; set; }

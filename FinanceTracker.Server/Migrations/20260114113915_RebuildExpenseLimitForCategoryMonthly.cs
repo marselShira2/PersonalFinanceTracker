@@ -55,7 +55,7 @@ namespace FinanceTracker.Server.Migrations
                 column: "category_id",
                 principalTable: "categories",
                 principalColumn: "category_id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
         }
 
         /// <inheritdoc />

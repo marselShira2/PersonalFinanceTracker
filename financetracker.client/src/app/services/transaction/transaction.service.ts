@@ -179,6 +179,8 @@ export interface Transaction {
   type: string;
   amount: number;
   currency: string;
+  amountConverted?: number;
+  conversionRate?: number;
   date: string | Date; // Can be string from API or Date after parsing/setting
   isRecurring: boolean;
   categoryId?: number;

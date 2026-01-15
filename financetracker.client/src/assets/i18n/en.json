@@ -198,5 +198,29 @@
   "CANCEL": "Cancel",
   "YES": "Yes",
   "NO": "No",
-  "SUCCESS": "Success"
+  "SUCCESS": "Success",
+
+  "CURRENCY": {
+    "SETTINGS_TITLE": "Currency Settings",
+    "SETTINGS_SUBTITLE": "Set your default currency for transactions",
+    "DEFAULT_CURRENCY": "Default Currency",
+    "SELECT_PLACEHOLDER": "Select a currency",
+    "SAVE_BTN": "Save",
+    "SUCCESS_TITLE": "Success",
+    "ERROR_TITLE": "Error",
+    "UPDATE_SUCCESS": "Default currency updated to {{currency}}",
+    "UPDATE_ERROR": "Failed to update currency",
+    "LOAD_ERROR": "Failed to load current currency"
+  },
+  "MENU": {
+    "SETTINGS": "SETTINGS",
+    "USER_PROFILE": "User Profile",
+    "HOME": "HOME",
+    "DASHBOARD": "Dashboard",
+    "FINANCE_TRACKING": "FINANCE TRACKING",
+    "TRANSACTIONS": "Transactions",
+    "CALENDAR_VIEW": "Calendar View",
+    "CATEGORIES": "Categories",
+    "EXPENSE_LIMIT": "Expense Limit"
+  }
 }

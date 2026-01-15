@@ -3,6 +3,7 @@
 using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -18,12 +19,14 @@ namespace FinanceTracker.Server.Controllers
         private readonly ITransactionRepository _transactionRepository;
         private readonly FinanceTracker.Server.Services.INotificationService _notificationService;
         private readonly FirebaseStorageUploader _storageUploader;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public TransactionsController(ITransactionRepository transactionRepository, FinanceTracker.Server.Services.INotificationService notificationService, FirebaseStorageUploader storageUploader)
+        public TransactionsController(ITransactionRepository transactionRepository, FinanceTracker.Server.Services.INotificationService notificationService, FirebaseStorageUploader storageUploader, ICurrencyConversionService currencyService)
         {
             _transactionRepository = transactionRepository;
             _notificationService = notificationService;
             _storageUploader = storageUploader;
+            _currencyService = currencyService;
         }
 
         private int GetUserId()
@@ -59,12 +62,24 @@ namespace FinanceTracker.Server.Controllers
                     return Unauthorized("User not found.");
                 }
 
+                // Calculate converted amount and rate
+                decimal convertedAmount = dto.Amount;
+                decimal? conversionRate = null;
+                
+                if (!string.Equals(dto.Currency, user.DefaultCurrency, StringComparison.OrdinalIgnoreCase))
+                {
+                    conversionRate = await _currencyService.GetConversionRateAsync(dto.Currency, user.DefaultCurrency);
+                    convertedAmount = await _currencyService.ConvertAmountAsync(dto.Amount, dto.Currency, user.DefaultCurrency);
+                }
+
                 var transaction = new Transaction
                 {
                     UserId = userId,
                     Type = dto.Type,
                     Amount = dto.Amount,
-                    Currency = user.DefaultCurrency,
+                    Currency = dto.Currency,
+                    AmountConverted = convertedAmount,
+                    ConversionRate = conversionRate,
                     Date = dto.Date,
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
@@ -129,6 +144,26 @@ namespace FinanceTracker.Server.Controllers
             }
 
             var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, type, isRecurring);
+
+            // Recalculate any missing conversions
+            var user = await _transactionRepository.GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                foreach (var transaction in transactions)
+                {
+                    if (transaction.AmountConverted == null && transaction.Currency != user.DefaultCurrency)
+                    {
+                        var rate = await _currencyService.GetConversionRateAsync(transaction.Currency, user.DefaultCurrency);
+                        transaction.AmountConverted = await _currencyService.ConvertAmountAsync(transaction.Amount, transaction.Currency, user.DefaultCurrency);
+                        transaction.ConversionRate = rate;
+                    }
+                    else if (transaction.Currency == user.DefaultCurrency)
+                    {
+                        transaction.AmountConverted = transaction.Amount;
+                        transaction.ConversionRate = null;
+                    }
+                }
+            }
 
             return Ok(transactions);
         }

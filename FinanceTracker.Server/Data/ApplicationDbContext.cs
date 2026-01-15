@@ -107,6 +107,19 @@ namespace FinanceTracker.Server.Data
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             });
 
+            modelBuilder.Entity<ExpenseLimit>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                      .WithMany()
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .HasConstraintName("FK_expense_limits_users_user_id");
+
+                entity.HasOne(d => d.Category)
+                      .WithMany()
+                      .OnDelete(DeleteBehavior.NoAction)
+                      .HasConstraintName("FK_expense_limits_categories_category_id");
+            });
+
             base.OnModelCreating(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
         }

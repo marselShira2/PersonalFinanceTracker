@@ -2,6 +2,7 @@
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,6 +52,56 @@ namespace FinanceTracker.Server.Controllers
             var allUsers = await _userRepository.GetAllUsers();
             
             return Ok(allUsers);
+        }
+
+        [HttpPut("currency")]
+        [Authorize]
+        public async Task<IActionResult> UpdateDefaultCurrency([FromBody] UpdateCurrencyDto dto)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user ID.");
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var oldCurrency = user.DefaultCurrency;
+            user.DefaultCurrency = dto.Currency;
+            await _userRepository.UpdateUserAsync(user);
+
+            // Recalculate all transactions if currency changed
+            if (oldCurrency != dto.Currency)
+            {
+                // This will reset conversion values, they'll be recalculated on next view
+                var transactionRepo = HttpContext.RequestServices.GetRequiredService<ITransactionRepository>();
+                await transactionRepo.RecalculateTransactionCurrenciesAsync(userId, dto.Currency);
+            }
+
+            return Ok(new { message = "Default currency updated successfully.", currency = dto.Currency });
+        }
+
+        [HttpGet("currency")]
+        [Authorize]
+        public async Task<IActionResult> GetDefaultCurrency()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user ID.");
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            return Ok(new { currency = user.DefaultCurrency });
         }
 
 

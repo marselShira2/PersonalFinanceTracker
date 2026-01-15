@@ -48,38 +48,43 @@ export class AppMenuComponent implements OnInit {
   loadMenu() {
     this.model = [
       {
-        label: 'HOME',
+        label: 'MENU.HOME',
         items: [
-          // Updated to use the explicit /dashboard path
-          { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }
+          { label: 'MENU.DASHBOARD', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }
         ]
       },
       {
-        label: 'FINANCE TRACKING',
+        label: 'MENU.FINANCE_TRACKING',
         items: [
-          // 💰 Transactions Page Item
           {
-            label: 'Transactions',
+            label: 'MENU.TRANSACTIONS',
             icon: 'pi pi-fw pi-list',
-            routerLink: ['/transactions'] // Matches router path
+            routerLink: ['/transactions']
           },
-          // 📅 Transaction Calendar
           {
-            label: 'Calendar View',
+            label: 'MENU.CALENDAR_VIEW',
             icon: 'pi pi-fw pi-calendar',
             routerLink: ['/transaction-calendar']
           },
-          // 📁 Categories Page Item (Updated Icon)
           {
-            label: 'Categories',
-            icon: 'pi pi-fw pi-folder-open', // New, distinct icon
-            routerLink: ['/category']        // Matches router path
+            label: 'MENU.CATEGORIES',
+            icon: 'pi pi-fw pi-folder-open',
+            routerLink: ['/category']
           },
-          // 💳 Expense Limit Page Item
           {
-            label: 'Expense Limit',
+            label: 'MENU.EXPENSE_LIMIT',
             icon: 'pi pi-fw pi-chart-pie',
             routerLink: ['/expense-limit']
+          }
+        ]
+      },
+      {
+        label: 'MENU.SETTINGS',
+        items: [
+          {
+            label: 'MENU.USER_PROFILE',
+            icon: 'pi pi-fw pi-user',
+            routerLink: ['/userProfile']
           }
         ]
       },

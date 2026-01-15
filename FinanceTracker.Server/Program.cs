@@ -33,6 +33,7 @@ builder.Services.AddHostedService<RecurringExpenseService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<FinanceTracker.Server.Services.INotificationService, FinanceTracker.Server.Services.NotificationService>();
 builder.Services.AddScoped<FirebaseStorageUploader>();
+builder.Services.AddHttpClient<ICurrencyConversionService, CurrencyConversionService>();
 
 //builder.Services.AddHostedService<FinanceTracker.Server.Services.RecurringExpenseService>();
 //builder.Services.AddHostedService<NotificationWorker>();

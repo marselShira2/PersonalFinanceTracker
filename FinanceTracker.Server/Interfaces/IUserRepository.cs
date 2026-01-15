@@ -9,6 +9,7 @@ namespace FinanceTracker.Server.Interfaces
         Task<List<User>> GetAllUsers();
         Task<User?> GetUserByIdAsync(int userId); //for reset password
         Task SaveChangesAsync();
+        Task UpdateUserAsync(User user);
 
         Task<User?> GetUserByResetTokenAsync(string token);
     }

@@ -92,6 +92,8 @@ import { TransactionCalendarComponent } from './Views/transaction-calendar/trans
 import { CategoryManagementComponent } from './Views/Category/category-management.component';
 import { ExpenseLimitComponent } from './Views/expense-limit/expense-limit.component';
 import { NotificationsPageComponent } from './Views/notifications/notifications-page.component';
+import { CurrencySettingsComponent } from './Views/currency-settings/currency-settings.component';
+import { CurrencyDisplayPipe } from './pipes/currency-display.pipe';
 import { FullCalendarModule } from '@fullcalendar/angular';
 
 
@@ -107,6 +109,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     CategoryManagementComponent,
     ExpenseLimitComponent,
     NotificationsPageComponent,
+    CurrencySettingsComponent,
+    CurrencyDisplayPipe,
     AppFooterComponent,
     DashboardComponent,
     NotfoundComponent,

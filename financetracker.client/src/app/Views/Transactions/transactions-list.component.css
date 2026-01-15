@@ -63,3 +63,19 @@
   font-style: italic;
   color: #999;
 }
+.amount-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.converted-amount {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.original-amount {
+  color: #7f8c8d;
+  font-size: 0.85em;
+  margin-top: 2px;
+}

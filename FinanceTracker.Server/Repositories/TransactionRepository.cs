@@ -19,18 +19,34 @@ namespace FinanceTracker.Server.Repositories
 
         private async Task ProcessExpenseLogicAsync(Transaction transaction)
         {
-            // Get User Email
-            var user = await _context.Users.FindAsync(transaction.UserId);
-            string? userEmail = user?.Email;
+            // 1. Get the Budget Limit for this user
+            var expenseLimit = await _context.ExpenseLimits
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(e => e.UserId == transaction.UserId && e.IsActive);
 
-            // Check for Alerts
-            await CheckAndNotifyAsync(transaction, userEmail);
+            // 2. Subtract the amount from the budget (if a budget exists)
+            if (expenseLimit != null)
+            {
+                expenseLimit.Balance -= transaction.Amount;
+                _context.ExpenseLimits.Update(expenseLimit);
+            }
+
+            // 3. Get User Email safely
+            string? userEmail = expenseLimit?.User?.Email;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                var user = await _context.Users.FindAsync(transaction.UserId);
+                userEmail = user?.Email;
+            }
+
+            // 4. Check for Alerts
+            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail);
 
             // Save Notifications
             await _context.SaveChangesAsync();
         }
 
-        private async Task CheckAndNotifyAsync(Transaction transaction, string? userEmail)
+        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail)
         {
             string title = "";
             string message = "";
@@ -88,7 +104,6 @@ namespace FinanceTracker.Server.Repositories
                 type = "Info";
                 shouldNotify = true;
             }
-
             // Save Notification & Send Email
             if (shouldNotify)
             {
@@ -223,7 +238,7 @@ namespace FinanceTracker.Server.Repositories
 
         public async Task<int> GetCategoryIdByName(string categoryName)
         {
-            return _context.Categories.Where(w =>  w.Name == categoryName).Select(s => s.CategoryId).FirstOrDefault();
+            return _context.Categories.Where(w => w.Name == categoryName).Select(s => s.CategoryId).FirstOrDefault();
         }
 
         public async Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> csvTransactions)
@@ -245,19 +260,19 @@ namespace FinanceTracker.Server.Repositories
                     NextOccurrenceDate = dto.IsRecurring ? (dto.NextOccurrenceDate ?? CalculateNextOccurrence(DateOnly.FromDateTime(dto.Date), dto.RecurringFrequency)) : null
                 }).ToList();
 
-            // 2. Perform Batch Insertion
-            _context.Transactions.AddRange(newTransactions);
-            foreach (var transaction in newTransactions)
-            {
-                // Only subtract if it is actually an 'Expense'
-                if (!string.IsNullOrEmpty(transaction.Type) && transaction.Type.ToLower() == "expense")
+                // 2. Perform Batch Insertion
+                _context.Transactions.AddRange(newTransactions);
+                foreach (var transaction in newTransactions)
                 {
-                    // We reuse the same logic we wrote for single transactions
-                    // Note: This also sends emails. If you upload 50 items, you might get 50 emails!
-                    await ProcessExpenseLogicAsync(transaction);
+                    // Only subtract if it is actually an 'Expense'
+                    if (!string.IsNullOrEmpty(transaction.Type) && transaction.Type.ToLower() == "expense")
+                    {
+                        // We reuse the same logic we wrote for single transactions
+                        // Note: This also sends emails. If you upload 50 items, you might get 50 emails!
+                        await ProcessExpenseLogicAsync(transaction);
+                    }
                 }
-            }
-            //
+                //
 
                 // 3. Save Changes
                 await _context.SaveChangesAsync();
@@ -278,6 +293,31 @@ namespace FinanceTracker.Server.Repositories
                 "yearly" => current.AddYears(1),
                 _ => current.AddMonths(1)
             };
+        }
+
+        public async Task RecalculateTransactionCurrenciesAsync(int userId, string newDefaultCurrency)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
+            foreach (var transaction in transactions)
+            {
+                if (transaction.Currency != newDefaultCurrency)
+                {
+                    // Will be recalculated by the service layer
+                    transaction.AmountConverted = null;
+                    transaction.ConversionRate = null;
+                }
+                else
+                {
+                    // Same currency, no conversion needed
+                    transaction.AmountConverted = transaction.Amount;
+                    transaction.ConversionRate = null;
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

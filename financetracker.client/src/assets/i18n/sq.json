@@ -201,5 +201,29 @@
   "CANCEL": "Anulo",
   "YES": "Po",
   "NO": "Jo",
-  "SUCCESS": "Sukses"
+  "SUCCESS": "Sukses",
+
+  "CURRENCY": {
+    "SETTINGS_TITLE": "Cilësimet e Monedhës",
+    "SETTINGS_SUBTITLE": "Vendosni monedhën tuaj të parazgjedhur për transaksionet",
+    "DEFAULT_CURRENCY": "Monedha e Parazgjedhur",
+    "SELECT_PLACEHOLDER": "Zgjidhni një monedhë",
+    "SAVE_BTN": "Ruaj",
+    "SUCCESS_TITLE": "Sukses",
+    "ERROR_TITLE": "Gabim",
+    "UPDATE_SUCCESS": "Monedha e parazgjedhur u përditësua në {{currency}}",
+    "UPDATE_ERROR": "Dështoi përditësimi i monedhës",
+    "LOAD_ERROR": "Dështoi ngarkimi i monedhës aktuale"
+  },
+  "MENU": {
+    "SETTINGS": "CILËSIMET",
+    "USER_PROFILE": "Profili i Përdoruesit",
+    "HOME": "KRYEFAQJA",
+    "DASHBOARD": "Paneli",
+    "FINANCE_TRACKING": "GJURMIMI I FINANCAVE",
+    "TRANSACTIONS": "Transaksionet",
+    "CALENDAR_VIEW": "Pamja e Kalendarit",
+    "CATEGORIES": "Kategoritë",
+    "EXPENSE_LIMIT": "Limiti i Shpenzimeve"
+  }
 }

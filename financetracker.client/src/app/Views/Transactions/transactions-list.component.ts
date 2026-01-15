@@ -5,6 +5,7 @@ import { Table } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 import { Transaction, TransactionService, TransactionCreateDto, TransactionUpdateDto } from '../../services/transaction/transaction.service';
 import { Category, CategoryService } from '../../services/categories/category.service';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-transactions-list',
@@ -35,7 +36,7 @@ export class TransactionsListComponent implements OnInit {
 
   selectedTransaction: Transaction | TransactionCreateDto;
 
-  currencies = ['ALL', 'USD', 'EUR', 'GBP'];
+  currencies = this.currencyService.getSupportedCurrencies().map(c => ({label: c.name, value: c.code}));
   categories: Category[] = [];
 
   selectedFile: File | null = null;
@@ -43,7 +44,8 @@ export class TransactionsListComponent implements OnInit {
   constructor(
     private transactionService: TransactionService,
     private categoryService: CategoryService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private currencyService: CurrencyService
   ) {
     this.selectedTransaction = this.resetTransactionForm();
   }
@@ -350,5 +352,11 @@ debugger
           });
         }
       });
+  }
+
+  getCurrentCurrency(): string {
+    let currency = 'USD';
+    this.currencyService.currentCurrency$.subscribe(c => currency = c);
+    return currency;
   }
 }
