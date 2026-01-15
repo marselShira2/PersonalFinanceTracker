@@ -20,6 +20,7 @@ namespace FinanceTracker.Server.Interfaces
         Task AddTransactionsFromCsvAsync(List<CsvTransactionDto> transactions);
         Task<int> GetCategoryIdByName(string categoryName);
         Task RecalculateTransactionCurrenciesAsync(int userId, string newDefaultCurrency);
+        Task<bool> CategoryExistsAsync(int categoryId);
     }
 
 }

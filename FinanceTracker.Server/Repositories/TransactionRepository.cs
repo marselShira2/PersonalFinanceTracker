@@ -319,5 +319,10 @@ namespace FinanceTracker.Server.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> CategoryExistsAsync(int categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
+        }
     }
 }

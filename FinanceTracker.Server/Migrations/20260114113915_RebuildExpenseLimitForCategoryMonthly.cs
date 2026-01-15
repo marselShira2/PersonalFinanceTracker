@@ -27,8 +27,8 @@ namespace FinanceTracker.Server.Migrations
                 name: "category_id",
                 table: "expense_limits",
                 type: "int",
-                nullable: false,
-                defaultValue: 0);
+                nullable: true,
+                defaultValue: null);
 
             migrationBuilder.AddColumn<int>(
                 name: "month",
@@ -49,13 +49,7 @@ namespace FinanceTracker.Server.Migrations
                 table: "expense_limits",
                 column: "category_id");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_expense_limits_categories_category_id",
-                table: "expense_limits",
-                column: "category_id",
-                principalTable: "categories",
-                principalColumn: "category_id",
-                onDelete: ReferentialAction.NoAction);
+            // Don't add foreign key here - will be added in next migration after data cleanup
         }
 
         /// <inheritdoc />

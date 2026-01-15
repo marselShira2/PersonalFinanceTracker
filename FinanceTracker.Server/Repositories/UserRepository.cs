@@ -23,7 +23,15 @@ namespace FinanceTracker.Server.Repositories
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            try
+            {
+                return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
         public async Task<List<User>> GetAllUsers()
@@ -54,4 +62,3 @@ namespace FinanceTracker.Server.Repositories
         }
     }
 }
- 

@@ -15,9 +15,8 @@ namespace FinanceTracker.Server.Models
         [Column("user_id")]
         public int UserId { get; set; }
 
-        [Required]
         [Column("category_id")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         [Column("limit_amount", TypeName = "decimal(18,2)")]
         public decimal LimitAmount { get; set; }
@@ -39,6 +38,6 @@ namespace FinanceTracker.Server.Models
         public User User { get; set; } = null!;
 
         [ForeignKey("CategoryId")]
-        public Category Category { get; set; } = null!;
+        public Category? Category { get; set; }
     }
 }

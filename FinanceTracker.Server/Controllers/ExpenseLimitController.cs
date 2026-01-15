@@ -49,7 +49,7 @@ namespace FinanceTracker.Server.Controllers
 
                 var statusDto = new LimitStatusDto
                 {
-                    CategoryId = limit.CategoryId,
+                    CategoryId = limit.CategoryId ?? 0,
                     CategoryName = limit.Category?.Name ?? "",
                     LimitAmount = limit.LimitAmount,
                     SpentAmount = spent,
@@ -80,13 +80,13 @@ namespace FinanceTracker.Server.Controllers
 
                 foreach (var limit in limits)
                 {
-                    var spent = await _repo.GetCategorySpentAsync(userId, limit.CategoryId, targetMonth, targetYear);
+                    var spent = await _repo.GetCategorySpentAsync(userId, limit.CategoryId ?? 0, targetMonth, targetYear);
                     var remaining = limit.LimitAmount - spent;
                     var percentage = limit.LimitAmount > 0 ? (spent / limit.LimitAmount) * 100 : 0;
 
                     statusList.Add(new LimitStatusDto
                     {
-                        CategoryId = limit.CategoryId,
+                        CategoryId = limit.CategoryId ?? 0,
                         CategoryName = limit.Category?.Name ?? "",
                         LimitAmount = limit.LimitAmount,
                         SpentAmount = spent,

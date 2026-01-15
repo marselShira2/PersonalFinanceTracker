@@ -55,17 +55,17 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest(passwordValidationResult.ErrorMessage);
                 }
 
-                if (string.IsNullOrEmpty(userDto.DefaultCurrency))
-                {
-                    return BadRequest("Default currency is required.");
-                }
+                //if (string.IsNullOrEmpty(userDto.DefaultCurrency))
+                //{
+                //    return BadRequest("Default currency is required.");
+                //}
 
                 string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
                 string verificationCode = new Random().Next(100000, 999999).ToString();
                 
                 Console.WriteLine($"[Registration] Generated code {verificationCode} for {userDto.Email}");
 
-                _verificationStore.AddCode(userDto.Email, verificationCode, userDto.Username, hashedPassword, userDto.DefaultCurrency);
+                _verificationStore.AddCode(userDto.Email, verificationCode, userDto.Username, hashedPassword, "USD");
 
                 var emailBody = $"Your Finance Tracker verification code is: <strong>{verificationCode}</strong>. Please enter this code in the app to activate your account.";
 

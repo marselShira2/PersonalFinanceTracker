@@ -56,6 +56,11 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest("Transaction type must be 'Income' or 'Expense'.");
                 }
 
+                if (dto.CategoryId.HasValue && !await _transactionRepository.CategoryExistsAsync(dto.CategoryId.Value))
+                {
+                    return BadRequest("Invalid category ID.");
+                }
+
                 var user = await _transactionRepository.GetUserByIdAsync(userId);
                 if (user == null)
                 {
