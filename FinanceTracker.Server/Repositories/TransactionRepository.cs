@@ -19,34 +19,18 @@ namespace FinanceTracker.Server.Repositories
 
         private async Task ProcessExpenseLogicAsync(Transaction transaction)
         {
-            // 1. Get the Budget Limit for this user
-            var expenseLimit = await _context.ExpenseLimits
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(e => e.UserId == transaction.UserId && e.IsActive);
+            // Get User Email
+            var user = await _context.Users.FindAsync(transaction.UserId);
+            string? userEmail = user?.Email;
 
-            // 2. Subtract the amount from the budget (if a budget exists)
-            if (expenseLimit != null)
-            {
-                expenseLimit.Balance -= transaction.Amount;
-                _context.ExpenseLimits.Update(expenseLimit);
-            }
+            // Check for Alerts
+            await CheckAndNotifyAsync(transaction, userEmail);
 
-            // 3. Get User Email safely
-            string? userEmail = expenseLimit?.User?.Email;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                var user = await _context.Users.FindAsync(transaction.UserId);
-                userEmail = user?.Email;
-            }
-
-            // 4. Check for Alerts
-            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail);
-
-            // 5. Save the Budget updates and Notifications
+            // Save Notifications
             await _context.SaveChangesAsync();
         }
 
-        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail)
+        private async Task CheckAndNotifyAsync(Transaction transaction, string? userEmail)
         {
             string title = "";
             string message = "";
@@ -104,6 +88,7 @@ namespace FinanceTracker.Server.Repositories
                 type = "Info";
                 shouldNotify = true;
             }
+
             // Save Notification & Send Email
             if (shouldNotify)
             {
@@ -127,7 +112,6 @@ namespace FinanceTracker.Server.Repositories
                     }
                     catch (Exception ex)
                     {
-                        // 👇 Now you will see the error in your debugger console
                         Console.WriteLine($"[Error] Email failed to send: {ex.Message}");
                     }
                 }
@@ -149,6 +133,11 @@ namespace FinanceTracker.Server.Repositories
                 }
             }
             return transaction;
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
         }
 
         public async Task<Transaction?> GetTransactionByIdAsync(int transactionId, int userId)
@@ -248,11 +237,12 @@ namespace FinanceTracker.Server.Repositories
                     Type = dto.Type,
                     Amount = dto.Amount,
                     Currency = dto.Currency,
-                    // Convert DateTime (from CSV) back to DateOnly (for EF Core Model)
                     Date = DateOnly.FromDateTime(dto.Date),
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
-                    IsRecurring = dto.IsRecurring
+                    IsRecurring = dto.IsRecurring,
+                    RecurringFrequency = dto.RecurringFrequency,
+                    NextOccurrenceDate = dto.IsRecurring ? (dto.NextOccurrenceDate ?? CalculateNextOccurrence(DateOnly.FromDateTime(dto.Date), dto.RecurringFrequency)) : null
                 }).ToList();
 
             // 2. Perform Batch Insertion
@@ -276,6 +266,18 @@ namespace FinanceTracker.Server.Repositories
             {
 
             }
+        }
+
+        private DateOnly CalculateNextOccurrence(DateOnly current, string? frequency)
+        {
+            return frequency?.ToLower() switch
+            {
+                "daily" => current.AddDays(1),
+                "weekly" => current.AddDays(7),
+                "monthly" => current.AddMonths(1),
+                "yearly" => current.AddYears(1),
+                _ => current.AddMonths(1)
+            };
         }
     }
 }

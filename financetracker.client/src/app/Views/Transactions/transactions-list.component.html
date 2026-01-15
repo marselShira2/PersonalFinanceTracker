@@ -23,6 +23,12 @@
                     class="p-button-primary"
                     styleClass="p-button-sm">
       </p-fileUpload>
+      
+      <button pButton
+              label="Export to Excel"
+              icon="pi pi-download"
+              class="p-button-info ml-2"
+              (click)="exportToExcel()"></button>
     </div>
     <div>
       <div class="p-buttonset mr-3">
@@ -150,21 +156,21 @@
       </div>
 
       <div class="field col-12 md:col-6">
+        <label for="currency">{{ 'T.FIELD_CURRENCY' | translate }}*</label>
+        <p-dropdown id="currency" name="currency"
+                    [(ngModel)]="selectedTransaction.currency"
+                    [options]="currencies"
+                    placeholder="Select Currency"
+                    required></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6">
         <label for="date">{{ 'T.FIELD_DATE' | translate }}*</label>
         <p-calendar id="date" name="date"
                     [(ngModel)]="selectedTransaction.date"
                     [showIcon]="true"
                     [dateFormat]="'yy/mm/dd'"
                     required></p-calendar>
-      </div>
-
-      <div class="field col-12 md:col-6">
-        <label for="currency">{{ 'T.FIELD_CURRENCY' | translate }}*</label>
-        <p-dropdown id="currency" name="currency"
-                    [(ngModel)]="selectedTransaction.currency"
-                    [options]="currencies"
-                    placeholder="{{ 'T.SELECT_CURRENCY_PLACEHOLDER' | translate }}"
-                    required></p-dropdown>
       </div>
 
       <div class="field col-12">

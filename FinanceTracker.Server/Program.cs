@@ -1,6 +1,7 @@
 using FinanceTracker.Server;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Repositories;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using FinanceTracker.Server.Data;
@@ -8,12 +9,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens; 
 using System.Text;
 using FinanceTracker.Server.Services;
-
-
-//using FinanceTracker.Server.Repositories;
-//using FinanceTracker.Server.Interfaces;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure EPPlus
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 // Add services
 builder.Services.AddControllers();
@@ -28,8 +29,6 @@ builder.Services.AddSingleton<FinanceTracker.Server.Interfaces.IVerificationStor
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IExpenseLimitRepository, ExpenseLimitRepository>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-// Add this line where you register your other services (Repositories, etc.)
 builder.Services.AddHostedService<RecurringExpenseService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<FinanceTracker.Server.Services.INotificationService, FinanceTracker.Server.Services.NotificationService>();

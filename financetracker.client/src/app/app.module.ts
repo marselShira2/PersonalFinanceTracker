@@ -115,7 +115,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   ],
 
 
-  imports: [AppRoutingModule, OrderListModule, FullCalendarModule, CarouselModule, ChartModule, AppLayoutModule, SkeletonModule, BadgeModule, MenuModule, TableModule, CheckboxModule, TreeTableModule, ConfirmPopupModule, ConfirmDialogModule, TabViewModule,
+    imports: [AppRoutingModule, OrderListModule, CarouselModule, ChartModule, FullCalendarModule,AppLayoutModule, SkeletonModule, BadgeModule, MenuModule, SplitButtonModule, TableModule, CheckboxModule, TreeTableModule, ConfirmPopupModule, ConfirmDialogModule, TabViewModule,
     DialogModule, CommonModule, ButtonModule, InputTextModule, DropdownModule, InputTextareaModule, FormsModule, ReactiveFormsModule, ToastModule, RatingModule, CardModule, TagModule, InputNumberModule, MessageModule,
     IconFieldModule, DividerModule, InputIconModule,  HttpClientModule, ToggleButtonModule, InputSwitchModule, PasswordModule, MultiSelectModule, TimelineModule, FloatLabelModule, DialogModule, InputTextModule, InputOtpModule, 
     BreadcrumbModule, RadioButtonModule, CalendarModule, PickListModule, CdkDrag, CdkDropList, DragDropModule, TooltipModule, SliderModule, RippleModule,  OverlayPanelModule,  InputOtpModule, FileUploadModule,

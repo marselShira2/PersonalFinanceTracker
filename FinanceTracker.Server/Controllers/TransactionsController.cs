@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace FinanceTracker.Server.Controllers
 {
@@ -54,34 +53,28 @@ namespace FinanceTracker.Server.Controllers
                     return BadRequest("Transaction type must be 'Income' or 'Expense'.");
                 }
 
-                
+                var user = await _transactionRepository.GetUserByIdAsync(userId);
+                if (user == null)
+                {
+                    return Unauthorized("User not found.");
+                }
 
                 var transaction = new Transaction
                 {
                     UserId = userId,
                     Type = dto.Type,
                     Amount = dto.Amount,
-                    Currency = dto.Currency,
+                    Currency = user.DefaultCurrency,
                     Date = dto.Date,
                     CategoryId = dto.CategoryId,
                     Description = dto.Description,
                     IsRecurring = dto.IsRecurring,
+                    RecurringFrequency = dto.RecurringFrequency,
+                    NextOccurrenceDate = dto.IsRecurring ? (dto.NextOccurrenceDate ?? CalculateNextOccurrence(dto.Date, dto.RecurringFrequency)) : null,
                     PhotoUrl = dto.PhotoUrl
                 };
 
                 var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
-                
-                // Check for large expense alert (over $500)
-                if (dto.Type.ToLower() == "expense" && dto.Amount >= 500)
-                {
-                    await _notificationService.CreateLargeExpenseAlertAsync(userId, dto.Amount, dto.Description ?? "Large expense");
-                }
-                
-                // Check savings goal progress for income transactions
-                if (dto.Type.ToLower() == "income")
-                {
-                    await CheckSavingsGoalProgress(userId);
-                }
                 
                 return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }
@@ -192,6 +185,8 @@ namespace FinanceTracker.Server.Controllers
             transaction.CategoryId = dto.CategoryId ?? transaction.CategoryId;
             transaction.Description = dto.Description ?? transaction.Description;
             transaction.IsRecurring = dto.IsRecurring ?? transaction.IsRecurring;
+            transaction.RecurringFrequency = dto.RecurringFrequency ?? transaction.RecurringFrequency;
+            transaction.NextOccurrenceDate = dto.NextOccurrenceDate ?? transaction.NextOccurrenceDate;
             transaction.PhotoUrl = dto.PhotoUrl;
 
             if (transaction.Amount <= 0 || string.IsNullOrEmpty(transaction.Currency) || string.IsNullOrEmpty(transaction.Type))
@@ -317,44 +312,16 @@ namespace FinanceTracker.Server.Controllers
             return transactions;
         }
 
-        private async Task CheckSavingsGoalProgress(int userId)
+        private DateOnly CalculateNextOccurrence(DateOnly current, string? frequency)
         {
-            try
+            return frequency?.ToLower() switch
             {
-                // Get user's total balance (income - expenses)
-                var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, null, null);
-                var totalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => t.Amount);
-                var totalExpenses = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => t.Amount);
-                var currentBalance = totalIncome - totalExpenses;
-                
-                // Assume a savings goal of $10,000 (this could be made configurable per user)
-                decimal savingsGoal = 10000m;
-                decimal percentage = (currentBalance / savingsGoal) * 100;
-                
-                // Notify at 25%, 50%, 75%, and 100%
-                if (percentage >= 100 && currentBalance >= savingsGoal)
-                {
-                    await _notificationService.CreateSavingsGoalAchievedAsync(userId, savingsGoal);
-                }
-                else if (percentage >= 75 && percentage < 100)
-                {
-                    // Check if we haven't already sent this milestone notification
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 75);
-                }
-                else if (percentage >= 50 && percentage < 75)
-                {
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 50);
-                }
-                else if (percentage >= 25 && percentage < 50)
-                {
-                    await _notificationService.CreateSavingsGoalProgressAsync(userId, currentBalance, savingsGoal, 25);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error but don't fail the transaction
-                Console.WriteLine($"Error checking savings goal progress: {ex.Message}");
-            }
+                "daily" => current.AddDays(1),
+                "weekly" => current.AddDays(7),
+                "monthly" => current.AddMonths(1),
+                "yearly" => current.AddYears(1),
+                _ => current.AddMonths(1)
+            };
         }
 
     }

@@ -6,6 +6,7 @@ namespace FinanceTracker.Server.Interfaces
     public interface ITransactionRepository
     {
         Task<Transaction> AddTransactionAsync(Transaction transaction);
+        Task<User?> GetUserByIdAsync(int userId);
 
         // CRUDs
         Task<Transaction?> GetTransactionByIdAsync(int transactionId, int userId);

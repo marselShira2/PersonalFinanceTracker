@@ -16,11 +16,11 @@ namespace FinanceTracker.Server.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Run endlessly until the server stops
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
+                    await ProcessRecurringTransactions();
                     await CheckAndNotifyRecurringExpenses();
                 }
                 catch (Exception ex)
@@ -28,9 +28,53 @@ namespace FinanceTracker.Server.Services
                     Console.WriteLine($"[Error] Background Worker failed: {ex.Message}");
                 }
 
-                // Check again every 10 seconds
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
+        }
+
+        private async Task ProcessRecurringTransactions()
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var today = DateOnly.FromDateTime(DateTime.Now);
+
+                var dueRecurring = await context.Transactions
+                    .Where(t => t.IsRecurring && t.NextOccurrenceDate == today)
+                    .ToListAsync();
+
+                foreach (var template in dueRecurring)
+                {
+                    var newTransaction = new Transaction
+                    {
+                        UserId = template.UserId,
+                        CategoryId = template.CategoryId,
+                        Currency = template.Currency,
+                        Type = template.Type,
+                        Amount = template.Amount,
+                        Description = template.Description,
+                        Date = today,
+                        IsRecurring = false
+                    };
+
+                    context.Transactions.Add(newTransaction);
+                    template.NextOccurrenceDate = CalculateNextOccurrence(today, template.RecurringFrequency);
+                }
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private DateOnly CalculateNextOccurrence(DateOnly current, string? frequency)
+        {
+            return frequency?.ToLower() switch
+            {
+                "daily" => current.AddDays(1),
+                "weekly" => current.AddDays(7),
+                "monthly" => current.AddMonths(1),
+                "yearly" => current.AddYears(1),
+                _ => current.AddMonths(1)
+            };
         }
 
         private async Task CheckAndNotifyRecurringExpenses()

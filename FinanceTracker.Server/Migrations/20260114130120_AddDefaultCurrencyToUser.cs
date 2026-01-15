@@ -5,20 +5,26 @@
 namespace FinanceTracker.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class updatetables : Migration
+    public partial class AddDefaultCurrencyToUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Column already exists in database, skip
+            migrationBuilder.AddColumn<string>(
+                name: "default_currency",
+                table: "users",
+                type: "nvarchar(3)",
+                maxLength: 3,
+                nullable: false,
+                defaultValue: "USD");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "is_recurring",
-                table: "transactions");
+                name: "default_currency",
+                table: "users");
         }
     }
 }

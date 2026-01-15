@@ -4,6 +4,7 @@ using FinanceTracker.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260114122557_AddRecurringTransactionFields")]
+    partial class AddRecurringTransactionFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,12 +352,6 @@ namespace FinanceTracker.Server.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("(getdate())");
-
-                    b.Property<string>("DefaultCurrency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)")
-                        .HasColumnName("default_currency");
 
                     b.Property<string>("Email")
                         .IsRequired()

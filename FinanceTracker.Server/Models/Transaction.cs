@@ -37,7 +37,14 @@ public partial class Transaction
     public DateOnly Date { get; set; }
 
     [Column("is_recurring")]
-    public bool IsRecurring { get; set; } = false; // Added
+    public bool IsRecurring { get; set; } = false;
+
+    [Column("recurring_frequency")]
+    [StringLength(20)]
+    public string? RecurringFrequency { get; set; }
+
+    [Column("next_occurrence_date")]
+    public DateOnly? NextOccurrenceDate { get; set; }
 
     [Column("photo_url")]
     public string? PhotoUrl { get; set; }
