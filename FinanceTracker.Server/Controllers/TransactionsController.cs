@@ -6,6 +6,7 @@ using FinanceTracker.Server.Models;
 using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -237,6 +238,44 @@ namespace FinanceTracker.Server.Controllers
             await _transactionRepository.UpdateTransactionAsync(transaction);
 
             return Ok(transaction);
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportTransactions()
+        {
+            try
+            {
+                int userId = GetUserId();
+                var transactions = await _transactionRepository.GetFilteredTransactionsAsync(userId, null, null);
+                
+                using var package = new ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Transactions");
+                
+                worksheet.Cells[1, 1].Value = "Date";
+                worksheet.Cells[1, 2].Value = "Type";
+                worksheet.Cells[1, 3].Value = "Amount";
+                worksheet.Cells[1, 4].Value = "Currency";
+                worksheet.Cells[1, 5].Value = "Description";
+                worksheet.Cells[1, 6].Value = "Category";
+                
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    var t = transactions[i];
+                    worksheet.Cells[i + 2, 1].Value = t.Date.ToString("yyyy-MM-dd");
+                    worksheet.Cells[i + 2, 2].Value = t.Type;
+                    worksheet.Cells[i + 2, 3].Value = t.Amount;
+                    worksheet.Cells[i + 2, 4].Value = t.Currency;
+                    worksheet.Cells[i + 2, 5].Value = t.Description;
+                    worksheet.Cells[i + 2, 6].Value = t.Category?.Name ?? "";
+                }
+                
+                var bytes = package.GetAsByteArray();
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "transactions.xlsx");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized(new { Message = "User authentication failed or ID missing." });
+            }
         }
 
         [HttpDelete("{id}")]

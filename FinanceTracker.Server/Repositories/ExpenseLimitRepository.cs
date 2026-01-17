@@ -14,7 +14,7 @@ namespace FinanceTracker.Server.Repositories
             _context = context;
         }
 
-        public async Task<ExpenseLimit> SetLimitAsync(int userId, int categoryId, decimal amount, int month, int year)
+        public async Task<ExpenseLimit> SetLimitAsync(int userId, int categoryId, decimal amount, int month, int year, bool isActive = true)
         {
             var limit = await _context.ExpenseLimits
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
@@ -27,13 +27,28 @@ namespace FinanceTracker.Server.Repositories
                     CategoryId = categoryId,
                     LimitAmount = amount,
                     Month = month,
-                    Year = year
+                    Year = year,
+                    IsActive = isActive,
+                    StartDate = DateOnly.FromDateTime(DateTime.Now)
                 };
                 _context.ExpenseLimits.Add(limit);
             }
             else
             {
+                // When toggling from active to inactive, store current spending in Balance
+                if (limit.IsActive && !isActive)
+                {
+                    var currentSpent = await GetCategorySpentAsync(userId, categoryId, month, year);
+                    limit.Balance = limit.LimitAmount - currentSpent;
+                }
+                // When reactivating, set new start date
+                else if (!limit.IsActive && isActive)
+                {
+                    limit.StartDate = DateOnly.FromDateTime(DateTime.Now);
+                }
+                
                 limit.LimitAmount = amount;
+                limit.IsActive = isActive;
                 _context.ExpenseLimits.Update(limit);
             }
 
@@ -73,9 +88,31 @@ namespace FinanceTracker.Server.Repositories
             var startDate = new DateOnly(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
+            var limit = await _context.ExpenseLimits
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
+
+            // If limit is inactive, return the stored balance (frozen amount)
+            if (limit != null && !limit.IsActive)
+            {
+                return limit.LimitAmount - limit.Balance;
+            }
+
+            // If active, only count transactions from StartDate forward
+            var effectiveStartDate = limit?.StartDate ?? startDate;
+            if (effectiveStartDate < startDate) effectiveStartDate = startDate;
+            
             return await _context.Transactions
-                .Where(x => x.UserId == userId && x.CategoryId == categoryId && x.Type == "expense" && x.Date >= startDate && x.Date <= endDate)
+                .Where(x => x.UserId == userId && x.CategoryId == categoryId && x.Type == "expense" && 
+                           x.Date >= effectiveStartDate && x.Date <= endDate)
                 .SumAsync(x => (decimal?)x.Amount) ?? 0;
+        }
+
+        public async Task<bool> IsLimitActiveAsync(int userId, int categoryId, int month, int year)
+        {
+            var limit = await _context.ExpenseLimits
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
+            
+            return limit?.IsActive ?? false;
         }
     }
 }

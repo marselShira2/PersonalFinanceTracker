@@ -5,6 +5,7 @@ import { ExpenseLimitStatus } from '../../Models/expense-limit.model';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { CategoryService, Category } from '../../services/categories/category.service';
 
 @Component({
   selector: 'app-expense-limit',
@@ -13,31 +14,36 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ExpenseLimitComponent implements OnInit {
   limitForm: FormGroup;
-  limitStatus: ExpenseLimitStatus | null = null;
+  expenseLimits: ExpenseLimitStatus[] = [];
+  categories: Category[] = [];
   loading = false;
-  hasLimit = false;
   userId: number | null = null;
+  editingLimit: ExpenseLimitStatus | null = null;
 
   constructor(
     private fb: FormBuilder,
     private expenseLimitService: ExpenseLimitService,
+    private categoryService: CategoryService,
     private messageService: MessageService,
     private authService: AuthService,
     private translate: TranslateService
   ) {
     this.limitForm = this.fb.group({
+      categoryId: ['', Validators.required],
       amount: ['', [
         Validators.required, 
         Validators.min(0.01),
         Validators.max(999999.99)
-      ]]
+      ]],
+      isActive: [true]
     });
   }
 
   ngOnInit() {
     this.getUserId();
+    this.loadCategories();
     if (this.userId) {
-      this.loadLimitStatus();
+      this.loadExpenseLimits();
     }
   }
 
@@ -68,28 +74,28 @@ export class ExpenseLimitComponent implements OnInit {
     });
   }
 
-  loadLimitStatus() {
+  loadExpenseLimits() {
     if (!this.userId) return;
     
     this.loading = true;
-    this.expenseLimitService.getLimitStatus(this.userId).subscribe({
-      next: (status) => {
-        this.limitStatus = status;
-        this.hasLimit = true;
+    this.expenseLimitService.getAllLimits(this.userId).subscribe({
+      next: (limits) => {
+        this.expenseLimits = limits;
         this.loading = false;
       },
       error: (error) => {
-        if (error.status === 404) {
-          this.hasLimit = false;
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translate.instant('ERROR'),
-            detail: this.translate.instant('EL.ERROR_LOAD')
-          });
-        }
+        console.error('Failed to load expense limits', error);
         this.loading = false;
       }
+    });
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories.filter(c => c.type?.toLowerCase() === 'expense');
+      },
+      error: (error) => console.error('Failed to load categories', error)
     });
   }
 
@@ -98,25 +104,31 @@ export class ExpenseLimitComponent implements OnInit {
       this.loading = true;
       const request = {
         userId: this.userId,
-        amount: this.limitForm.value.amount
+        categoryId: this.limitForm.value.categoryId,
+        amount: this.limitForm.value.amount,
+        isActive: this.limitForm.value.isActive
       };
 
+      const action = this.editingLimit ? 'updated' : 'created';
       this.expenseLimitService.setLimit(request).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: this.translate.instant('T.BTN_SAVE'),
-            detail: this.translate.instant('EL.SUCCESS_SET')
+            summary: 'Success',
+            detail: `Expense limit ${action} successfully`
           });
-          this.loadLimitStatus();
+          this.loadExpenseLimits();
           this.limitForm.reset();
+          this.limitForm.patchValue({ isActive: true });
+          this.editingLimit = null;
+          this.loading = false;
         },
         error: (error) => {
           console.error('Error setting limit:', error);
           this.messageService.add({
             severity: 'error',
-            summary: this.translate.instant('ERROR'),
-            detail: error.error?.message || this.translate.instant('EL.ERROR_SET')
+            summary: 'Error',
+            detail: error.error?.message || 'Failed to set expense limit'
           });
           this.loading = false;
         }
@@ -127,29 +139,7 @@ export class ExpenseLimitComponent implements OnInit {
   }
 
   onToggleLimit(isActive: boolean) {
-    if (!this.userId) return;
-    
-    this.loading = true;
-    this.expenseLimitService.toggleLimit(this.userId, isActive).subscribe({
-      next: () => {
-        const status = isActive ? this.translate.instant('EL.ENABLED') : this.translate.instant('EL.DISABLED');
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translate.instant('T.BTN_SAVE'),
-          detail: this.translate.instant('EL.SUCCESS_TOGGLE', { status })
-        });
-        this.loadLimitStatus();
-      },
-      error: (error) => {
-        console.error('Error toggling limit:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('ERROR'),
-          detail: this.translate.instant('EL.ERROR_TOGGLE')
-        });
-        this.loading = false;
-      }
-    });
+    // Method removed since toggleLimit doesn't exist in new service
   }
 
   private markFormGroupTouched() {
@@ -159,10 +149,93 @@ export class ExpenseLimitComponent implements OnInit {
     });
   }
 
-  getProgressBarClass(): string {
-    if (!this.limitStatus) return 'success';
+  getWarningMessage(limit: ExpenseLimitStatus): string {
+    const percentage = limit.percentageSpent;
+    if (percentage >= 100) return 'Limit exceeded!';
+    if (percentage >= 90) return 'Approaching limit';
+    if (percentage >= 50) return 'Half limit used';
+    return 'Within limit';
+  }
+
+  deleteLimit(categoryId: number) {
+    if (!this.userId) return;
     
-    const percentage = this.limitStatus.percentageSpent;
+    this.loading = true;
+    this.expenseLimitService.deleteLimit(this.userId, categoryId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Expense limit deleted successfully'
+        });
+        this.loadExpenseLimits();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error deleting limit:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete expense limit'
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+  editLimit(limit: ExpenseLimitStatus) {
+    this.editingLimit = limit;
+    this.limitForm.patchValue({
+      categoryId: limit.categoryId,
+      amount: limit.limitAmount,
+      isActive: limit.isActive
+    });
+  }
+
+  cancelEdit() {
+    this.editingLimit = null;
+    this.limitForm.reset();
+    this.limitForm.patchValue({ isActive: true });
+  }
+
+  toggleActive(limit: ExpenseLimitStatus) {
+    if (!this.userId) return;
+    
+    this.toggleLimit(limit.categoryId, !limit.isActive);
+  }
+
+  private toggleLimit(categoryId: number, isActive: boolean) {
+    if (!this.userId) return;
+    
+    this.expenseLimitService.toggleLimit(
+      this.userId, 
+      categoryId
+    ).subscribe({
+      next: () => {
+        this.loadExpenseLimits();
+      },
+      error: (error) => {
+        console.error('Error toggling limit:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to toggle limit status'
+        });
+        this.loadExpenseLimits();
+      }
+    });
+  }
+
+  get categoryControl() {
+    return this.limitForm.get('categoryId');
+  }
+
+  getActiveLimitsCount(): number {
+    return this.expenseLimits.filter(limit => limit.isActive).length;
+  }
+
+  getProgressBarClass(limit: ExpenseLimitStatus): string {
+    const percentage = limit.percentageSpent;
     if (percentage >= 100) return 'danger';
     if (percentage >= 90) return 'danger';
     if (percentage >= 50) return 'warning';

@@ -1,13 +1,20 @@
 export interface ExpenseLimitStatus {
+  categoryId: number;
+  categoryName: string;
   limitAmount: number;
-  balance: number;
   spentAmount: number;
+  remainingAmount: number;
   percentageSpent: number;
-  warningMessage: string;
-  isActive?: boolean;
+  month: number;
+  year: number;
+  isActive: boolean;
 }
 
 export interface SetLimitRequest {
   userId: number;
+  categoryId: number;
   amount: number;
+  month?: number;
+  year?: number;
+  isActive?: boolean;
 }

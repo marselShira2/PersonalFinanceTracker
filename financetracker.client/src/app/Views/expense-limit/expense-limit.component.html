@@ -1,112 +1,191 @@
 <div class="grid">
   <div class="col-12">
     <div class="card">
-      <h5>{{ 'EL.PAGE_HEADER' | translate }}</h5>
+      <h5><i class="pi pi-chart-bar mr-2"></i>Expense Limits by Category</h5>
 
       <!-- Loading State -->
-      <div *ngIf="loading" class="flex justify-content-center">
+      <div *ngIf="loading" class="flex justify-content-center p-4">
         <p-progressSpinner></p-progressSpinner>
       </div>
 
-      <!-- Expense Limit Status Display -->
-      <div *ngIf="!loading && hasLimit && limitStatus" class="mb-4">
+      <!-- Existing Limits Display -->
+      <div *ngIf="!loading && expenseLimits.length > 0" class="mb-4">
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h6 class="m-0"><i class="pi pi-list mr-2"></i>Current Limits ({{ expenseLimits.length }})</h6>
+          <p-tag [value]="'Active: ' + getActiveLimitsCount()" severity="success"></p-tag>
+        </div>
         <div class="grid">
-          <div class="col-12 md:col-6">
-            <div class="card bg-blue-50">
-              <div class="flex justify-content-between align-items-center mb-2">
-                <h6>{{ 'EL.CURRENT_STATUS' | translate }}</h6>
-                <p-inputSwitch 
-                  [(ngModel)]="limitStatus.isActive" 
-                  (onChange)="onToggleLimit($event.checked)"
-                  [disabled]="loading">
-                </p-inputSwitch>
+          <div class="col-12 md:col-6 lg:col-4" *ngFor="let limit of expenseLimits">
+            <div class="card relative" [ngClass]="{
+              'border-green-500': limit.percentageSpent < 75 && limit.isActive,
+              'border-yellow-500': limit.percentageSpent >= 75 && limit.percentageSpent < 90 && limit.isActive,
+              'border-red-500': limit.percentageSpent >= 90 && limit.isActive,
+              'border-gray-300': !limit.isActive,
+              'opacity-60': !limit.isActive
+            }" [style]="{'border-width': '2px', 'border-style': 'solid'}">
+              
+              <!-- Status Badge -->
+              <div class="absolute" style="top: 10px; right: 10px;">
+                <p-tag [value]="limit.isActive ? 'ACTIVE' : 'DISABLED'" 
+                       [severity]="limit.isActive ? 'success' : 'secondary'"
+                       [style]="{'font-size': '0.75rem'}"></p-tag>
               </div>
-              <div class="text-2xl font-bold text-blue-600 mb-2">
-                ${{ limitStatus.spentAmount | number:'1.2-2' }} / ${{ limitStatus.limitAmount | number:'1.2-2' }}
+              
+              <!-- Category Header -->
+              <div class="flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 class="m-0 mb-1" [ngClass]="{'text-gray-500': !limit.isActive}">
+                    <i class="pi pi-tag mr-2"></i>{{ limit.categoryName }}
+                  </h6>
+                  <small class="text-600" *ngIf="!limit.isActive">
+                    <i class="pi pi-pause-circle mr-1"></i>Tracking paused
+                  </small>
+                </div>
               </div>
-              <p-progressBar [value]="limitStatus.percentageSpent"
-                             [severity]="getProgressBarClass()"
-                             [showValue]="true">
-              </p-progressBar>
-              <div class="mt-2 text-sm">
-                <strong>{{ 'EL.REMAINING' | translate }}:</strong> ${{ limitStatus.balance | number:'1.2-2' }}
+              
+              <!-- Amount Display -->
+              <div class="text-center mb-3">
+                <div class="text-2xl font-bold mb-1" [ngClass]="{
+                  'text-green-600': limit.percentageSpent < 75 && limit.isActive,
+                  'text-yellow-600': limit.percentageSpent >= 75 && limit.percentageSpent < 90 && limit.isActive,
+                  'text-red-600': limit.percentageSpent >= 90 && limit.isActive,
+                  'text-gray-500': !limit.isActive
+                }">
+                  ${{ limit.spentAmount | number:'1.2-2' }}
+                </div>
+                <div class="text-sm text-600">of ${{ limit.limitAmount | number:'1.2-2' }} limit</div>
               </div>
-              <div class="mt-1 text-xs" [ngClass]="{
-                'text-green-600': limitStatus.isActive,
-                'text-gray-500': !limitStatus.isActive
-              }">
-                {{ limitStatus.isActive ? ('EL.TRACKING_ACTIVE' | translate) : ('EL.TRACKING_DISABLED' | translate) }}
+              
+              <!-- Progress Bar -->
+              <div class="mb-3">
+                <p-progressBar [value]="limit.isActive ? limit.percentageSpent : 0"
+                             [showValue]="false"
+                             [style]="{'height': '12px'}"
+                             [styleClass]="!limit.isActive ? 'opacity-50' : ''"></p-progressBar>
+                <div class="flex justify-content-between text-xs mt-1">
+                  <span [ngClass]="{'text-gray-500': !limit.isActive}">{{ limit.percentageSpent }}% used</span>
+                  <span [ngClass]="{'text-gray-500': !limit.isActive}">${{ limit.remainingAmount | number:'1.2-2' }} left</span>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div class="col-12 md:col-6">
-            <div class="card" [ngClass]="{
-                 'bg-green-50' : limitStatus.percentageSpent < 50,
-              'bg-yellow-50': limitStatus.percentageSpent >= 50 && limitStatus.percentageSpent < 90,
-              'bg-red-50': limitStatus.percentageSpent >= 90
-            }">
-              <h6>{{ 'EL.ALERT_STATUS' | translate }}</h6>
-              <div class="text-lg font-semibold" [ngClass]="{
-                'text-green-600': limitStatus.percentageSpent < 50,
-                'text-yellow-600': limitStatus.percentageSpent >= 50 && limitStatus.percentageSpent < 90,
-                'text-red-600': limitStatus.percentageSpent >= 90
-              }">
-                {{ limitStatus.warningMessage }}
-              </div>
-              <div class="mt-2 text-sm">
-                <strong>{{ limitStatus.percentageSpent }}%</strong> {{ 'EL.OF_LIMIT_USED' | translate }}
+              
+              <!-- Action Buttons -->
+              <div class="flex justify-content-between align-items-center">
+                <div class="flex gap-2">
+                  <p-button icon="pi pi-pencil" 
+                           [outlined]="true" 
+                           severity="info" 
+                           size="small"
+                           pTooltip="Edit limit"
+                           (onClick)="editLimit(limit)"
+                           [disabled]="loading"></p-button>
+                  <p-button icon="pi pi-trash" 
+                           [outlined]="true" 
+                           severity="danger" 
+                           size="small"
+                           pTooltip="Delete limit"
+                           (onClick)="deleteLimit(limit.categoryId)"
+                           [disabled]="loading"></p-button>
+                </div>
+                <div class="flex align-items-center gap-2">
+                  <small class="text-600">{{ limit.isActive ? 'Active' : 'Paused' }}</small>
+                  <p-inputSwitch [(ngModel)]="limit.isActive" 
+                                (onChange)="toggleActive(limit)"
+                                [disabled]="loading"></p-inputSwitch>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- No Limit Set Message -->
-      <div *ngIf="!loading && !hasLimit" class="mb-4">
-        <p-message severity="info" [text]="'EL.NO_LIMIT_SET' | translate"></p-message>
+      <!-- No Limits Message -->
+      <div *ngIf="!loading && expenseLimits.length === 0" class="text-center p-6">
+        <i class="pi pi-info-circle text-6xl text-blue-400 mb-3"></i>
+        <h6 class="text-700 mb-2">No Expense Limits Set</h6>
+        <p class="text-600 mb-0">Create your first expense limit below to start tracking your spending by category.</p>
       </div>
 
-      <!-- Set/Update Limit Form -->
-      <div class="card">
-        <h6>{{ hasLimit ? ('EL.UPDATE_LIMIT_FORM_HEADER' | translate) : ('EL.SET_LIMIT_FORM_HEADER' | translate) }}</h6>
+      <!-- Add/Edit Limit Form -->
+      <div class="card" [ngClass]="{'border-primary': editingLimit}" [style]="editingLimit ? {'border-width': '2px', 'border-style': 'solid'} : {}">
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h6 class="m-0">
+            <i [class]="editingLimit ? 'pi pi-pencil' : 'pi pi-plus'" class="mr-2"></i>
+            {{ editingLimit ? 'Edit Expense Limit' : 'Create New Expense Limit' }}
+          </h6>
+          <p-tag *ngIf="editingLimit" value="EDITING" severity="info"></p-tag>
+        </div>
+        
         <form [formGroup]="limitForm" (ngSubmit)="onSubmit()">
           <div class="grid">
-            <div class="col-12 md:col-6">
-              <label for="amount" class="block text-900 font-medium mb-2">{{ 'EL.AMOUNT_LABEL' | translate }} *</label>
-              <p-inputNumber id="amount"
-                             formControlName="amount"
-                             mode="currency"
-                             currency="USD"
-                             locale="en-US"
-                             [min]="0.01"
-                             [max]="999999.99"
-                             [placeholder]="'EL.AMOUNT_PLACEHOLDER' | translate"
-                             styleClass="w-full"
-                             [class.ng-invalid]="amountControl?.invalid && amountControl?.touched">
-              </p-inputNumber>
+            <div class="col-12 md:col-3">
+              <label for="category" class="block text-900 font-medium mb-2">
+                <i class="pi pi-tag mr-1"></i>Category *
+              </label>
+              <p-dropdown id="category"
+                         formControlName="categoryId"
+                         [options]="categories"
+                         optionLabel="name"
+                         optionValue="categoryId"
+                         placeholder="Select Category"
+                         styleClass="w-full"
+                         [disabled]="editingLimit !== null"
+                         [class.ng-invalid]="categoryControl?.invalid && categoryControl?.touched">
+              </p-dropdown>
+              <div *ngIf="categoryControl?.invalid && categoryControl?.touched" class="mt-1">
+                <small class="p-error block"><i class="pi pi-exclamation-triangle mr-1"></i>Category is required</small>
+              </div>
+            </div>
 
-              <!-- Validation Messages -->
+            <div class="col-12 md:col-3">
+              <label for="amount" class="block text-900 font-medium mb-2">
+                <i class="pi pi-dollar mr-1"></i>Limit Amount *
+              </label>
+              <p-inputNumber id="amount"
+                           formControlName="amount"
+                           mode="currency"
+                           currency="USD"
+                           locale="en-US"
+                           [min]="0.01"
+                           [max]="999999.99"
+                           placeholder="Enter amount"
+                           styleClass="w-full"
+                           [class.ng-invalid]="amountControl?.invalid && amountControl?.touched">
+              </p-inputNumber>
               <div *ngIf="amountControl?.invalid && amountControl?.touched" class="mt-1">
                 <small *ngIf="amountControl?.errors?.['required']" class="p-error block">
-                  {{ 'EL.AMOUNT_REQUIRED' | translate }}
+                  <i class="pi pi-exclamation-triangle mr-1"></i>Amount is required
                 </small>
                 <small *ngIf="amountControl?.errors?.['min']" class="p-error block">
-                  {{ 'EL.AMOUNT_MIN' | translate }}
-                </small>
-                <small *ngIf="amountControl?.errors?.['max']" class="p-error block">
-                  {{ 'EL.AMOUNT_MAX' | translate }}
+                  <i class="pi pi-exclamation-triangle mr-1"></i>Amount must be at least $0.01
                 </small>
               </div>
             </div>
 
-            <div class="col-12 md:col-6 flex align-items-end">
+            <div class="col-12 md:col-2">
+              <label class="block text-900 font-medium mb-2">
+                <i class="pi pi-power-off mr-1"></i>Status
+              </label>
+              <div class="flex align-items-center gap-2 mt-2">
+                <p-inputSwitch formControlName="isActive"></p-inputSwitch>
+                <small class="text-600">{{ limitForm.get('isActive')?.value ? 'Active' : 'Paused' }}</small>
+              </div>
+            </div>
+
+            <div class="col-12 md:col-4 flex align-items-end gap-2">
               <p-button type="submit"
-                        [label]="hasLimit ? ('EL.UPDATE_LIMIT_BTN' | translate) : ('EL.SET_LIMIT_BTN' | translate)"
-                        icon="pi pi-check"
-                        [disabled]="limitForm.invalid || loading || !userId"
+                        [label]="editingLimit ? 'Update Limit' : 'Create Limit'"
+                        [icon]="editingLimit ? 'pi pi-check' : 'pi pi-plus'"
+                        [disabled]="limitForm.invalid || loading"
                         [loading]="loading"
-                        styleClass="w-full md:w-auto">
+                        styleClass="flex-1">
+              </p-button>
+              <p-button *ngIf="editingLimit"
+                        label="Cancel"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="cancelEdit()"
+                        [disabled]="loading">
               </p-button>
             </div>
           </div>
