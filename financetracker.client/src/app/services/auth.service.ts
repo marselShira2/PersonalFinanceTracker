@@ -150,7 +150,7 @@ export class AuthService {
 
 
   resendVerificationCode(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/Auth/Auth/resend-code`, { email }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/Auth/resend-code`, { email }).pipe(
       map((response) => {
         return {
           success: true,

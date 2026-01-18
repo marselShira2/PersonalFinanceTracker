@@ -122,9 +122,43 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost("resend-code")]
-        public async Task<IActionResult> ResendCode([FromBody] UserVerifyCodeDto dto)
+        public async Task<IActionResult> ResendCode([FromBody] UserResendCodeDto dto)
         {
-            return BadRequest("Resend code is not supported. Please register again.");
+            try
+            {
+                if (!IsValidEmail(dto.Email))
+                {
+                    return BadRequest("Invalid email format.");
+                }
+
+                var pendingData = _verificationStore.GetPendingVerification(dto.Email);
+                if (pendingData == null)
+                {
+                    return BadRequest("No pending verification found for this email. Please register again.");
+                }
+
+                string newVerificationCode = new Random().Next(100000, 999999).ToString();
+                Console.WriteLine($"[Resend] Generated new code {newVerificationCode} for {dto.Email}");
+
+                _verificationStore.UpdateCode(dto.Email, newVerificationCode);
+
+                var emailBody = $"Your Finance Tracker verification code is: <strong>{newVerificationCode}</strong>. Please enter this code in the app to activate your account.";
+
+                Console.WriteLine($"[Resend] Attempting to send email to {dto.Email}");
+                await _emailService.SendEmailAsync(
+                    dto.Email,
+                    "Your Account Verification Code",
+                    emailBody
+                );
+                Console.WriteLine($"[Resend] Email send completed for {dto.Email}");
+
+                return Ok(new { Message = "A new verification code has been sent to your email." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Resend] Error: {ex.Message}");
+                return StatusCode(500, new { Message = "Failed to resend verification code." });
+            }
         }
 
 

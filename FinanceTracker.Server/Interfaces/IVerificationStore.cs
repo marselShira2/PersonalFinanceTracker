@@ -6,5 +6,7 @@
         (bool IsValid, string Email, string Username, string HashedPassword, string Currency) ValidateCode(string code);
         bool IsUserVerified(int userId);
         void SetUserVerified(int userId);
+        (string Email, string Username, string HashedPassword, string Currency)? GetPendingVerification(string email);
+        void UpdateCode(string email, string newCode);
     }
 }
