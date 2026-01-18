@@ -27,7 +27,7 @@
     <div class="field">
       <label class="font-semibold">{{ 'T.TABLE_AMOUNT' | translate }}:</label>
       <span class="ml-2" [class]="selectedTransaction.type === 'expense' ? 'text-red-500' : 'text-green-500'">
-        {{selectedTransaction.type === 'expense' ? '-' : '+'}}{{selectedTransaction.amount}} {{selectedTransaction.currency}}
+        {{selectedTransaction.type === 'expense' ? '-' : '+'}}{{ selectedTransaction | currencyDisplay }}
       </span>
     </div>
     

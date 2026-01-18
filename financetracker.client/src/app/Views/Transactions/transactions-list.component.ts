@@ -60,7 +60,7 @@ export class TransactionsListComponent implements OnInit {
     return {
       type: 'Expense',
       amount: 0,
-      currency: 'USD',
+      currency: this.currencyService.getCurrentCurrencyValue(),
       date: new Date(),
       // Default to first category if available, else 0
       categoryId: this.categories.length > 0 ? this.categories[0].categoryId : 0,

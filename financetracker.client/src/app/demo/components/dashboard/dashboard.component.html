@@ -48,8 +48,7 @@
     <p-card [header]="'PERIOD_INCOME' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-plus-circle text-5xl text-green-600 mb-3"></i>
-        <h1 class="text-green-600">${{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
-        <p class="text-lg">{{ currentPeriodData?.summary?.totalTransactions || 0 }} {{ 'TRANSACTIONS' | translate }}</p>
+        <h1 class="text-green-600">{{getCurrencySymbol()}}{{ (currentPeriodData?.summary?.totalIncome || 0) | number:'1.2-2' }}</h1>
       </div>
     </p-card>
   </div>
@@ -58,7 +57,7 @@
     <p-card [header]="'PERIOD_EXPENSES' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-minus-circle text-5xl text-red-600 mb-3"></i>
-        <h1 class="text-red-600">${{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
+        <h1 class="text-red-600">{{getCurrencySymbol()}}{{ (currentPeriodData?.summary?.totalExpense || 0) | number:'1.2-2' }}</h1>
         <p class="text-lg">{{ 'TOTAL_SPENDING' | translate }}</p>
       </div>
     </p-card>
@@ -68,7 +67,7 @@
     <p-card [header]="'PERIOD_BALANCE' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-chart-line text-5xl text-purple-500 mb-3"></i>
-        <h1 class="text-purple-600">${{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h1>
+        <h1 class="text-purple-600">{{getCurrencySymbol()}}{{ (currentPeriodData?.summary?.balance || 0) | number:'1.2-2' }}</h1>
         <p class="text-lg">{{ 'NET_BALANCE' | translate }}</p>
       </div>
     </p-card>
@@ -79,7 +78,7 @@
     <p-card [header]="'TOTAL_INCOME_ALL_TIME' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-up text-4xl text-green-500"></i>
-        <h2>${{ (allTimeSummary?.totalIncome || 0) | number:'1.2-2' }}</h2>
+        <h2>{{getCurrencySymbol()}}{{ (allTimeSummary?.totalIncome || 0) | number:'1.2-2' }}</h2>
         <p>{{ allTimeSummary?.totalTransactions || 0 }} {{ 'TRANSACTIONS' | translate }}</p>
       </div>
     </p-card>
@@ -89,7 +88,7 @@
     <p-card [header]="'TOTAL_EXPENSES_ALL_TIME' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-arrow-circle-down text-4xl text-red-500"></i>
-        <h2>${{ (allTimeSummary?.totalExpense || 0) | number:'1.2-2' }}</h2>
+        <h2>{{getCurrencySymbol()}}{{ (allTimeSummary?.totalExpense || 0) | number:'1.2-2' }}</h2>
         <p>{{ 'ALL_EXPENSES' | translate }}</p>
       </div>
     </p-card>
@@ -99,7 +98,7 @@
     <p-card [header]="'TOTAL_BALANCE_ALL_TIME' | translate" class="shadow-2">
       <div class="text-center">
         <i class="pi pi-wallet text-4xl text-blue-500"></i>
-        <h2>${{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
+        <h2>{{getCurrencySymbol()}}{{ (allTimeSummary?.balance || 0) | number:'1.2-2' }}</h2>
         <p>{{ 'CURRENT_BALANCE' | translate }}</p>
       </div>
     </p-card>
@@ -141,7 +140,7 @@
             <td>
               <p-tag [value]="tx.type" [severity]="tx.type.toLowerCase() === 'income' ? 'success' : 'danger'"></p-tag>
             </td>
-            <td>${{ (tx.amount || 0) | number:'1.2-2' }} {{ tx.currency }}</td>
+            <td>{{ tx | currencyDisplay }}</td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">

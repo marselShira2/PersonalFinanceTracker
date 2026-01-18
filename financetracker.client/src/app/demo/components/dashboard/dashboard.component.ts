@@ -18,6 +18,7 @@ import { PrimeNGConfig } from 'primeng/api';
 import { DashboardService, DashboardSummary, DashboardResponse } from '../../../services/dashboard/dashboard.service';
 import { CategoryService, Category } from '../../../services/categories/category.service';
 import { TransactionService, Transaction } from '../../../services/transaction/transaction.service';
+import { CurrencyService } from '../../../services/currency.service';
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -81,7 +82,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private primengConfig: PrimeNGConfig,
     private dashboardService: DashboardService,
     private categoryService: CategoryService,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private currencyService: CurrencyService
   ) {
     this.chartOptions = {
       responsive: true,
@@ -316,6 +318,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  getCurrencySymbol(): string {
+    return this.currencyService.getCurrencySymbol(this.currencyService.getCurrentCurrencyValue());
   }
 
   translateCalendar() {

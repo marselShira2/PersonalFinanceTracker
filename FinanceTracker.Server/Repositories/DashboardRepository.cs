@@ -1,6 +1,7 @@
 using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Repositories
@@ -8,10 +9,12 @@ namespace FinanceTracker.Server.Repositories
     public class DashboardRepository : IDashboardRepository
     {
         private readonly AppDbContext _context;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public DashboardRepository(AppDbContext context)
+        public DashboardRepository(AppDbContext context, ICurrencyConversionService currencyService)
         {
             _context = context;
+            _currencyService = currencyService;
         }
 
         public async Task<DashboardSummaryDto> GetAllTimeSummaryAsync(int userId)
@@ -20,8 +23,24 @@ namespace FinanceTracker.Server.Repositories
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
 
-            var totalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0;
-            var totalExpense = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0;
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                foreach (var transaction in transactions)
+                {
+                    if (transaction.Currency != user.DefaultCurrency)
+                    {
+                        transaction.AmountConverted = _currencyService.ConvertAmount(transaction.Amount, transaction.Currency, user.DefaultCurrency);
+                    }
+                    else
+                    {
+                        transaction.AmountConverted = transaction.Amount;
+                    }
+                }
+            }
+
+            var totalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0;
+            var totalExpense = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0;
 
             return new DashboardSummaryDto
             {
@@ -58,10 +77,26 @@ namespace FinanceTracker.Server.Repositories
                 .Where(t => t.Date >= start && t.Date <= end)
                 .ToListAsync();
 
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                foreach (var transaction in transactions)
+                {
+                    if (transaction.Currency != user.DefaultCurrency)
+                    {
+                        transaction.AmountConverted = _currencyService.ConvertAmount(transaction.Amount, transaction.Currency, user.DefaultCurrency);
+                    }
+                    else
+                    {
+                        transaction.AmountConverted = transaction.Amount;
+                    }
+                }
+            }
+
             var summary = new DashboardSummaryDto
             {
-                TotalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0,
-                TotalExpense = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0,
+                TotalIncome = transactions.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0,
+                TotalExpense = transactions.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0,
                 TotalTransactions = transactions.Count
             };
             summary.Balance = summary.TotalIncome - summary.TotalExpense;
@@ -72,7 +107,7 @@ namespace FinanceTracker.Server.Repositories
                 .Select(g => new CategoryBreakdownDto
                 {
                     CategoryName = g.Key.Name ?? "Uncategorized",
-                    Amount = g.Sum(t => t.Amount),
+                    Amount = g.Sum(t => t.AmountConverted ?? 0),
                     Type = g.Key.Type
                 })
                 .OrderByDescending(c => c.Amount)
@@ -145,8 +180,8 @@ namespace FinanceTracker.Server.Repositories
                 .Select(g => new PeriodDataDto
                 {
                     Period = g.Key.ToString(),
-                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0,
-                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0
+                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0,
+                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0
                 })
                 .OrderBy(p => Enum.Parse<DayOfWeek>(p.Period))
                 .ToList();
@@ -159,8 +194,8 @@ namespace FinanceTracker.Server.Repositories
                 .Select(g => new PeriodDataDto
                 {
                     Period = $"Day {g.Key}",
-                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0,
-                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0
+                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0,
+                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0
                 })
                 .OrderBy(p => int.Parse(p.Period.Replace("Day ", "")))
                 .ToList();
@@ -173,8 +208,8 @@ namespace FinanceTracker.Server.Repositories
                 .Select(g => new PeriodDataDto
                 {
                     Period = new DateTime(2000, g.Key, 1).ToString("MMMM"),
-                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0,
-                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0
+                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0,
+                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0
                 })
                 .OrderBy(p => DateTime.ParseExact(p.Period, "MMMM", null).Month)
                 .ToList();
@@ -187,8 +222,8 @@ namespace FinanceTracker.Server.Repositories
                 .Select(g => new PeriodDataDto
                 {
                     Period = new DateTime(2000, g.Key, 1).ToString("MMMM"),
-                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.Amount) ?? 0,
-                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.Amount) ?? 0
+                    Income = g.Where(t => t.Type.ToLower() == "income").Sum(t => (decimal?)t.AmountConverted) ?? 0,
+                    Expense = g.Where(t => t.Type.ToLower() == "expense").Sum(t => (decimal?)t.AmountConverted) ?? 0
                 })
                 .OrderBy(p => DateTime.ParseExact(p.Period, "MMMM", null).Month)
                 .ToList();

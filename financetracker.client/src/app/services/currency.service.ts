@@ -42,6 +42,10 @@ export class CurrencyService {
     this.currentCurrencySubject.next(currency);
   }
 
+  getCurrentCurrencyValue(): string {
+    return this.currentCurrencySubject.value;
+  }
+
   getCurrencySymbol(currency: string): string {
     const symbols: { [key: string]: string } = {
       'ALL': 'L',

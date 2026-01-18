@@ -3,6 +3,7 @@ import { CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { TransactionService, Transaction } from '../../services/transaction/transaction.service';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-transaction-calendar',
@@ -29,7 +30,7 @@ export class TransactionCalendarComponent implements OnInit {
   selectedTransaction: Transaction | null = null;
   showTransactionDialog = false;
 
-  constructor(private transactionService: TransactionService) {}
+  constructor(private transactionService: TransactionService, private currencyService: CurrencyService) {}
 
   ngOnInit() {
     this.loadTransactions();
@@ -52,13 +53,15 @@ export class TransactionCalendarComponent implements OnInit {
   }
 
   updateCalendarEvents() {
+    const currentCurrency = this.currencyService.getCurrentCurrencyValue();
     const events: EventInput[] = this.transactions.map(transaction => {
       const isExpense = transaction.type?.toLowerCase() === 'expense';
       const categoryName = transaction.category?.name || 'Uncategorized';
+      const displayAmount = transaction.amountConverted || transaction.amount;
       
       return {
         id: transaction.transactionId.toString(),
-        title: `${isExpense ? '-' : '+'}${transaction.amount} ${transaction.currency}`,
+        title: `${isExpense ? '-' : '+'}${displayAmount} ${currentCurrency}`,
         date: new Date(transaction.date).toISOString().split('T')[0],
         backgroundColor: isExpense ? '#dc3545' : '#28a745',
         borderColor: isExpense ? '#dc3545' : '#28a745',
