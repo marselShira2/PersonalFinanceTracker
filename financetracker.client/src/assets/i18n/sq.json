@@ -30,7 +30,11 @@
   "REGISTER_SUCCESS": "Regjistrimi u krye me sukses!",
   "REGISTER_ERROR": "Ju lutemi plotësoni të gjitha fushat.",
   "ERROR": "Gabim",
-
+  "VERIFY_YOUR_ACCOUNT": "Verifikoni Llogarinë Tuaj",
+  "ENTER_VERIFICATION_CODE": "Shkruani kodin e verifikimit të dërguar në email-in tuaj",
+  "CODE_PLACEHOLDER": "Kodi i Verifikimit",
+  "VERIFY_ACCOUNT": "Verifiko Llogarinë",
+  "RESEND_CODE": "Ridërgo Kodin",
   "TOTAL_BALANCE": "Bilanci Total",
   "CURRENT_BALANCE": "Bilanci Aktual",
   "MONTHLY_INCOME": "Të Ardhurat Mujore",

@@ -28,7 +28,11 @@
   "REGISTER_ERROR": "Please fill all fields.",
   "SIGN_UP": "Sign Up",
   "ERROR": "Error",
-
+  "VERIFY_YOUR_ACCOUNT": "Verify Your Account",
+  "ENTER_VERIFICATION_CODE": "Enter the verification code sent to your email",
+  "CODE_PLACEHOLDER": "Verification Code",
+  "VERIFY_ACCOUNT": "Verify Account",
+  "RESEND_CODE": "Resend Code",
   "TOTAL_BALANCE": "Total Balance",
   "CURRENT_BALANCE": "Current Balance",
   "MONTHLY_INCOME": "Monthly Income",
