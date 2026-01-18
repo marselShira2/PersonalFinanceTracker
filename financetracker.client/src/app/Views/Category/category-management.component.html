@@ -72,6 +72,7 @@
   <p-dialog [(visible)]="isCategoryModalOpen"
             [header]="isEditMode ? ('T.CAT_EDIT_MODAL_HEADER' | translate) : ('T.CAT_CREATE_MODAL_HEADER' | translate)"
             [modal]="true"
+            [style]="{ height: '550px' }"
             styleClass="p-fluid">
 
     <form *ngIf="selectedCategory" #categoryForm="ngForm">
@@ -92,8 +93,19 @@
       </div>
 
       <div class="field">
-        <label for="icon">{{ 'T.CAT_FIELD_ICON' | translate }} ({{ 'T.CAT_ICON_EXAMPLE' | translate }})</label>
-        <input pInputText id="icon" type="text" name="icon" [(ngModel)]="selectedCategory.icon" />
+        <label for="icon">{{ 'T.CAT_FIELD_ICON' | translate }} </label>
+        <p-dropdown id="icon"
+              [options]="iconOptions"
+              name="icon"
+              [(ngModel)]="selectedCategory.icon"
+              placeholder="{{ 'T.CAT_TABLE_ICON' | translate }}">
+          <ng-template let-item pTemplate="item">
+            <i class="pi pi-fw" [ngClass]="'pi-' + item.value"></i>&nbsp;{{ item.label }}
+          </ng-template>
+          <ng-template let-selectedItem pTemplate="selectedItem">
+            <i class="pi pi-fw" [ngClass]="'pi-' + selectedItem.value"></i>&nbsp;{{ selectedItem.label }}
+          </ng-template>
+        </p-dropdown>
         <small *ngIf="selectedCategory.icon">
           {{ 'T.CAT_ICON_PREVIEW' | translate }}: <i [class]="'pi pi-fw pi-' + selectedCategory.icon"></i>
         </small>

@@ -35,10 +35,22 @@ export class CategoryManagementComponent implements OnInit {
   // Dropdown options
   categoryTypes: ('Income' | 'Expense')[] = ['Expense', 'Income'];
 
-  availableIcons = [
-    'shopping_cart', 'attach_money', 'home', 'electric_bolt', 'local_dining'
+  // Economy / finance-related icons mapped to PrimeIcons names (label/value)
+  availableIcons: { label: string; value: string }[] = [
+    { label: '', value: 'dollar' },
+    { label: '', value: 'home' },
+    { label: '', value: 'bolt' },
+    { label: '', value: 'credit-card' },
+    { label: '', value: 'wallet' },
+    { label: '', value: 'file' },
+    { label: '', value: 'phone' },
+    { label: '', value: 'light' },
   ];
 
+  // Dropdown-friendly icon options (same shape)
+  iconOptions: { label: string; value: string }[] = this.availableIcons;
+
+  // (dialog resize reverted) — no dialogStyle or dropdown handlers
   constructor(private categoryService: CategoryService) {
     this.selectedCategory = this.resetCategoryForm();
   }
@@ -73,7 +85,7 @@ export class CategoryManagementComponent implements OnInit {
     return {
       name: '',
       type: 'Expense',
-      icon: 'shopping_cart'
+      icon: null as any
     };
   }
 
@@ -83,6 +95,16 @@ export class CategoryManagementComponent implements OnInit {
     this.isEditMode = false;
     this.selectedCategory = this.resetCategoryForm();
     this.isCategoryModalOpen = true;
+    // Ensure the form control is reset so the dropdown shows the placeholder
+    setTimeout(() => {
+      try {
+        if (this.categoryForm) {
+          this.categoryForm.resetForm(this.selectedCategory as any);
+        }
+      } catch (e) {
+        // ignore if form not yet available
+      }
+    }, 0);
   }
 
   async openEditModal(id: number): Promise<void> {
