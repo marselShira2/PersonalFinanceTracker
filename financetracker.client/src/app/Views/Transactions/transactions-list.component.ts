@@ -62,12 +62,32 @@ export class TransactionsListComponent implements OnInit {
       amount: 0,
       currency: this.currencyService.getCurrentCurrencyValue(),
       date: new Date(),
-      // Default to first category if available, else 0
-      categoryId: this.categories.length > 0 ? this.categories[0].categoryId : 0,
+      // Default to first category of the default type if available, else first category, else 0
+      categoryId: (this.categories.find(c => c.type === 'Expense') || this.categories[0])?.categoryId ?? 0,
       description: '',
       isRecurring: false,
       photoUrl: ''
     };
+  }
+
+  // Returns categories filtered by the currently selected transaction type
+  get filteredCategories(): Category[] {
+    const type = (this.selectedTransaction as any)?.type as string | undefined;
+    if (!type) return this.categories;
+    return this.categories.filter(c => c.type?.toLowerCase() === type.toLowerCase());
+  }
+
+  onTypeChange(event: any): void {
+    const newType = event?.value;
+    if (!this.selectedTransaction) return;
+
+    // If the currently selected category doesn't match the new type, reset to a matching category or 0
+    const currentCatId = (this.selectedTransaction as any).categoryId;
+    const valid = this.categories.find(c => c.categoryId === currentCatId && c.type?.toLowerCase() === newType?.toLowerCase());
+    if (!valid) {
+      const firstMatch = this.categories.find(c => c.type?.toLowerCase() === newType?.toLowerCase());
+      (this.selectedTransaction as any).categoryId = firstMatch ? firstMatch.categoryId : 0;
+    }
   }
 
   loadCategories(): void {

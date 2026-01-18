@@ -25,12 +25,12 @@
 
   <div class="mt-3" *ngIf="showExtraFilters">
     <div class="grid gap-3">
-      <div class="col-6">
+      <!-- <div class="col-6">
         <label class="block mb-2 font-semibold">{{ 'CATEGORY_FILTER' | translate }}</label>
         <p-dropdown [options]="categories" [(ngModel)]="selectedCategory"  
                             optionLabel="name" optionValue="categoryId" [placeholder]="'ALL_CATEGORIES' | translate"  
                             [showClear]="true" (onChange)="onCategoryChange($event)" styleClass="w-full" appendTo="body"></p-dropdown>
-      </div>
+      </div> -->
 
       <div class="col-6">
         <label class="block mb-2 font-semibold">{{ 'CHART_TYPE' | translate }}</label>
