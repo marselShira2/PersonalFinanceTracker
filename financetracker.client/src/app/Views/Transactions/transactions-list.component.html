@@ -153,6 +153,7 @@
                     [(ngModel)]="selectedTransaction.type"
                     [options]="[{label: 'Income', value: 'Income'}, {label: 'Expense', value: 'Expense'}]"
                     placeholder="{{ 'T.SELECT_TYPE_PLACEHOLDER' | translate }}"
+                    (onChange)="onTypeChange($event)"
                     required></p-dropdown>
       </div>
 
@@ -201,7 +202,7 @@
         <label for="category">{{ 'T.FIELD_CATEGORY' | translate }}</label>
         <p-dropdown id="category" name="categoryId"
                     [(ngModel)]="selectedTransaction.categoryId"
-                    [options]="categories"
+                    [options]="filteredCategories"
                     optionLabel="name"
                     optionValue="categoryId"
                     placeholder="{{ 'T.SELECT_CATEGORY_PLACEHOLDER' | translate }}"
