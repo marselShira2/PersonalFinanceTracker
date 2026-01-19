@@ -16,6 +16,11 @@ export class CurrencyService {
   public currentCurrency$ = this.currentCurrencySubject.asObservable();
 
   constructor(private http: HttpClient) {
+    // Don't load currency in constructor as user might not be authenticated yet
+  }
+
+  // Call this method after successful login
+  initializeCurrency(): void {
     this.loadCurrentCurrency();
   }
 
@@ -34,6 +39,7 @@ export class CurrencyService {
       },
       error: (error) => {
         console.error('Failed to load current currency:', error);
+        // Keep default USD if loading fails
       }
     });
   }

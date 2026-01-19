@@ -375,8 +375,6 @@ debugger
   }
 
   getCurrentCurrency(): string {
-    let currency = 'USD';
-    this.currencyService.currentCurrency$.subscribe(c => currency = c);
-    return currency;
+    return this.currencyService.getCurrentCurrencyValue();
   }
 }

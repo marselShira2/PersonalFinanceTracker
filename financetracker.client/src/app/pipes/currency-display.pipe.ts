@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { CurrencyService } from '../services/currency.service';
 
 @Pipe({
-  name: 'currencyDisplay'
+  name: 'currencyDisplay',
+  pure: false
 })
 export class CurrencyDisplayPipe implements PipeTransform {
   
@@ -16,12 +17,8 @@ export class CurrencyDisplayPipe implements PipeTransform {
       return `${symbol}${transaction.amount.toFixed(2)}`;
     }
 
-    // Show converted amount
-    let currentCurrency = 'USD';
-    this.currencyService.currentCurrency$.subscribe(currency => {
-      currentCurrency = currency;
-    });
-
+    // Show converted amount using the current currency value
+    const currentCurrency = this.currencyService.getCurrentCurrencyValue();
     const symbol = this.currencyService.getCurrencySymbol(currentCurrency);
     return `${symbol}${transaction.amountConverted.toFixed(2)}`;
   }

@@ -19,78 +19,97 @@ namespace FinanceTracker.Server.Repositories
 
         private async Task ProcessExpenseLogicAsync(Transaction transaction)
         {
-            // 1. Get the Budget Limit for this user
+            // Only process if transaction has a category
+            if (!transaction.CategoryId.HasValue) return;
+
+            var currentMonth = transaction.Date.Month;
+            var currentYear = transaction.Date.Year;
+
+            // Get the expense limit for this specific category and month/year
             var expenseLimit = await _context.ExpenseLimits
                 .Include(u => u.User)
-                .FirstOrDefaultAsync(e => e.UserId == transaction.UserId && e.IsActive);
+                .Include(c => c.Category)
+                .FirstOrDefaultAsync(e => e.UserId == transaction.UserId && 
+                                        e.CategoryId == transaction.CategoryId &&
+                                        e.Month == currentMonth &&
+                                        e.Year == currentYear &&
+                                        e.IsActive);
 
-            // 2. Subtract the amount from the budget (if a budget exists)
-            if (expenseLimit != null)
-            {
-                expenseLimit.Balance -= transaction.Amount;
-                _context.ExpenseLimits.Update(expenseLimit);
-            }
+            if (expenseLimit == null) return; // No active limit for this category/month
 
-            // 3. Get User Email safely
-            string? userEmail = expenseLimit?.User?.Email;
+            // Calculate total spent in this category for this month (including current transaction)
+            var startDate = new DateOnly(currentYear, currentMonth, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var effectiveStartDate = expenseLimit.StartDate < startDate ? startDate : expenseLimit.StartDate;
+
+            var totalSpent = await _context.Transactions
+                .Where(t => t.UserId == transaction.UserId && 
+                           t.CategoryId == transaction.CategoryId && 
+                           t.Type.ToLower() == "expense" &&
+                           t.Date >= effectiveStartDate && 
+                           t.Date <= endDate)
+                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
+            // Get User Email
+            string? userEmail = expenseLimit.User?.Email;
             if (string.IsNullOrEmpty(userEmail))
             {
                 var user = await _context.Users.FindAsync(transaction.UserId);
                 userEmail = user?.Email;
             }
 
-            // 4. Check for Alerts
-            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail);
+            // Check for Alerts based on category spending
+            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail, totalSpent);
 
             // Save Notifications
             await _context.SaveChangesAsync();
         }
 
-        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail)
+        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail, decimal totalSpent)
         {
             string title = "";
             string message = "";
             string type = "Info";
             bool shouldNotify = false;
 
-            // Check Budget Percentage
+            // Check Budget Percentage based on category spending
             if (limit != null && limit.LimitAmount > 0)
             {
-                decimal spent = limit.LimitAmount - limit.Balance;
-                decimal percentage = (limit.LimitAmount > 0) ? (spent / limit.LimitAmount) * 100 : 0;
+                decimal percentage = (totalSpent / limit.LimitAmount) * 100;
+                string categoryName = limit.Category?.Name ?? "Unknown Category";
 
                 if (percentage >= 100)
                 {
                     title = "Buxheti u Tejkalua";
-                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin tuaj! Përdorur: {percentage:0}%";
+                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin për kategorinë '{categoryName}'! Përdorur: {percentage:0}% ({totalSpent:F2}/{limit.LimitAmount:F2})";
                     type = "Critical";
                     shouldNotify = true;
                 }
                 else if (percentage >= 95)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 90)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 70)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit tuaj!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 50 && percentage < 55)
                 {
                     title = "👀 Përditësim i Buxhetit";
-                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit tuaj.";
+                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2}).";
                     type = "Info";
                     shouldNotify = true;
                 }
@@ -104,6 +123,7 @@ namespace FinanceTracker.Server.Repositories
                 type = "Info";
                 shouldNotify = true;
             }
+            
             // Save Notification & Send Email
             if (shouldNotify)
             {
@@ -268,8 +288,14 @@ namespace FinanceTracker.Server.Repositories
                     if (!string.IsNullOrEmpty(transaction.Type) && transaction.Type.ToLower() == "expense")
                     {
                         // We reuse the same logic we wrote for single transactions
-                        // Note: This also sends emails. If you upload 50 items, you might get 50 emails!
-                        await ProcessExpenseLogicAsync(transaction);
+                        try
+                        {
+                            await ProcessExpenseLogicAsync(transaction);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[Warning] Notification logic failed for transaction {transaction.TransactionId}: {ex.Message}");
+                        }
                     }
                 }
                 //

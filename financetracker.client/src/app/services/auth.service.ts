@@ -9,6 +9,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 import { CheckMfa } from '../interfaces/check-mfa';
 import { InactivityService } from './ValidationFunctions/ActivityRefreshToken'
+import { CurrencyService } from './currency.service';
 //  
 
 export interface VerifyCodeRequest {
@@ -50,6 +51,8 @@ export class AuthService {
   private userKey = 'user'
   private lastTime = 0;
   private _inactivityService: InactivityService | undefined;
+  private _currencyService: CurrencyService | undefined;
+  
   constructor(
     private http: HttpClient,
     private injector: Injector) { }
@@ -62,6 +65,14 @@ export class AuthService {
     return this._inactivityService;
   }
 
+  private get currencyService(): CurrencyService {
+    // If the service hasn't been fetched yet, get it from the injector.
+    if (!this._currencyService) {
+      this._currencyService = this.injector.get(CurrencyService);
+    }
+    return this._currencyService;
+  }
+
   login(data: LoginRequest): Observable<any> {
     return this.http
       .post<any>(`${this.apiUrl}/Auth/login`, data)
@@ -71,6 +82,8 @@ export class AuthService {
             // Login successful
             localStorage.setItem(this.userKey, JSON.stringify(response));
             this.inactivityService.startMonitoring();
+            // Initialize currency service after successful login
+            setTimeout(() => this.currencyService.initializeCurrency(), 100);
           }
           return response;
         })
@@ -86,6 +99,8 @@ export class AuthService {
 
             localStorage.setItem(this.userKey, JSON.stringify(response))
             this.inactivityService.startMonitoring();
+            // Initialize currency service after successful registration
+            setTimeout(() => this.currencyService.initializeCurrency(), 100);
           }
           if (response.authSource) {
             localStorage.setItem('authSource', response.authSource);
@@ -208,6 +223,8 @@ export class AuthService {
         map((response) => {
           if (response.isSuccess) {
             localStorage.setItem(this.userKey, JSON.stringify(response));
+            // Initialize currency service after successful SSO login
+            setTimeout(() => this.currencyService.initializeCurrency(), 100);
           }
           return response;
         })
@@ -333,6 +350,8 @@ export class AuthService {
       map((response) => {
         if (response.isSuccess) {
           localStorage.setItem(this.userKey, JSON.stringify(response));
+          // Reinitialize currency service after token refresh
+          setTimeout(() => this.currencyService.initializeCurrency(), 100);
           return true; // Token refreshed successfully
         }
         return false; // Token refresh failed

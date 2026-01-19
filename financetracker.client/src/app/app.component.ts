@@ -3,6 +3,7 @@ import { PrimeNGConfig } from 'primeng/api';
 import { Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { InactivityService } from './services/ValidationFunctions/ActivityRefreshToken';
 import { AuthService } from './services/auth.service';
+import { CurrencyService } from './services/currency.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit {
     private renderer: Renderer2,
     private inactivityService: InactivityService,
     private authService: AuthService,
+    private currencyService: CurrencyService
   ) { }
 
   async ngOnInit() {
@@ -25,6 +27,8 @@ export class AppComponent implements OnInit {
    
     if (await this.authService.isLoggedIn()) {
       this.inactivityService.startMonitoring();
+      // Initialize currency service if user is already logged in
+      this.currencyService.initializeCurrency();
     }
   }
 
