@@ -54,6 +54,18 @@ export class NotificationService {
     });
   }
 
+  async getUnreadCount(): Promise<number> {
+    try {
+      const response = await lastValueFrom(
+        this.http.get<{count: number}>(`${this.apiUrl}/Notification/unread-count`)
+      );
+      return response.count;
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+      return 0;
+    }
+  }
+
   async getNotificationsPaginated(page: number = 1, pageSize: number = 5): Promise<any> {
     try {
       const response = await lastValueFrom(

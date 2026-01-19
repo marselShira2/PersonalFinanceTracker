@@ -23,6 +23,7 @@ export class NotificationsComponent implements OnInit {
 
   activeTab: 'new' | 'old' = 'new';
   notifications: any[] = [];
+  totalUnreadCount: number = 0;
   languageChangeSubscription?: Subscription;
   transactionSubscription?: Subscription;
   userId: string | undefined | null;
@@ -68,7 +69,13 @@ export class NotificationsComponent implements OnInit {
 
   async loadNotifications(): Promise<void> {
     try {
-      const data = await this.notificationService.getNotificationsPaginated(1, 5);
+      // Load both notifications and unread count
+      const [data, unreadCount] = await Promise.all([
+        this.notificationService.getNotificationsPaginated(1, 5),
+        this.notificationService.getUnreadCount()
+      ]);
+      
+      this.totalUnreadCount = unreadCount;
       const currentLanguage = this.translate.currentLang;
 
       this.notifications = data.notifications.map((notification: any) => {
@@ -101,13 +108,20 @@ export class NotificationsComponent implements OnInit {
         idskvNotification: notification.id,
         time: notification.time,
         seen: false,
+        isRead: false,
         englishMessage: notification.englishMessage,
         link: notification.Link,
         priority: notification.priority
       };
 
       // Add the notification to the list
-      this.notifications.push(newNotification);
+      this.notifications.unshift(newNotification); // Add to beginning
+      // Keep only 5 notifications in the dropdown
+      if (this.notifications.length > 5) {
+        this.notifications = this.notifications.slice(0, 5);
+      }
+      // Increment total unread count
+      this.totalUnreadCount++;
       console.log('Updated notifications:', this.notifications);
     }
   }
@@ -163,7 +177,7 @@ export class NotificationsComponent implements OnInit {
   }
 
   get unseenNotificationCount() {
-    return this.notifications.filter(notification => !notification.isRead).length;
+    return this.totalUnreadCount;
   }
 
   setActiveTab(tab: 'new' | 'old', event: Event) {
@@ -268,8 +282,9 @@ export class NotificationsComponent implements OnInit {
       await this.notificationService.markAsRead(parseInt(notificationId));
       // Update local state
       const index = this.notifications.findIndex(n => n.idskvNotification === notificationId);
-      if (index !== -1) {
+      if (index !== -1 && !this.notifications[index].isRead) {
         this.notifications[index].isRead = true;
+        this.totalUnreadCount = Math.max(0, this.totalUnreadCount - 1);
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
