@@ -1,6 +1,7 @@
 using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Data.Dto;
+using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -13,10 +14,12 @@ namespace FinanceTracker.Server.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationRepository _notificationRepo;
+        private readonly ILocalizationService _localizationService;
 
-        public NotificationController(INotificationRepository notificationRepo)
+        public NotificationController(INotificationRepository notificationRepo, ILocalizationService localizationService)
         {
             _notificationRepo = notificationRepo;
+            _localizationService = localizationService;
         }
 
         private int GetUserId()
@@ -49,14 +52,22 @@ namespace FinanceTracker.Server.Controllers
             }
         }
 
-        // GET: api/Notification?page=1&pageSize=5
+        // GET: api/Notification?page=1&pageSize=5&language=en
         [HttpGet]
-        public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 5, [FromQuery] string language = "en")
         {
             try
             {
                 int userId = GetUserId();
                 var result = await _notificationRepo.GetNotificationsAsync(userId, page, pageSize);
+                
+                // Extract language-specific text from dual-language messages
+                foreach (var notification in result.Notifications)
+                {
+                    notification.Title = ExtractLanguageText(notification.Title, language);
+                    notification.Message = ExtractLanguageText(notification.Message, language);
+                }
+                
                 return Ok(result);
             }
             catch (UnauthorizedAccessException)
@@ -66,6 +77,29 @@ namespace FinanceTracker.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Internal server error.", Error = ex.Message });
+            }
+        }
+
+        private string ExtractLanguageText(string dualLanguageText, string language)
+        {
+            if (string.IsNullOrEmpty(dualLanguageText)) return dualLanguageText;
+            
+            var prefix = $"{language}:";
+            var startIndex = dualLanguageText.IndexOf(prefix);
+            
+            if (startIndex == -1) return dualLanguageText; // Return original if format not found
+            
+            startIndex += prefix.Length;
+            var nextLangIndex = dualLanguageText.IndexOf(" en:", startIndex);
+            if (nextLangIndex == -1) nextLangIndex = dualLanguageText.IndexOf(" sq:", startIndex);
+            
+            if (nextLangIndex == -1)
+            {
+                return dualLanguageText.Substring(startIndex).Trim();
+            }
+            else
+            {
+                return dualLanguageText.Substring(startIndex, nextLangIndex - startIndex).Trim();
             }
         }
 

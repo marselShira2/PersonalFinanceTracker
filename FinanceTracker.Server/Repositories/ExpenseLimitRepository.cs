@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Repositories
@@ -8,10 +9,12 @@ namespace FinanceTracker.Server.Repositories
     public class ExpenseLimitRepository : IExpenseLimitRepository
     {
         private readonly AppDbContext _context;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public ExpenseLimitRepository(AppDbContext context)
+        public ExpenseLimitRepository(AppDbContext context, ICurrencyConversionService currencyService)
         {
             _context = context;
+            _currencyService = currencyService;
         }
 
         public async Task<ExpenseLimit> SetLimitAsync(int userId, int categoryId, decimal amount, int month, int year, bool isActive = true)
@@ -97,14 +100,36 @@ namespace FinanceTracker.Server.Repositories
                 return limit.LimitAmount - limit.Balance;
             }
 
+            // Get user's default currency for conversion
+            var user = await _context.Users.FindAsync(userId);
+            var defaultCurrency = user?.DefaultCurrency ?? "USD";
+
             // If active, only count transactions from StartDate forward
             var effectiveStartDate = limit?.StartDate ?? startDate;
             if (effectiveStartDate < startDate) effectiveStartDate = startDate;
             
-            return await _context.Transactions
+            var transactions = await _context.Transactions
                 .Where(x => x.UserId == userId && x.CategoryId == categoryId && x.Type == "expense" && 
                            x.Date >= effectiveStartDate && x.Date <= endDate)
-                .SumAsync(x => (decimal?)(x.AmountConverted ?? x.Amount)) ?? 0;
+                .ToListAsync();
+
+            decimal totalSpent = 0;
+            foreach (var transaction in transactions)
+            {
+                if (transaction.AmountConverted.HasValue && transaction.Currency == defaultCurrency)
+                {
+                    // Use already converted amount if it matches default currency
+                    totalSpent += transaction.AmountConverted.Value;
+                }
+                else
+                {
+                    // Always convert to ensure correct currency
+                    var convertedAmount = _currencyService.ConvertAmount(transaction.Amount, transaction.Currency, defaultCurrency);
+                    totalSpent += convertedAmount;
+                }
+            }
+
+            return totalSpent;
         }
 
         public async Task<bool> IsLimitActiveAsync(int userId, int categoryId, int month, int year)

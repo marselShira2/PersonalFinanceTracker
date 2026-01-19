@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments/environment';
 import { Observable, of, lastValueFrom } from 'rxjs';
 import { NotificationsDTO } from '../Models/notifications-dto.model';
@@ -18,7 +19,7 @@ export class NotificationService {
   private username: string = "";
 
   apiUrlNot = environment.production == false ? `https://localhost:5001` : "https://kontrolli-tst.aksk.gov.al"; 
-  constructor(private http: HttpClient, private authService: AuthService) {
+  constructor(private http: HttpClient, private authService: AuthService, private translate: TranslateService) {
     var user = authService.getUserDetail();
     this.username =  user?.email ?? "";
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -68,8 +69,9 @@ export class NotificationService {
 
   async getNotificationsPaginated(page: number = 1, pageSize: number = 5): Promise<any> {
     try {
+      const currentLanguage = this.translate.currentLang || 'en';
       const response = await lastValueFrom(
-        this.http.get<any>(`${this.apiUrl}/Notification?page=${page}&pageSize=${pageSize}`)
+        this.http.get<any>(`${this.apiUrl}/Notification?page=${page}&pageSize=${pageSize}&language=${currentLanguage}`)
       );
       return response;
     } catch (error) {

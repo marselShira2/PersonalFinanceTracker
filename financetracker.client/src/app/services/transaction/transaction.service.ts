@@ -1,6 +1,7 @@
 import { Observable, Subject } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { Category } from '../categories/category.service';
 import { tap } from 'rxjs/operators';
@@ -42,7 +43,7 @@ export class TransactionService {
   private transactionCreated = new Subject<void>();
   public transactionCreated$ = this.transactionCreated.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private translate: TranslateService) { }
 
   /**
    * Fetches transactions from the API with optional filtering.
@@ -95,8 +96,13 @@ export class TransactionService {
    */
   createTransaction(dto: TransactionCreateDto): Observable<Transaction> {
     const formattedDto = this.formatDateDto(dto);
+    const currentLanguage = this.translate.currentLang || 'en';
+    
+    let params = new HttpParams();
+    params = params.set('language', currentLanguage);
+    
     const createUrl = `${this.apiUrl}/create`;
-    return this.http.post<Transaction>(createUrl, formattedDto).pipe(
+    return this.http.post<Transaction>(createUrl, formattedDto, { params }).pipe(
       tap(() => {
         // Notify that a transaction was created (for notification refresh)
         this.transactionCreated.next();

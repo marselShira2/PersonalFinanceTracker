@@ -42,7 +42,7 @@ namespace FinanceTracker.Server.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto)
+        public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto dto, [FromQuery] string language = "en")
         {
             try
             { 
@@ -95,7 +95,7 @@ namespace FinanceTracker.Server.Controllers
                     PhotoUrl = dto.PhotoUrl
                 };
 
-                var newTransaction = await _transactionRepository.AddTransactionAsync(transaction);
+                var newTransaction = await _transactionRepository.AddTransactionAsync(transaction, language);
                 
                 return CreatedAtAction(nameof(GetTransaction), new { id = newTransaction.TransactionId }, newTransaction);
             }

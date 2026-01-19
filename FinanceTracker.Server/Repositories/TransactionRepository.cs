@@ -2,6 +2,7 @@
 using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 
@@ -11,13 +12,16 @@ namespace FinanceTracker.Server.Repositories
     {
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
-        public TransactionRepository(AppDbContext context, IEmailService emailService)
+        private readonly ILocalizationService _localizationService;
+        
+        public TransactionRepository(AppDbContext context, IEmailService emailService, ILocalizationService localizationService)
         {
             _context = context;
             _emailService = emailService;
+            _localizationService = localizationService;
         }
 
-        private async Task ProcessExpenseLogicAsync(Transaction transaction)
+        private async Task ProcessExpenseLogicAsync(Transaction transaction, string language = "en")
         {
             // Only process if transaction has a category
             if (!transaction.CategoryId.HasValue) return;
@@ -59,13 +63,13 @@ namespace FinanceTracker.Server.Repositories
             }
 
             // Check for Alerts based on category spending
-            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail, totalSpent);
+            await CheckAndNotifyAsync(expenseLimit, transaction, userEmail, totalSpent, language);
 
             // Save Notifications
             await _context.SaveChangesAsync();
         }
 
-        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail, decimal totalSpent)
+        private async Task CheckAndNotifyAsync(ExpenseLimit? limit, Transaction transaction, string? userEmail, decimal totalSpent, string language = "en")
         {
             string title = "";
             string message = "";
@@ -85,36 +89,41 @@ namespace FinanceTracker.Server.Repositories
 
                 if (percentage >= 100)
                 {
-                    title = "Buxheti u Tejkalua";
-                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin për kategorinë '{categoryName}'! Përdorur: {percentage:0}% ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})";
+                    title = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_TITLE", language);
+                    message = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_MESSAGE", language, 
+                        categoryName, percentage.ToString("0"), totalSpent.ToString("F2"), defaultCurrency, limit.LimitAmount.ToString("F2"), defaultCurrency);
                     type = "Critical";
                     shouldNotify = true;
                 }
                 else if (percentage >= 95)
                 {
-                    title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
+                    title = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", language);
+                    message = _localizationService.GetLocalizedMessage("BUDGET_WARNING_95_MESSAGE", language,
+                        percentage.ToString("0"), categoryName, totalSpent.ToString("F2"), defaultCurrency, limit.LimitAmount.ToString("F2"), defaultCurrency);
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 90)
                 {
-                    title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
+                    title = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", language);
+                    message = _localizationService.GetLocalizedMessage("BUDGET_WARNING_90_MESSAGE", language,
+                        percentage.ToString("0"), categoryName, totalSpent.ToString("F2"), defaultCurrency, limit.LimitAmount.ToString("F2"), defaultCurrency);
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 70)
                 {
-                    title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
+                    title = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", language);
+                    message = _localizationService.GetLocalizedMessage("BUDGET_WARNING_70_MESSAGE", language,
+                        percentage.ToString("0"), categoryName, totalSpent.ToString("F2"), defaultCurrency, limit.LimitAmount.ToString("F2"), defaultCurrency);
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 50 && percentage < 55)
                 {
-                    title = "👀 Përditësim i Buxhetit";
-                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency}).";
+                    title = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_TITLE", language);
+                    message = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_MESSAGE", language,
+                        percentage.ToString("0"), categoryName, totalSpent.ToString("F2"), defaultCurrency, limit.LimitAmount.ToString("F2"), defaultCurrency);
                     type = "Info";
                     shouldNotify = true;
                 }
@@ -123,8 +132,9 @@ namespace FinanceTracker.Server.Repositories
             // Check Recurring Confirmation (only if not Critical)
             if (transaction.IsRecurring == true && type != "Critical")
             {
-                title = "Pagese e perseritshme";
-                message = $"🔄 Pagesa e perseritshme e {displayAmount:F2} {defaultCurrency} u rregjistrua.";
+                title = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_TITLE", language);
+                message = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_MESSAGE", language,
+                    displayAmount.ToString("F2"), defaultCurrency);
                 type = "Info";
                 shouldNotify = true;
             }
@@ -132,11 +142,66 @@ namespace FinanceTracker.Server.Repositories
             // Save Notification & Send Email
             if (shouldNotify)
             {
+                // Create messages in both languages
+                string titleEn = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_TITLE", "en");
+                string titleSq = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_TITLE", "sq");
+                string messageEn = "";
+                string messageSq = "";
+
+                if (limit != null && limit.LimitAmount > 0)
+                {
+                    decimal percentage = (totalSpent / limit.LimitAmount) * 100;
+                    string categoryName = limit.Category?.Name ?? "Unknown Category";
+
+                    if (percentage >= 100)
+                    {
+                        titleEn = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_TITLE", "en");
+                        titleSq = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_TITLE", "sq");
+                        messageEn = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_MESSAGE", "en", categoryName, percentage.ToString("0"));
+                        messageSq = _localizationService.GetLocalizedMessage("BUDGET_EXCEEDED_MESSAGE", "sq", categoryName, percentage.ToString("0"));
+                    }
+                    else if (percentage >= 95)
+                    {
+                        titleEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "en");
+                        titleSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "sq");
+                        messageEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_95_MESSAGE", "en", percentage.ToString("0"), categoryName);
+                        messageSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_95_MESSAGE", "sq", percentage.ToString("0"), categoryName);
+                    }
+                    else if (percentage >= 90)
+                    {
+                        titleEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "en");
+                        titleSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "sq");
+                        messageEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_90_MESSAGE", "en", percentage.ToString("0"), categoryName);
+                        messageSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_90_MESSAGE", "sq", percentage.ToString("0"), categoryName);
+                    }
+                    else if (percentage >= 70)
+                    {
+                        titleEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "en");
+                        titleSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_TITLE", "sq");
+                        messageEn = _localizationService.GetLocalizedMessage("BUDGET_WARNING_70_MESSAGE", "en", percentage.ToString("0"), categoryName);
+                        messageSq = _localizationService.GetLocalizedMessage("BUDGET_WARNING_70_MESSAGE", "sq", percentage.ToString("0"), categoryName);
+                    }
+                    else if (percentage >= 50 && percentage < 55)
+                    {
+                        titleEn = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_TITLE", "en");
+                        titleSq = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_TITLE", "sq");
+                        messageEn = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_MESSAGE", "en", percentage.ToString("0"), categoryName);
+                        messageSq = _localizationService.GetLocalizedMessage("BUDGET_UPDATE_MESSAGE", "sq", percentage.ToString("0"), categoryName);
+                    }
+                }
+                else if (transaction.IsRecurring == true && type != "Critical")
+                {
+                    titleEn = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_TITLE", "en");
+                    titleSq = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_TITLE", "sq");
+                    messageEn = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_MESSAGE", "en", displayAmount.ToString("F2"), defaultCurrency);
+                    messageSq = _localizationService.GetLocalizedMessage("RECURRING_PAYMENT_MESSAGE", "sq", displayAmount.ToString("F2"), defaultCurrency);
+                }
+
                 var notif = new Notification
                 {
                     UserId = transaction.UserId,
-                    Title = title,
-                    Message = message,
+                    Title = $"en:{titleEn} sq:{titleSq}",
+                    Message = $"en:{messageEn} sq:{messageSq}",
                     Type = type,
                     CreatedAt = DateTime.Now,
                     IsRead = false
@@ -157,7 +222,7 @@ namespace FinanceTracker.Server.Repositories
                 }
             }
         }
-        public async Task<Transaction> AddTransactionAsync(Transaction transaction)
+        public async Task<Transaction> AddTransactionAsync(Transaction transaction, string language = "en")
         {
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
@@ -165,7 +230,7 @@ namespace FinanceTracker.Server.Repositories
             {
                 try
                 {
-                    await ProcessExpenseLogicAsync(transaction);
+                    await ProcessExpenseLogicAsync(transaction, language);
                 }
                 catch (Exception ex)
                 {
