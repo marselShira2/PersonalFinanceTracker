@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Server.Data;
 using FinanceTracker.Server.Interfaces;
 using FinanceTracker.Server.Models;
+using FinanceTracker.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Server.Services
@@ -37,6 +38,8 @@ namespace FinanceTracker.Server.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var transactionRepo = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+                var currencyService = scope.ServiceProvider.GetRequiredService<ICurrencyConversionService>();
                 var today = DateOnly.FromDateTime(DateTime.Now);
 
                 var dueRecurring = await context.Transactions
@@ -45,6 +48,20 @@ namespace FinanceTracker.Server.Services
 
                 foreach (var template in dueRecurring)
                 {
+                    // Get user's default currency for conversion
+                    var user = await context.Users.FindAsync(template.UserId);
+                    var defaultCurrency = user?.DefaultCurrency ?? "USD";
+                    
+                    // Calculate converted amount
+                    decimal convertedAmount = template.Amount;
+                    decimal? conversionRate = null;
+                    
+                    if (!string.Equals(template.Currency, defaultCurrency, StringComparison.OrdinalIgnoreCase))
+                    {
+                        conversionRate = currencyService.GetConversionRate(template.Currency, defaultCurrency);
+                        convertedAmount = currencyService.ConvertAmount(template.Amount, template.Currency, defaultCurrency);
+                    }
+
                     var newTransaction = new Transaction
                     {
                         UserId = template.UserId,
@@ -52,13 +69,21 @@ namespace FinanceTracker.Server.Services
                         Currency = template.Currency,
                         Type = template.Type,
                         Amount = template.Amount,
+                        AmountConverted = convertedAmount,
+                        ConversionRate = conversionRate,
                         Description = template.Description,
                         Date = today,
-                        IsRecurring = false
+                        IsRecurring = true, // Generated transactions are also recurring
+                        RecurringFrequency = template.RecurringFrequency,
+                        NextOccurrenceDate = CalculateNextOccurrence(today, template.RecurringFrequency)
                     };
 
-                    context.Transactions.Add(newTransaction);
+                    // Use the repository method to ensure notifications are triggered
+                    await transactionRepo.AddTransactionAsync(newTransaction, "en");
+                    
+                    // Update next occurrence date
                     template.NextOccurrenceDate = CalculateNextOccurrence(today, template.RecurringFrequency);
+                    context.Transactions.Update(template);
                 }
 
                 await context.SaveChangesAsync();
