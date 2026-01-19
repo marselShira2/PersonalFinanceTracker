@@ -11,5 +11,6 @@
         public int Month { get; set; }
         public int Year { get; set; }
         public bool IsActive { get; set; }
+        public string Currency { get; set; } = string.Empty;
     }
 }

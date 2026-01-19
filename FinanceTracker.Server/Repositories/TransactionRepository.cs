@@ -48,7 +48,7 @@ namespace FinanceTracker.Server.Repositories
                            t.Type.ToLower() == "expense" &&
                            t.Date >= effectiveStartDate && 
                            t.Date <= endDate)
-                .SumAsync(t => (decimal?)t.Amount) ?? 0;
+                .SumAsync(t => (decimal?)(t.AmountConverted ?? t.Amount)) ?? 0;
 
             // Get User Email
             string? userEmail = expenseLimit.User?.Email;
@@ -72,6 +72,11 @@ namespace FinanceTracker.Server.Repositories
             string type = "Info";
             bool shouldNotify = false;
 
+            // Get user's default currency for display
+            var user = await _context.Users.FindAsync(transaction.UserId);
+            string defaultCurrency = user?.DefaultCurrency ?? "USD";
+            decimal displayAmount = transaction.AmountConverted ?? transaction.Amount;
+
             // Check Budget Percentage based on category spending
             if (limit != null && limit.LimitAmount > 0)
             {
@@ -81,35 +86,35 @@ namespace FinanceTracker.Server.Repositories
                 if (percentage >= 100)
                 {
                     title = "Buxheti u Tejkalua";
-                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin për kategorinë '{categoryName}'! Përdorur: {percentage:0}% ({totalSpent:F2}/{limit.LimitAmount:F2})";
+                    message = $"🚨 ALARM: Ju e keni tejkaluar buxhetin për kategorinë '{categoryName}'! Përdorur: {percentage:0}% ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})";
                     type = "Critical";
                     shouldNotify = true;
                 }
                 else if (percentage >= 95)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 90)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 70)
                 {
                     title = "Paralajmërim Buxheti";
-                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2})!";
+                    message = $"⚠️ RREZIK: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency})!";
                     type = "Warning";
                     shouldNotify = true;
                 }
                 else if (percentage >= 50 && percentage < 55)
                 {
                     title = "👀 Përditësim i Buxhetit";
-                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2}/{limit.LimitAmount:F2}).";
+                    message = $"Njoftim: Keni përdorur {percentage:0}% të buxhetit për kategorinë '{categoryName}' ({totalSpent:F2} {defaultCurrency}/{limit.LimitAmount:F2} {defaultCurrency}).";
                     type = "Info";
                     shouldNotify = true;
                 }
@@ -119,7 +124,7 @@ namespace FinanceTracker.Server.Repositories
             if (transaction.IsRecurring == true && type != "Critical")
             {
                 title = "Pagese e perseritshme";
-                message = $"🔄 Pagesa e perseritshme e {transaction.Amount} {transaction.Currency} u rregjistrua.";
+                message = $"🔄 Pagesa e perseritshme e {displayAmount:F2} {defaultCurrency} u rregjistrua.";
                 type = "Info";
                 shouldNotify = true;
             }

@@ -8,6 +8,7 @@ export interface ExpenseLimitStatus {
   month: number;
   year: number;
   isActive: boolean;
+  currency: string;
 }
 
 export interface SetLimitRequest {

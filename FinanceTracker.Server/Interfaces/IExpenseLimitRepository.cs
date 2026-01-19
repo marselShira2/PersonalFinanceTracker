@@ -10,5 +10,6 @@ namespace FinanceTracker.Server.Interfaces
         Task<bool> DeleteLimitAsync(int userId, int categoryId, int month, int year);
         Task<decimal> GetCategorySpentAsync(int userId, int categoryId, int month, int year);
         Task<bool> IsLimitActiveAsync(int userId, int categoryId, int month, int year);
+        Task<User?> GetUserByIdAsync(int userId);
     }
 }

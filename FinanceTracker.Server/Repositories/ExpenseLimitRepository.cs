@@ -104,7 +104,7 @@ namespace FinanceTracker.Server.Repositories
             return await _context.Transactions
                 .Where(x => x.UserId == userId && x.CategoryId == categoryId && x.Type == "expense" && 
                            x.Date >= effectiveStartDate && x.Date <= endDate)
-                .SumAsync(x => (decimal?)x.Amount) ?? 0;
+                .SumAsync(x => (decimal?)(x.AmountConverted ?? x.Amount)) ?? 0;
         }
 
         public async Task<bool> IsLimitActiveAsync(int userId, int categoryId, int month, int year)
@@ -113,6 +113,11 @@ namespace FinanceTracker.Server.Repositories
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.CategoryId == categoryId && x.Month == month && x.Year == year);
             
             return limit?.IsActive ?? false;
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
         }
     }
 }

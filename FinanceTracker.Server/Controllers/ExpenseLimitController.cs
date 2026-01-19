@@ -1,5 +1,6 @@
 using FinanceTracker.Server.Data.Dto;
 using FinanceTracker.Server.Interfaces;
+using FinanceTracker.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,10 +13,12 @@ namespace FinanceTracker.Server.Controllers
     public class ExpenseLimitController : ControllerBase
     {
         private readonly IExpenseLimitRepository _repo;
+        private readonly ICurrencyConversionService _currencyService;
 
-        public ExpenseLimitController(IExpenseLimitRepository repo)
+        public ExpenseLimitController(IExpenseLimitRepository repo, ICurrencyConversionService currencyService)
         {
             _repo = repo;
+            _currencyService = currencyService;
         }
 
         private int GetUserId()
@@ -36,7 +39,12 @@ namespace FinanceTracker.Server.Controllers
                 var month = dto.Month ?? DateTime.Now.Month;
                 var year = dto.Year ?? DateTime.Now.Year;
 
-                var result = await _repo.SetLimitAsync(dto.UserId, dto.CategoryId, dto.Amount, month, year);
+                // Get user's default currency and convert amount to USD for storage
+                var user = await _repo.GetUserByIdAsync(dto.UserId);
+                var userCurrency = user?.DefaultCurrency ?? "USD";
+                var amountInUSD = _currencyService.ConvertAmount(dto.Amount, userCurrency, "USD");
+
+                var result = await _repo.SetLimitAsync(dto.UserId, dto.CategoryId, amountInUSD, month, year);
                 return Ok(new { message = "Limit set successfully", data = result });
             }
             catch (Exception ex)
@@ -56,21 +64,29 @@ namespace FinanceTracker.Server.Controllers
                 var limit = await _repo.GetLimitAsync(userId, categoryId, targetMonth, targetYear);
                 if (limit == null) return NotFound("No limit set for this category.");
 
+                var user = await _repo.GetUserByIdAsync(userId);
+                var defaultCurrency = user?.DefaultCurrency ?? "USD";
+
                 var spent = await _repo.GetCategorySpentAsync(userId, categoryId, targetMonth, targetYear);
-                var remaining = limit.LimitAmount - spent;
-                var percentage = limit.LimitAmount > 0 ? (spent / limit.LimitAmount) * 100 : 0;
+                
+                // Convert limit amounts from USD to user's default currency
+                var convertedLimitAmount = _currencyService.ConvertAmount(limit.LimitAmount, "USD", defaultCurrency);
+                var convertedSpentAmount = spent; // Already converted in GetCategorySpentAsync
+                var remaining = convertedLimitAmount - convertedSpentAmount;
+                var percentage = convertedLimitAmount > 0 ? (convertedSpentAmount / convertedLimitAmount) * 100 : 0;
 
                 var statusDto = new LimitStatusDto
                 {
                     CategoryId = limit.CategoryId ?? 0,
                     CategoryName = limit.Category?.Name ?? "",
-                    LimitAmount = limit.LimitAmount,
-                    SpentAmount = spent,
+                    LimitAmount = convertedLimitAmount,
+                    SpentAmount = convertedSpentAmount,
                     RemainingAmount = remaining,
                     PercentageSpent = Math.Round(percentage, 1),
                     Month = targetMonth,
                     Year = targetYear,
-                    IsActive = limit.IsActive
+                    IsActive = limit.IsActive,
+                    Currency = defaultCurrency
                 };
 
                 return Ok(statusDto);
@@ -90,25 +106,32 @@ namespace FinanceTracker.Server.Controllers
                 var targetYear = year ?? DateTime.Now.Year;
 
                 var limits = await _repo.GetAllLimitsAsync(userId, targetMonth, targetYear);
+                var user = await _repo.GetUserByIdAsync(userId);
+                var defaultCurrency = user?.DefaultCurrency ?? "USD";
                 var statusList = new List<LimitStatusDto>();
 
                 foreach (var limit in limits)
                 {
                     var spent = await _repo.GetCategorySpentAsync(userId, limit.CategoryId ?? 0, targetMonth, targetYear);
-                    var remaining = limit.LimitAmount - spent;
-                    var percentage = limit.LimitAmount > 0 ? (spent / limit.LimitAmount) * 100 : 0;
+                    
+                    // Convert limit amounts from USD to user's default currency
+                    var convertedLimitAmount = _currencyService.ConvertAmount(limit.LimitAmount, "USD", defaultCurrency);
+                    var convertedSpentAmount = spent; // Already converted in GetCategorySpentAsync
+                    var remaining = convertedLimitAmount - convertedSpentAmount;
+                    var percentage = convertedLimitAmount > 0 ? (convertedSpentAmount / convertedLimitAmount) * 100 : 0;
 
                     statusList.Add(new LimitStatusDto
                     {
                         CategoryId = limit.CategoryId ?? 0,
                         CategoryName = limit.Category?.Name ?? "",
-                        LimitAmount = limit.LimitAmount,
-                        SpentAmount = spent,
+                        LimitAmount = convertedLimitAmount,
+                        SpentAmount = convertedSpentAmount,
                         RemainingAmount = remaining,
                         PercentageSpent = Math.Round(percentage, 1),
                         Month = targetMonth,
                         Year = targetYear,
-                        IsActive = limit.IsActive
+                        IsActive = limit.IsActive,
+                        Currency = defaultCurrency
                     });
                 }
 

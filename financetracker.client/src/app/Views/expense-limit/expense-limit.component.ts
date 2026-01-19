@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CategoryService, Category } from '../../services/categories/category.service';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-expense-limit',
@@ -19,6 +20,7 @@ export class ExpenseLimitComponent implements OnInit {
   loading = false;
   userId: number | null = null;
   editingLimit: ExpenseLimitStatus | null = null;
+  currentCurrency = 'USD';
 
   constructor(
     private fb: FormBuilder,
@@ -26,7 +28,8 @@ export class ExpenseLimitComponent implements OnInit {
     private categoryService: CategoryService,
     private messageService: MessageService,
     private authService: AuthService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private currencyService: CurrencyService
   ) {
     this.limitForm = this.fb.group({
       categoryId: ['', Validators.required],
@@ -42,9 +45,17 @@ export class ExpenseLimitComponent implements OnInit {
   ngOnInit() {
     this.getUserId();
     this.loadCategories();
+    this.loadCurrentCurrency();
     if (this.userId) {
       this.loadExpenseLimits();
     }
+  }
+
+  private loadCurrentCurrency() {
+    this.currencyService.currentCurrency$.subscribe(currency => {
+      this.currentCurrency = currency;
+    });
+    this.currencyService.initializeCurrency();
   }
 
   private getUserId() {
@@ -244,5 +255,9 @@ export class ExpenseLimitComponent implements OnInit {
 
   get amountControl() {
     return this.limitForm.get('amount');
+  }
+
+  getCurrencySymbol(currency?: string): string {
+    return this.currencyService.getCurrencySymbol(currency || this.currentCurrency);
   }
 }
